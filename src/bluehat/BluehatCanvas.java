@@ -20,6 +20,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable{
     private Graphics graphics;
     private Image imageSplash;
     private Image imageSplashBackground;
+    private Command exit, gamestart;
     
     public BluehatCanvas(String strTitle){
         super(true);
@@ -44,6 +45,10 @@ public class BluehatCanvas extends GameCanvas implements Runnable{
    
         graphics.setFont(fontSplash);
         graphics.drawString("A Hacker Adventure",60,125,0);
+        
+        //Create two Commands objects one to exit and one to enter the game.
+        exit = new Command("Exit",Command.EXIT,1);
+        gamestart = new Command("Start Game", Command.OK,2);
     }
         
     Image createImage(String strFileName){

@@ -9,6 +9,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javax.microedition.lcdui.*;
 import javax.microedition.lcdui.game.GameCanvas;
+import javax.microedition.lcdui.game.Sprite;
 
 /**
  *
@@ -26,6 +27,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private Command cmdStartHack;
     private Form form;
     private Display display;
+    private Sprite playerSprite;
+    private Image playerImage;
 
     public BluehatCanvas(String strTitle) {
         super(true);
@@ -36,21 +39,24 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         super(true);
         form = stform;
         display = start;
-        this.showContractScreen();
+        //this.showContractScreen();
+        runner = new Thread(this);
+        runner.start();
 
     }
 
     public void start() {
-        this.showContractScreen();
-        runner = new Thread(this);
-        runner.run();
+        
+        
     }
 
     public void run() {
-
-        clock = new BluehatTask();
-        gameClock = new Timer();
-        gameClock.schedule(clock, 0, 1000);
+        graphics = getGraphics();
+        this.showContractScreen();
+        
+        //clock = new BluehatTask();
+        //gameClock = new Timer();
+        //gameClock.schedule(clock, 0, 1000);
         while (true) {
             int keyState = getKeyStates();
             System.out.println("KeyState: " + keyState);
@@ -60,7 +66,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     private void showContractScreen() {
         //Setup the screen with the correct font type.
-        graphics = getGraphics();
+        
         Font fontSplash = Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD, Font.SIZE_LARGE);
         graphics.setFont(fontSplash);
 
@@ -79,11 +85,25 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void gamemazeScreen() {
-        //graphics.setColor(0x000000);
-        //graphics.setClip(0, 0, getWidth(), getHeight());
-        //graphics.fillRect(0, 0, getWidth(), getHeight());
-        graphics.setColor(100, 149, 237);
-        graphics.fillRect(0, 0, getWidth(), getHeight());
+        
+        //Clear the screen
+        clearScreen(graphics);
+        //Create the Sprite for the player avatar.
+        try{
+            playerImage = Image.createImage("/Player0.png");
+            playerSprite = new Sprite(playerImage,16,16);
+            playerSprite.defineReferencePixel(0, 0);
+            playerSprite.setPosition(10, 10);
+            playerSprite.paint(graphics);
+            
+        }catch(Exception ioe){
+            System.out.println("Unable to get the Player Image: " + ioe.toString());
+        }
+        
+     }
+    private void clearScreen(Graphics g){
+        g.setColor(0xFFFFFF);
+        g.fillRect(0, 0, getWidth(), getHeight());
     }
 
     Image createImage(String strFileName) {
@@ -106,20 +126,20 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     public void commandAction(Command cmd, Displayable display) {
         if (cmd == cmdStartHack) {
             System.out.println("start");
-            //this.repaint();
+            this.gamemazeScreen();
         }
 
     }
 
-    public void paint(Graphics g) {
+    //public void paint(Graphics g) {
         // get the dimensions of the screen:
-        int width = getWidth();
-        int height = getHeight();
+        //int width = getWidth();
+        //int height = getHeight();
         // clear the screen (paint it white):
-        g.setColor(0xffffff);
+        //g.setColor(0xffffff);
     // The first two args give the coordinates of the top 
         // left corner of the rectangle.  (0,0) corresponds 
         // to the top left corner of the screen.
-        g.fillRect(0, 0, width, height);
-    }
+       // g.fillRect(0, 0, width, height);
+    //}
 }

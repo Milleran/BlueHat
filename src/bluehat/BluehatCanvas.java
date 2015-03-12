@@ -5,6 +5,7 @@
  */
 package bluehat;
 
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.microedition.lcdui.*;
@@ -31,6 +32,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private Sprite playerSprite;
     private Image playerImage;
     private TiledLayer blueHatBackground;
+    private int player_x_pos = 0;
+    private int player_y_pos = 0;
 
     static int TILE_HEIGHT_WIDTH = 16;
 
@@ -51,19 +54,42 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     public void run() {
         graphics = getGraphics();
         this.showContractScreen();
+        try {
+            playerImage = Image.createImage("/Player0.png");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
 
+        playerSprite = new Sprite(playerImage, 16, 16);
+        playerSprite.defineReferencePixel(player_x_pos, player_y_pos);
+        
+        playerSprite.paint(graphics);
         //clock = new BluehatTask();
         //gameClock = new Timer();
         //gameClock.schedule(clock, 0, 1000);
-        while (true) {
-            int keyState = getKeyStates();
-            System.out.println("KeyState: " + keyState);
-            if (keyState == FIRE_PRESSED) {
-                this.repaint();
-                clearScreen(graphics);
-
-                gamemazeScreen();
-            }
+        while (true){
+                  int keyState = this.getKeyStates();
+                  if ((keyState & UP_PRESSED) != 0) {
+                        player_y_pos--;
+                        //spriteA.setTransform(Sprite.TRANS_NONE);
+                  }else if ((keyState & RIGHT_PRESSED) != 0){
+                        player_x_pos++;
+                        //spriteA.setTransform(Sprite.TRANS_ROT90);
+                  }else if ((keyState & LEFT_PRESSED) != 0){
+                        player_x_pos--;
+                        //spriteA.setTransform(Sprite.TRANS_ROT270 );
+                  }else if ((keyState & DOWN_PRESSED) != 0){
+                        player_y_pos++;
+                        //spriteA.setTransform(spriteA.TRANS_MIRROR_ROT180);
+                  }
+                  
+                  playerSprite.setPosition(player_x_pos, player_y_pos);
+                  
+                  this.clearScreen(graphics);
+                  playerSprite.paint(graphics);
+                  //blueHatBackground.paint(graphics);
+                  
+                  
         }
 
     }
@@ -106,14 +132,10 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             
             blueHatBackground.paint(graphics);
             
-            playerImage = Image.createImage("/Player0.png");
-            playerSprite = new Sprite(playerImage, 16, 16);
-            playerSprite.defineReferencePixel(0, 0);
-            playerSprite.setPosition(getWidth() / 2, getHeight() / 2);
-            playerSprite.paint(graphics);
 
+            
         } catch (Exception ioe) {
-            System.out.println("Unable to get the Player Image: " + ioe.toString());
+            System.out.println("Unable to get the background Image: " + ioe.toString());
         }
 
     }

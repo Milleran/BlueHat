@@ -24,7 +24,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private Image imageSplashBackground;
     private Thread runner;
     private Timer gameClock;
-    private BluehatTask clock;
+    //private BluehatTask clock;
     private boolean endLevel = true;
     private Command cmdStartHack;
     private Form form;
@@ -33,7 +33,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private Image playerImage;
     private TiledLayer blueHatBackground;
     private int player_x_pos = 0;
-    private int player_y_pos = 0;
+    private int player_y_pos = 16;
 
     static int TILE_HEIGHT_WIDTH = 16;
 
@@ -57,40 +57,66 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             ex.printStackTrace();
         }
 
-        runner = new Thread(this);
-        runner.start();
+
     }
 
     public void run() {
         graphics = getGraphics();
-
+        //create the game background and the network maze.
+        gamemazeScreen();
+        
+        //Place the player at the starting position.
         playerSprite.defineReferencePixel(player_x_pos, player_y_pos);
        
-        //clock = new BluehatTask();
-        //gameClock = new Timer();
-        //gameClock.schedule(clock, 0, 1000);
+        //Run through the endless loop taking in the users input from the phone.
         while (true){
                   int keyState = this.getKeyStates();
                   if ((keyState & UP_PRESSED) != 0) {
-                        player_y_pos--;
+                        if(!detectWallTileCollision()){
+                            player_y_pos--;
+                            System.out.println("UP"+player_y_pos);
+                        };
                         //spriteA.setTransform(Sprite.TRANS_NONE);
                   }else if ((keyState & RIGHT_PRESSED) != 0){
-                        player_x_pos++;
+                        if(!detectWallTileCollision()){
+                            player_x_pos++;
+                            System.out.println("RIGHT"+player_x_pos);
+                        }
                         //spriteA.setTransform(Sprite.TRANS_ROT90);
                   }else if ((keyState & LEFT_PRESSED) != 0){
-                        player_x_pos--;
+                        if(!detectWallTileCollision()){
+                            player_x_pos--;
+                            System.out.println("LEFT"+player_x_pos);
+                        }
                         //spriteA.setTransform(Sprite.TRANS_ROT270 );
                   }else if ((keyState & DOWN_PRESSED) != 0){
-                        player_y_pos++;
+                        if(!detectWallTileCollision()){
+                            player_y_pos++;
+                            System.out.println("DOWN"+player_y_pos);
+                        }
                         //spriteA.setTransform(spriteA.TRANS_MIRROR_ROT180);
                   }
                   
-                  playerSprite.setPosition(player_x_pos, player_y_pos);
-                  
-                  this.clearScreen(graphics);
-                  
-                  blueHatBackground.paint(graphics);
-                  playerSprite.paint(graphics);
+            this.clearScreen(graphics);
+            
+            //repaint the background
+            blueHatBackground.paint(graphics);
+            //set the player at the new location on the screen
+            playerSprite.setPosition(player_x_pos, player_y_pos); 
+            
+            playerSprite.paint(graphics);
+            
+
+            
+            //flush the graphics for the next iteration of the loop.
+            flushGraphics();
+            
+            //Put the thread asleep for 20 miliseconds.
+            try{
+                Thread.currentThread().sleep(20);
+            }catch(InterruptedException x){
+                
+            }
                   
         }
 
@@ -121,7 +147,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         //Create the Sprite for the player avatar.
         try {
             //Create the background with a tiledlayer
-            Image background = Image.createImage("/background_lightgrey.png");
+            Image background = Image.createImage("/Wall.png");
             
             int cols = getWidth() / TILE_HEIGHT_WIDTH;
             int rows = getHeight() / TILE_HEIGHT_WIDTH;
@@ -132,7 +158,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
              
             drawSelectedTiles(blueHatBackground, false, tileCount);
             
-            blueHatBackground.paint(graphics);
+            //blueHatBackground.paint(graphics);
             
 
             
@@ -158,44 +184,42 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         return tempImage;
     }
 
-    public class BluehatTask extends TimerTask {
-
-        public void run() {
-            //move the network detection objects.
-        }
-    }
-
     public void commandAction(Command cmd, Displayable display) {
         if (cmd == cmdStartHack) {
             System.out.println("start");
             this.repaint();
             clearScreen(graphics);
-
-            gamemazeScreen();
+            
+            runner = new Thread(this);
+            runner.start();
+            
         }
 
     }
-
+    private boolean detectWallTileCollision(){
+        
+        if(playerSprite.collidesWith(blueHatBackground, true)){
+            System.out.print("Hit a wall");
+            //must not allow the user to go into the wall of the network maze.
+            return true;
+            
+        }
+        return false;
+    }
     private void drawSelectedTiles(TiledLayer tLayer,boolean seeAll, int maxScrTiles) {
-        int srcTileNum = 1;
+        int[] mazeWalls = mazeWalls();
+        int mazeCellNumber = 0;
         for (int colcnt = 0; colcnt < tLayer.getColumns(); colcnt++) {
             for (int rowcnt = 0; rowcnt < tLayer.getRows(); rowcnt++) {
-                if (seeAll == true) {
-                    srcTileNum++;
-                }
-                if (srcTileNum > maxScrTiles) {
-                    srcTileNum = 0;
-                }
-                blueHatBackground.setCell(colcnt, rowcnt, srcTileNum);
+                blueHatBackground.setCell(colcnt, rowcnt, mazeWalls[mazeCellNumber]+9);
+                mazeCellNumber++; //move to the next cell
             }
         }
     }
+    
+    private int[] mazeWalls(){
+        int[] maze = {1,0,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,1,0,1,1,0,0,1,1,0,0,0,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,0,0,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,0,1,1,0,1,0,0,1,1,1,1,1,1,1,1,1,0,1,1,0,1,0,0,0,1,1,1,1,1,1,0,1,0,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1,0,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,0,1,0,1,1,0,1,1,0,1,0,0,1,1,0,0,0,1,1,1,0,0,0,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,1,1,0,1,0,1,0,0,0,1,0,1,0,0,0,0,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+        return maze;
+    }
 
-    //public void paint(Graphics g) {
-    // get the dimensions of the screen:
-    // clear the screen (paint it white):
-    //this.clearScreen(g);
-    //this.showContractScreen();
-    //this.gamemazeScreen();
-    //}
 }

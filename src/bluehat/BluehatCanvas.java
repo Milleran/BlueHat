@@ -46,24 +46,26 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         super(true);
         form = stform;
         display = start;
-        //this.showContractScreen();
+        //Create the contract screen/game objection screen.
+        this.showContractScreen();
+        
+        //Create the player sprite that will be used in the game.
+        try {
+            playerImage = Image.createImage("/Player0.png");
+            playerSprite = new Sprite(playerImage, 16, 16);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
         runner = new Thread(this);
         runner.start();
     }
 
     public void run() {
         graphics = getGraphics();
-        this.showContractScreen();
-        try {
-            playerImage = Image.createImage("/Player0.png");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
 
-        playerSprite = new Sprite(playerImage, 16, 16);
         playerSprite.defineReferencePixel(player_x_pos, player_y_pos);
-        
-        playerSprite.paint(graphics);
+       
         //clock = new BluehatTask();
         //gameClock = new Timer();
         //gameClock.schedule(clock, 0, 1000);
@@ -86,9 +88,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                   playerSprite.setPosition(player_x_pos, player_y_pos);
                   
                   this.clearScreen(graphics);
-                  playerSprite.paint(graphics);
-                  //blueHatBackground.paint(graphics);
                   
+                  blueHatBackground.paint(graphics);
+                  playerSprite.paint(graphics);
                   
         }
 
@@ -96,7 +98,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     private void showContractScreen() {
         //Setup the screen with the correct font type.
-
+        graphics = getGraphics();
         Font fontSplash = Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD, Font.SIZE_LARGE);
         graphics.setFont(fontSplash);
 

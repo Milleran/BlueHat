@@ -36,7 +36,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private int player_y_pos = 16;
 
     static int TILE_HEIGHT_WIDTH = 16;
-
+    static int WALL_IMPACT = 2;
     public BluehatCanvas(String strTitle) {
         super(true);
         setTitle(strTitle);
@@ -72,28 +72,43 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         while (true){
                   int keyState = this.getKeyStates();
                   if ((keyState & UP_PRESSED) != 0) {
-                        if(!detectWallTileCollision()){
+                        if(detectWallTileCollision()){
+                            player_y_pos+=WALL_IMPACT;
+                            
+                        }else{
                             player_y_pos--;
-                            System.out.println("UP"+player_y_pos);
-                        };
+                        }
+                        System.out.println("UP "+player_y_pos);
                         //spriteA.setTransform(Sprite.TRANS_NONE);
                   }else if ((keyState & RIGHT_PRESSED) != 0){
-                        if(!detectWallTileCollision()){
+                        
+                        if(detectWallTileCollision()){
+                            player_x_pos-=WALL_IMPACT;
+                                                     
+                        }else{
                             player_x_pos++;
-                            System.out.println("RIGHT"+player_x_pos);
                         }
+                        System.out.println("RIGHT "+player_x_pos);
                         //spriteA.setTransform(Sprite.TRANS_ROT90);
                   }else if ((keyState & LEFT_PRESSED) != 0){
-                        if(!detectWallTileCollision()){
+                        
+                        if(detectWallTileCollision()){
+                            player_x_pos+=WALL_IMPACT;
+                            
+                        }else{
                             player_x_pos--;
-                            System.out.println("LEFT"+player_x_pos);
                         }
+                        System.out.println("LEFT "+player_x_pos);
                         //spriteA.setTransform(Sprite.TRANS_ROT270 );
                   }else if ((keyState & DOWN_PRESSED) != 0){
-                        if(!detectWallTileCollision()){
+                        
+                        if(detectWallTileCollision()){
+                            player_y_pos-=WALL_IMPACT;
+                            
+                        }else{
                             player_y_pos++;
-                            System.out.println("DOWN"+player_y_pos);
                         }
+                        System.out.println("DOWN "+player_y_pos);
                         //spriteA.setTransform(spriteA.TRANS_MIRROR_ROT180);
                   }
                   
@@ -209,8 +224,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private void drawSelectedTiles(TiledLayer tLayer,boolean seeAll, int maxScrTiles) {
         int[] mazeWalls = mazeWalls();
         int mazeCellNumber = 0;
-        for (int colcnt = 0; colcnt < tLayer.getColumns(); colcnt++) {
-            for (int rowcnt = 0; rowcnt < tLayer.getRows(); rowcnt++) {
+        for (int rowcnt = 0; rowcnt < tLayer.getRows(); rowcnt++){
+         for (int colcnt = 0; colcnt < tLayer.getColumns(); colcnt++)    {
                 blueHatBackground.setCell(colcnt, rowcnt, mazeWalls[mazeCellNumber]+9);
                 mazeCellNumber++; //move to the next cell
             }
@@ -218,7 +233,28 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
     
     private int[] mazeWalls(){
-        int[] maze = {1,0,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,1,0,1,1,0,0,1,1,0,0,0,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,0,0,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,0,1,1,0,1,0,0,1,1,1,1,1,1,1,1,1,0,1,1,0,1,0,0,0,1,1,1,1,1,1,0,1,0,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1,0,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,0,1,0,1,1,0,1,1,0,1,0,0,1,1,0,0,0,1,1,1,0,0,0,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,1,1,0,1,0,1,0,0,0,1,0,1,0,0,0,0,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+        int[] maze = {
+                        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+                        0,0,0,0,0,1,0,1,1,1,1,1,0,0,1,
+                        1,1,1,1,0,0,0,0,1,1,1,1,0,1,1,
+                        1,1,1,1,1,1,1,0,1,1,0,0,0,1,1,
+                        1,1,1,1,1,1,1,0,0,1,0,1,0,1,1,
+                        1,0,0,0,1,1,1,0,1,1,0,1,0,0,1,
+                        1,0,0,0,1,1,1,0,0,0,0,1,1,1,1,
+                        1,1,1,0,0,0,0,0,0,0,0,1,0,0,1,
+                        1,1,0,0,0,0,1,1,1,1,0,1,0,0,1,
+                        1,0,1,1,1,1,1,1,1,1,0,1,0,1,1,
+                        1,0,1,1,1,1,1,1,0,0,0,0,0,1,1,
+                        1,0,0,0,1,1,1,1,0,1,1,1,1,1,1,
+                        1,1,0,0,1,1,1,1,0,1,1,1,1,1,1,
+                        1,1,1,0,1,1,0,1,0,1,1,1,1,0,1,
+                        1,0,0,0,0,0,0,0,0,0,1,1,1,0,1,
+                        1,1,1,1,1,0,1,1,1,0,1,1,1,0,1,
+                        1,1,1,1,1,0,0,0,0,0,1,1,0,0,1,
+                        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+                        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                        
+                    };
         return maze;
     }
 

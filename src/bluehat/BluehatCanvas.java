@@ -30,7 +30,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private Form form;
     private Display display;
     private Sprite playerSprite;
+    private Sprite serverSprite;
     private Image playerImage;
+    private Image playerSpritePage;
+    private Image serverSpritePage;
+    private Image serverImage;
     private TiledLayer blueHatBackground;
     private int player_x_pos = 0;
     private int player_y_pos = 16;
@@ -39,6 +43,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     static int TILE_HEIGHT_WIDTH = 16;
     static int WALL_IMPACT = 1;
+    static int WALL_TILE = 378;
+    static int FLOOR_TILE = 9;
 
     public BluehatCanvas(String strTitle) {
         super(true);
@@ -54,8 +60,15 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         //Create the player sprite that will be used in the game.
         try {
-            playerImage = Image.createImage("/Player0.png");
+            playerSpritePage = Image.createImage("/Player0.png");
+            playerImage = Image.createImage(playerSpritePage, 96, 48, 16, 16, Sprite.TRANS_NONE);
             playerSprite = new Sprite(playerImage, 16, 16);
+            
+            serverSpritePage = Image.createImage("/Server.png");
+            serverSprite = new Sprite(serverSpritePage,16,16);
+            int[] serverFrameSeq = {0,1,2};
+            serverSprite.setFrameSequence(serverFrameSeq);
+        
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -69,7 +82,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         //Place the player at the starting position.
         playerSprite.defineReferencePixel(player_x_pos, player_y_pos);
-
+        
+        
         //Run through the endless loop taking in the users input from the phone.
         while (true) {
             int keyState = this.getKeyStates();
@@ -113,6 +127,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             playerSprite.paint(graphics);
             
+            serverSprite.setPosition(16, 16);
+            serverSprite.nextFrame();
+            serverSprite.paint(graphics);
             //Check for wall collisions, if collision occurs then place them
             //back at the last known good x,y
             if (detectWallTileCollision()) {
@@ -223,7 +240,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         int mazeCellNumber = 0;
         for (int rowcnt = 0; rowcnt < tLayer.getRows(); rowcnt++) {
             for (int colcnt = 0; colcnt < tLayer.getColumns(); colcnt++) {
-                blueHatBackground.setCell(colcnt, rowcnt, mazeWalls[mazeCellNumber] + 9);
+                blueHatBackground.setCell(colcnt, rowcnt, mazeWalls[mazeCellNumber]);
                 mazeCellNumber++; //move to the next cell
             }
         }
@@ -231,25 +248,25 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     private int[] mazeWalls() {
         int[] maze = {
-            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-            0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1,
-            1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1,
-            1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1,
-            1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1,
-            1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1,
-            1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1,
-            1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1,
-            1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1,
-            1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1,
-            1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1,
-            1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
-            1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
-            1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1,
-            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-            1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1,
-            1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+            WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE,
+            FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE,
+            WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE,
+            WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE,
+            WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE,
+            WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE,
+            WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE,
+            WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE,
+            WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE,
+            WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE,
+            WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE,
+            WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE,
+            WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE,
+            WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE,
+            WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE,
+            WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE,
+            WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE,
+            WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE,
+            WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE
 
         };
         return maze;

@@ -34,9 +34,12 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private TiledLayer blueHatBackground;
     private int player_x_pos = 0;
     private int player_y_pos = 16;
+    private int player_x_pos_last = 0;
+    private int player_y_pos_last = 16;
 
     static int TILE_HEIGHT_WIDTH = 16;
-    static int WALL_IMPACT = 2;
+    static int WALL_IMPACT = 1;
+
     public BluehatCanvas(String strTitle) {
         super(true);
         setTitle(strTitle);
@@ -48,7 +51,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         display = start;
         //Create the contract screen/game objection screen.
         this.showContractScreen();
-        
+
         //Create the player sprite that will be used in the game.
         try {
             playerImage = Image.createImage("/Player0.png");
@@ -57,82 +60,77 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             ex.printStackTrace();
         }
 
-
     }
 
     public void run() {
         graphics = getGraphics();
         //create the game background and the network maze.
         gamemazeScreen();
-        
+
         //Place the player at the starting position.
         playerSprite.defineReferencePixel(player_x_pos, player_y_pos);
-       
+
         //Run through the endless loop taking in the users input from the phone.
-        while (true){
-                  int keyState = this.getKeyStates();
-                  if ((keyState & UP_PRESSED) != 0) {
-                        if(detectWallTileCollision()){
-                            player_y_pos+=WALL_IMPACT;
-                            
-                        }else{
-                            player_y_pos--;
-                        }
-                        System.out.println("UP "+player_y_pos);
-                        //spriteA.setTransform(Sprite.TRANS_NONE);
-                  }else if ((keyState & RIGHT_PRESSED) != 0){
-                        
-                        if(detectWallTileCollision()){
-                            player_x_pos-=WALL_IMPACT;
-                                                     
-                        }else{
-                            player_x_pos++;
-                        }
-                        System.out.println("RIGHT "+player_x_pos);
-                        //spriteA.setTransform(Sprite.TRANS_ROT90);
-                  }else if ((keyState & LEFT_PRESSED) != 0){
-                        
-                        if(detectWallTileCollision()){
-                            player_x_pos+=WALL_IMPACT;
-                            
-                        }else{
-                            player_x_pos--;
-                        }
-                        System.out.println("LEFT "+player_x_pos);
-                        //spriteA.setTransform(Sprite.TRANS_ROT270 );
-                  }else if ((keyState & DOWN_PRESSED) != 0){
-                        
-                        if(detectWallTileCollision()){
-                            player_y_pos-=WALL_IMPACT;
-                            
-                        }else{
-                            player_y_pos++;
-                        }
-                        System.out.println("DOWN "+player_y_pos);
-                        //spriteA.setTransform(spriteA.TRANS_MIRROR_ROT180);
-                  }
-                  
+        while (true) {
+            int keyState = this.getKeyStates();
+            if ((keyState & UP_PRESSED) != 0) {
+
+                player_y_pos_last = player_y_pos;
+                player_y_pos--;
+
+                System.out.println("X,Y: " + player_x_pos + "," + player_y_pos);
+                //spriteA.setTransform(Sprite.TRANS_NONE);
+            } else if ((keyState & RIGHT_PRESSED) != 0) {
+
+                player_x_pos_last = player_x_pos;
+                player_x_pos++;
+
+                System.out.println("X,Y: " + player_x_pos + "," + player_y_pos);
+                //spriteA.setTransform(Sprite.TRANS_ROT90);
+            } else if ((keyState & LEFT_PRESSED) != 0) {
+
+                player_x_pos_last = player_x_pos;
+                player_x_pos--;
+
+                System.out.println("X,Y: " + player_x_pos + "," + player_y_pos);
+                //spriteA.setTransform(Sprite.TRANS_ROT270 );
+            } else if ((keyState & DOWN_PRESSED) != 0) {
+
+                player_y_pos_last = player_y_pos;
+                player_y_pos++;
+
+                System.out.println("X,Y: " + player_x_pos + "," + player_y_pos);
+                //spriteA.setTransform(spriteA.TRANS_MIRROR_ROT180);
+            }
+
             this.clearScreen(graphics);
-            
+
             //repaint the background
             blueHatBackground.paint(graphics);
             //set the player at the new location on the screen
-            playerSprite.setPosition(player_x_pos, player_y_pos); 
-            
+ 
+            playerSprite.setPosition(player_x_pos, player_y_pos);
+
             playerSprite.paint(graphics);
             
+            //Check for wall collisions, if collision occurs then place them
+            //back at the last known good x,y
+            if (detectWallTileCollision()) {
+                player_x_pos = player_x_pos_last;
+                player_y_pos = player_y_pos_last;
+                playerSprite.paint(graphics);
+            }
 
-            
             //flush the graphics for the next iteration of the loop.
             flushGraphics();
-            
+
             //Put the thread asleep for 20 miliseconds.
-            try{
-                Thread.currentThread().sleep(20);
-            }catch(InterruptedException x){
-                
+            try {
+                Thread.currentThread().sleep(10);
+            } catch (InterruptedException x) {
+
             }
-                  
+
         }
 
     }
@@ -163,20 +161,17 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         try {
             //Create the background with a tiledlayer
             Image background = Image.createImage("/Wall.png");
-            
+
             int cols = getWidth() / TILE_HEIGHT_WIDTH;
             int rows = getHeight() / TILE_HEIGHT_WIDTH;
 
-            blueHatBackground = new TiledLayer(cols, rows,background, TILE_HEIGHT_WIDTH, TILE_HEIGHT_WIDTH);
-            
-            int tileCount = background.getWidth()/TILE_HEIGHT_WIDTH;
-             
-            drawSelectedTiles(blueHatBackground, false, tileCount);
-            
-            //blueHatBackground.paint(graphics);
-            
+            blueHatBackground = new TiledLayer(cols, rows, background, TILE_HEIGHT_WIDTH, TILE_HEIGHT_WIDTH);
 
-            
+            int tileCount = background.getWidth() / TILE_HEIGHT_WIDTH;
+
+            drawSelectedTiles(blueHatBackground, false, tileCount);
+
+            //blueHatBackground.paint(graphics);
         } catch (Exception ioe) {
             System.out.println("Unable to get the background Image: " + ioe.toString());
         }
@@ -204,57 +199,59 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             System.out.println("start");
             this.repaint();
             clearScreen(graphics);
-            
+
             runner = new Thread(this);
             runner.start();
-            
+
         }
 
     }
-    private boolean detectWallTileCollision(){
-        
-        if(playerSprite.collidesWith(blueHatBackground, true)){
+
+    private boolean detectWallTileCollision() {
+
+        if (playerSprite.collidesWith(blueHatBackground, true)) {
             System.out.print("Hit a wall");
             //must not allow the user to go into the wall of the network maze.
             return true;
-            
         }
         return false;
+
     }
-    private void drawSelectedTiles(TiledLayer tLayer,boolean seeAll, int maxScrTiles) {
+
+    private void drawSelectedTiles(TiledLayer tLayer, boolean seeAll, int maxScrTiles) {
         int[] mazeWalls = mazeWalls();
         int mazeCellNumber = 0;
-        for (int rowcnt = 0; rowcnt < tLayer.getRows(); rowcnt++){
-         for (int colcnt = 0; colcnt < tLayer.getColumns(); colcnt++)    {
-                blueHatBackground.setCell(colcnt, rowcnt, mazeWalls[mazeCellNumber]+9);
+        for (int rowcnt = 0; rowcnt < tLayer.getRows(); rowcnt++) {
+            for (int colcnt = 0; colcnt < tLayer.getColumns(); colcnt++) {
+                blueHatBackground.setCell(colcnt, rowcnt, mazeWalls[mazeCellNumber] + 9);
                 mazeCellNumber++; //move to the next cell
             }
         }
     }
-    
-    private int[] mazeWalls(){
+
+    private int[] mazeWalls() {
         int[] maze = {
-                        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-                        0,0,0,0,0,1,0,1,1,1,1,1,0,0,1,
-                        1,1,1,1,0,0,0,0,1,1,1,1,0,1,1,
-                        1,1,1,1,1,1,1,0,1,1,0,0,0,1,1,
-                        1,1,1,1,1,1,1,0,0,1,0,1,0,1,1,
-                        1,0,0,0,1,1,1,0,1,1,0,1,0,0,1,
-                        1,0,0,0,1,1,1,0,0,0,0,1,1,1,1,
-                        1,1,1,0,0,0,0,0,0,0,0,1,0,0,1,
-                        1,1,0,0,0,0,1,1,1,1,0,1,0,0,1,
-                        1,0,1,1,1,1,1,1,1,1,0,1,0,1,1,
-                        1,0,1,1,1,1,1,1,0,0,0,0,0,1,1,
-                        1,0,0,0,1,1,1,1,0,1,1,1,1,1,1,
-                        1,1,0,0,1,1,1,1,0,1,1,1,1,1,1,
-                        1,1,1,0,1,1,0,1,0,1,1,1,1,0,1,
-                        1,0,0,0,0,0,0,0,0,0,1,1,1,0,1,
-                        1,1,1,1,1,0,1,1,1,0,1,1,1,0,1,
-                        1,1,1,1,1,0,0,0,0,0,1,1,0,0,1,
-                        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-                        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-                        
-                    };
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1,
+            1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1,
+            1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1,
+            1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1,
+            1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1,
+            1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1,
+            1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1,
+            1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1,
+            1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+            1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
+            1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1,
+            1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+
+        };
         return maze;
     }
 

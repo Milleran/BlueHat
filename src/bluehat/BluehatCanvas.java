@@ -6,6 +6,7 @@
 package bluehat;
 
 import java.io.IOException;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.microedition.lcdui.*;
@@ -101,6 +102,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         
         //Place the agent at the starting position.
         ndiSprite.defineReferencePixel(176, 208);
+        ndiSprite.setPosition(176, 208);
         
         
         //Run through the endless loop taking in the users input from the phone.
@@ -150,7 +152,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             serverSprite.nextFrame();
             serverSprite.paint(graphics);
             
-            ndiSprite.setPosition(ndiSprite.getX()+1, ndiSprite.getY());
+            int[] intAgentMove = randomAgentMovement(ndiSprite.getX(), ndiSprite.getY());
+            ndiSprite.setPosition(intAgentMove[0], intAgentMove[1]);
             ndiSprite.nextFrame();
             ndiSprite.paint(graphics);
             
@@ -354,6 +357,32 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         };
         return maze;
+    }
+    
+    private int[] randomAgentMovement(int current_x,int current_y){
+        
+        //Where is the player Sprite?
+        //determine the direction UP,DOWN,LEFT,RIGHT
+        Random rdmDirection = new Random(3);
+        int intRandomDirection = rdmDirection.nextInt();
+        if ((intRandomDirection) == 0) {
+
+                current_y--;
+                
+            } else if ((intRandomDirection) == 3) {
+
+                current_x++;
+             
+            } else if ((intRandomDirection) == 2) {
+
+                current_x--;
+
+            } else if ((intRandomDirection) == 1) {
+
+                current_y++;
+            }
+        int intAgentPosition[]={current_x,current_y};
+        return intAgentPosition;
     }
 
 }

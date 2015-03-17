@@ -27,24 +27,33 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     //private BluehatTask clock;
     private boolean endLevel = true;
     private Command cmdStartHack;
+    private Command cmdEndHack;
     private Form form;
     private Display display;
+    
     private Sprite playerSprite;
     private Sprite serverSprite;
     private Image playerImage;
     private Image playerSpritePage;
     private Image serverSpritePage;
-    private Image serverImage;
+    private Image ndiSpritePage;
+    private Sprite ndiSprite;
     private TiledLayer blueHatBackground;
+    
     private int player_x_pos = 0;
     private int player_y_pos = 16;
     private int player_x_pos_last = 0;
     private int player_y_pos_last = 16;
 
+    private boolean player_has_objective = false;
+    private boolean run_game = true;
+    
     static int TILE_HEIGHT_WIDTH = 16;
     static int WALL_IMPACT = 1;
     static int WALL_TILE = 378;
     static int FLOOR_TILE = 9;
+    
+    
 
     public BluehatCanvas(String strTitle) {
         super(true);
@@ -68,6 +77,13 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             serverSprite = new Sprite(serverSpritePage,16,16);
             int[] serverFrameSeq = {0,1,2};
             serverSprite.setFrameSequence(serverFrameSeq);
+            
+            //Create the network intrution detection agents.
+            ndiSpritePage = Image.createImage("AgentSmith.png");
+            ndiSprite = new Sprite(ndiSpritePage,16,16);
+            int[] ndiFrameSeq = {0,1,2};
+            ndiSprite.setFrameSequence(ndiFrameSeq);
+        
         
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -83,9 +99,12 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         //Place the player at the starting position.
         playerSprite.defineReferencePixel(player_x_pos, player_y_pos);
         
+        //Place the agent at the starting position.
+        ndiSprite.defineReferencePixel(176, 208);
+        
         
         //Run through the endless loop taking in the users input from the phone.
-        while (true) {
+        while (run_game) {
             int keyState = this.getKeyStates();
             if ((keyState & UP_PRESSED) != 0) {
 
@@ -127,15 +146,41 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             playerSprite.paint(graphics);
             
-            serverSprite.setPosition(16, 16);
+            serverSprite.setPosition(192, 208);
             serverSprite.nextFrame();
             serverSprite.paint(graphics);
+            
+            ndiSprite.setPosition(ndiSprite.getX()+1, ndiSprite.getY());
+            ndiSprite.nextFrame();
+            ndiSprite.paint(graphics);
+            
             //Check for wall collisions, if collision occurs then place them
             //back at the last known good x,y
             if (detectWallTileCollision()) {
                 player_x_pos = player_x_pos_last;
                 player_y_pos = player_y_pos_last;
                 playerSprite.paint(graphics);
+            }
+            
+            if(serverSprite.collidesWith(playerSprite, true)){
+                serverSprite.setVisible(false);
+                player_has_objective = true;
+            }
+            
+            if (detectPlayerExitMaze()){
+                if(player_has_objective == true){
+                    showSuccessScreen();
+                }else{
+                    Font gameFont = Font.getFont(Font.FACE_SYSTEM,Font.STYLE_BOLD,Font.SIZE_LARGE);
+                    
+                    graphics.setColor(0);
+                    graphics.setFont(gameFont);
+                    graphics.drawString("Empty Handed!", 0,288,0);
+                    
+                    player_x_pos = player_x_pos_last;
+                    player_y_pos = player_y_pos_last;
+                    playerSprite.paint(graphics);
+                }
             }
 
             //flush the graphics for the next iteration of the loop.
@@ -155,7 +200,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private void showContractScreen() {
         //Setup the screen with the correct font type.
         graphics = getGraphics();
-        Font fontSplash = Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD, Font.SIZE_LARGE);
+        Font fontSplash = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_LARGE);
         graphics.setFont(fontSplash);
 
         graphics.drawString("Contract", 0, 0, 0);
@@ -170,6 +215,33 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         this.addCommand(cmdStartHack);
         this.setCommandListener(this);
 
+    }
+    
+    private void showSuccessScreen(){
+        
+        //Erase GameMaze Screen
+        clearScreen(graphics);
+        //Setup the screen with the correct font type.
+        
+        graphics = getGraphics();
+        Font fontSplash = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_LARGE);
+        graphics.setFont(fontSplash);
+
+        graphics.drawString("Success!!!!", 0, 0, 0);
+
+        String strSuccess = "You have retrieved the document with the "
+                + "specications from our servers. "
+                + "Our IT security group will have to go through the data and "
+                + "develop a strong defense against hackers.";
+        
+        
+
+        BluehatUtil.drawMultilineString(graphics, fontSplash, strSuccess, 5, getHeight() / 8, 0, 225);
+        
+        //Add a exit game command
+        cmdEndHack = new Command("Exit", Command.OK, 1);
+        this.addCommand(cmdEndHack);
+        this.setCommandListener(this);
     }
 
     private void gamemazeScreen() {
@@ -214,12 +286,17 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     public void commandAction(Command cmd, Displayable display) {
         if (cmd == cmdStartHack) {
             System.out.println("start");
+            this.removeCommand(cmd);
             this.repaint();
             clearScreen(graphics);
 
             runner = new Thread(this);
             runner.start();
 
+        }
+        if (cmd == cmdEndHack){
+            System.out.println("End");
+            run_game = false;
         }
 
     }
@@ -233,6 +310,13 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         }
         return false;
 
+    }
+    
+    private boolean detectPlayerExitMaze(){
+        if(playerSprite.getX()<=0){
+            return true;
+        }
+      return false;
     }
 
     private void drawSelectedTiles(TiledLayer tLayer, boolean seeAll, int maxScrTiles) {

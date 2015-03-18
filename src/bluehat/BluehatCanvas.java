@@ -104,6 +104,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         ndiSprite.defineReferencePixel(176, 208);
         ndiSprite.setPosition(176, 208);
         
+        //varible to slow down the frame rate 
+        int animationFrameRate = 0;
         
         //Run through the endless loop taking in the users input from the phone.
         while (run_game) {
@@ -148,14 +150,24 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             playerSprite.paint(graphics);
             
+            //paint the server with a reduced framerate.
             serverSprite.setPosition(192, 208);
-            serverSprite.nextFrame();
+            animationFrameRate ++;
+            if(animationFrameRate/10 == 1){
+                serverSprite.nextFrame();
+            }
             serverSprite.paint(graphics);
             
             int[] intAgentMove = randomAgentMovement(ndiSprite.getX(), ndiSprite.getY());
             ndiSprite.setPosition(intAgentMove[0], intAgentMove[1]);
-            ndiSprite.nextFrame();
+            if(animationFrameRate/10 == 1){
+                ndiSprite.nextFrame();
+            }
             ndiSprite.paint(graphics);
+            
+            if(animationFrameRate/10 == 1){
+                animationFrameRate = 0;
+            }
             
             //Check for wall collisions, if collision occurs then place them
             //back at the last known good x,y
@@ -165,11 +177,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 playerSprite.paint(graphics);
             }
             
+            //Check for the player sprite colliding with the server
             if(serverSprite.collidesWith(playerSprite, true)){
                 serverSprite.setVisible(false);
                 player_has_objective = true;
             }
             
+            //The player exiting the maze, if the player has the object then succuess.
+            //If not then the player is prevented from leaving.
             if (detectPlayerExitMaze()){
                 if(player_has_objective == true){
                     showSuccessScreen();

@@ -373,9 +373,20 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         };
         return maze;
     }
-    
+     
     private int[] randomAgentMovement(int current_x,int current_y){
         
+        //Discover what is around the agent sprite on the tile layaer
+        java.util.Vector viableDirection = new java.util.Vector();
+        for(int i = 0;i<4;i++){
+            int intCoordinatesAroundAgent[] = {0,-1,1,0,0,1,-1,0}; //x and y coordinates
+            
+            if (blueHatBackground.getCell(current_x, current_y)==FLOOR_TILE)
+            {
+                AgentMovement agentMovement = new AgentMovement(current_x, current_y);
+                viableDirection.addElement(agentMovement);
+            }  
+        }
         //Where is the player Sprite?
         //determine the direction UP,DOWN,LEFT,RIGHT
         Random rdmDirection = new Random(3);

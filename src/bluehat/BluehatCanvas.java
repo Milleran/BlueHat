@@ -6,7 +6,7 @@
 package bluehat;
 
 import java.io.IOException;
-import java.util.Random;
+import java.util.*;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.microedition.lcdui.*;
@@ -31,7 +31,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private Command cmdEndHack;
     private Form form;
     private Display display;
-    
+
     private Sprite playerSprite;
     private Sprite serverSprite;
     private Image playerImage;
@@ -40,21 +40,21 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private Image ndiSpritePage;
     private Sprite ndiSprite;
     private TiledLayer blueHatBackground;
-    
+
     private int player_x_pos = 0;
     private int player_y_pos = 16;
     private int player_x_pos_last = 0;
     private int player_y_pos_last = 16;
+    private int agent_change_direction;
+    private int[] intAgentMove = {0, 0};
 
     private boolean player_has_objective = false;
     private boolean run_game = true;
-    
+
     static int TILE_HEIGHT_WIDTH = 16;
     static int WALL_IMPACT = 1;
     static int WALL_TILE = 378;
     static int FLOOR_TILE = 9;
-    
-    
 
     public BluehatCanvas(String strTitle) {
         super(true);
@@ -73,19 +73,18 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             playerSpritePage = Image.createImage("/Player0.png");
             playerImage = Image.createImage(playerSpritePage, 96, 48, 16, 16, Sprite.TRANS_NONE);
             playerSprite = new Sprite(playerImage, 16, 16);
-            
+
             serverSpritePage = Image.createImage("/Server.png");
-            serverSprite = new Sprite(serverSpritePage,16,16);
-            int[] serverFrameSeq = {0,1,2};
+            serverSprite = new Sprite(serverSpritePage, 16, 16);
+            int[] serverFrameSeq = {0, 1, 2};
             serverSprite.setFrameSequence(serverFrameSeq);
-            
+
             //Create the network intrution detection agents.
             ndiSpritePage = Image.createImage("AgentSmith.png");
-            ndiSprite = new Sprite(ndiSpritePage,16,16);
-            int[] ndiFrameSeq = {0,1,2};
+            ndiSprite = new Sprite(ndiSpritePage, 16, 16);
+            int[] ndiFrameSeq = {0, 1, 2};
             ndiSprite.setFrameSequence(ndiFrameSeq);
-        
-        
+
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -99,14 +98,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         //Place the player at the starting position.
         playerSprite.defineReferencePixel(player_x_pos, player_y_pos);
-        
+
         //Place the agent at the starting position.
         ndiSprite.defineReferencePixel(176, 208);
         ndiSprite.setPosition(176, 208);
-        
+
         //varible to slow down the frame rate 
         int animationFrameRate = 0;
-        
+
         //Run through the endless loop taking in the users input from the phone.
         while (run_game) {
             int keyState = this.getKeyStates();
@@ -145,30 +144,36 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             //repaint the background
             blueHatBackground.paint(graphics);
             //set the player at the new location on the screen
- 
+
             playerSprite.setPosition(player_x_pos, player_y_pos);
 
             playerSprite.paint(graphics);
-            
+
             //paint the server with a reduced framerate.
             serverSprite.setPosition(192, 208);
-            animationFrameRate ++;
-            if(animationFrameRate/10 == 1){
+            animationFrameRate++;
+            if (animationFrameRate / 10 == 1) {
                 serverSprite.nextFrame();
             }
             serverSprite.paint(graphics);
-            
-            int[] intAgentMove = randomAgentMovement(ndiSprite.getX(), ndiSprite.getY());
-            ndiSprite.setPosition(intAgentMove[0], intAgentMove[1]);
-            if(animationFrameRate/10 == 1){
+
+            //only get the array after 16 loops of the run to match the tile size.
+            //move 16 pixels and then determine the next tile to move toward.
+            agent_change_direction++;
+            if (agent_change_direction > 16) {
+                intAgentMove = randomAgentMovement(ndiSprite.getX(), ndiSprite.getY(), new AgentMovement(intAgentMove[0], intAgentMove[1]));
+                agent_change_direction = 0;
+            }
+            ndiSprite.setPosition(ndiSprite.getX() + intAgentMove[0], ndiSprite.getY() + intAgentMove[1]);
+            if (animationFrameRate / 10 == 1) {
                 ndiSprite.nextFrame();
             }
             ndiSprite.paint(graphics);
-            
-            if(animationFrameRate/10 == 1){
+
+            if (animationFrameRate / 10 == 1) {
                 animationFrameRate = 0;
             }
-            
+
             //Check for wall collisions, if collision occurs then place them
             //back at the last known good x,y
             if (detectWallTileCollision()) {
@@ -176,25 +181,25 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 player_y_pos = player_y_pos_last;
                 playerSprite.paint(graphics);
             }
-            
+
             //Check for the player sprite colliding with the server
-            if(serverSprite.collidesWith(playerSprite, true)){
+            if (serverSprite.collidesWith(playerSprite, true)) {
                 serverSprite.setVisible(false);
                 player_has_objective = true;
             }
-            
+
             //The player exiting the maze, if the player has the object then succuess.
             //If not then the player is prevented from leaving.
-            if (detectPlayerExitMaze()){
-                if(player_has_objective == true){
+            if (detectPlayerExitMaze()) {
+                if (player_has_objective == true) {
                     showSuccessScreen();
-                }else{
-                    Font gameFont = Font.getFont(Font.FACE_SYSTEM,Font.STYLE_BOLD,Font.SIZE_LARGE);
-                    
+                } else {
+                    Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_LARGE);
+
                     graphics.setColor(0);
                     graphics.setFont(gameFont);
-                    graphics.drawString("Empty Handed!", 0,288,0);
-                    
+                    graphics.drawString("Empty Handed!", 0, 288, 0);
+
                     player_x_pos = player_x_pos_last;
                     player_y_pos = player_y_pos_last;
                     playerSprite.paint(graphics);
@@ -234,13 +239,13 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         this.setCommandListener(this);
 
     }
-    
-    private void showSuccessScreen(){
-        
+
+    private void showSuccessScreen() {
+
         //Erase GameMaze Screen
         clearScreen(graphics);
         //Setup the screen with the correct font type.
-        
+
         graphics = getGraphics();
         Font fontSplash = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_LARGE);
         graphics.setFont(fontSplash);
@@ -251,11 +256,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 + "specications from our servers. "
                 + "Our IT security group will have to go through the data and "
                 + "develop a strong defense against hackers.";
-        
-        
 
         BluehatUtil.drawMultilineString(graphics, fontSplash, strSuccess, 5, getHeight() / 8, 0, 225);
-        
+
         //Add a exit game command
         cmdEndHack = new Command("Exit", Command.OK, 1);
         this.addCommand(cmdEndHack);
@@ -312,7 +315,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             runner.start();
 
         }
-        if (cmd == cmdEndHack){
+        if (cmd == cmdEndHack) {
             System.out.println("End");
             run_game = false;
         }
@@ -329,12 +332,12 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         return false;
 
     }
-    
-    private boolean detectPlayerExitMaze(){
-        if(playerSprite.getX()<=0){
+
+    private boolean detectPlayerExitMaze() {
+        if (playerSprite.getX() <= 0) {
             return true;
         }
-      return false;
+        return false;
     }
 
     private void drawSelectedTiles(TiledLayer tLayer, boolean seeAll, int maxScrTiles) {
@@ -373,41 +376,47 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         };
         return maze;
     }
-     
-    private int[] randomAgentMovement(int current_x,int current_y){
-        
-        //Discover what is around the agent sprite on the tile layaer
-        java.util.Vector viableDirection = new java.util.Vector();
-        for(int i = 0;i<4;i++){
-            int intCoordinatesAroundAgent[] = {0,-1,1,0,0,1,-1,0}; //x and y coordinates
-            
-            if (blueHatBackground.getCell(current_x, current_y)==FLOOR_TILE)
-            {
-                AgentMovement agentMovement = new AgentMovement(current_x, current_y);
-                viableDirection.addElement(agentMovement);
-            }  
-        }
-        //Where is the player Sprite?
-        //determine the direction UP,DOWN,LEFT,RIGHT
-        Random rdmDirection = new Random(3);
-        int intRandomDirection = rdmDirection.nextInt();
-        if ((intRandomDirection) == 0) {
 
-                current_y--;
-                
-            } else if ((intRandomDirection) == 3) {
+    private int[] randomAgentMovement(int current_x, int current_y, AgentMovement currentDirection) {
+        int intAgentPosition[] = {0, 0};
 
-                current_x++;
-             
-            } else if ((intRandomDirection) == 2) {
+        if (blueHatBackground.isVisible()) {
+            //Discover what is around the agent sprite on the tile layaer
+            java.util.Vector viableDirection = new java.util.Vector();
 
-                current_x--;
+            for (int i = 0; i < 8; i = i + 2) {
+                int intCoordinatesAroundAgent[] = {0, -1, 1, 0, 0, 1, -1, 0}; //x and y coordinates
+                int tile_x = current_x / TILE_HEIGHT_WIDTH + intCoordinatesAroundAgent[i];
+                int tile_y = current_y / TILE_HEIGHT_WIDTH + intCoordinatesAroundAgent[i + 1];
 
-            } else if ((intRandomDirection) == 1) {
-
-                current_y++;
+                if (blueHatBackground.getCell(tile_x, tile_y) == FLOOR_TILE) {
+                    AgentMovement agentMovement = new AgentMovement(intCoordinatesAroundAgent[i], intCoordinatesAroundAgent[i + 1]);
+                    viableDirection.addElement(agentMovement);
+                }
             }
-        int intAgentPosition[]={current_x,current_y};
+            //Add the current direction if its a FLOOR_TILE
+            int tile_x = current_x / TILE_HEIGHT_WIDTH + currentDirection.getX_pos();
+            int tile_y = current_y / TILE_HEIGHT_WIDTH + currentDirection.getY_pos();
+
+            if (blueHatBackground.getCell(tile_x, tile_y) == FLOOR_TILE) {
+
+                viableDirection.addElement(currentDirection);
+                viableDirection.addElement(currentDirection);
+                 viableDirection.addElement(currentDirection);
+            }
+
+            //Where is the player Sprite?
+            //determine the viable direction UP,DOWN,LEFT,RIGHT
+            Random rdmDirection = new Random();
+            int direction_size = viableDirection.size();
+            int intRandomDirection = rdmDirection.nextInt(direction_size);
+            AgentMovement direction = (AgentMovement) viableDirection.elementAt(intRandomDirection);
+
+            intAgentPosition[0] = direction.getX_pos();
+            intAgentPosition[1] = direction.getY_pos();
+
+        }
+
         return intAgentPosition;
     }
 

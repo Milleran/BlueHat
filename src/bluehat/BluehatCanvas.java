@@ -160,11 +160,13 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             //only get the array after 16 loops of the run to match the tile size.
             //move 16 pixels and then determine the next tile to move toward.
             agent_change_direction++;
-            if (agent_change_direction > 16) {
+            if (agent_change_direction >= 16) {
                 intAgentMove = randomAgentMovement(ndiSprite.getX(), ndiSprite.getY(), new AgentMovement(intAgentMove[0], intAgentMove[1]));
                 agent_change_direction = 0;
             }
+            
             ndiSprite.setPosition(ndiSprite.getX() + intAgentMove[0], ndiSprite.getY() + intAgentMove[1]);
+            
             if (animationFrameRate / 10 == 1) {
                 ndiSprite.nextFrame();
             }
@@ -186,6 +188,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             if (serverSprite.collidesWith(playerSprite, true)) {
                 serverSprite.setVisible(false);
                 player_has_objective = true;
+            }
+            
+            if (detectAgentCollision()){
+                showFailureScreen();
+                run_game = false;
             }
 
             //The player exiting the maze, if the player has the object then succuess.
@@ -209,7 +216,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             //flush the graphics for the next iteration of the loop.
             flushGraphics();
 
-            //Put the thread asleep for 20 miliseconds.
+            //Put the thread asleep for 10 miliseconds.
             try {
                 Thread.currentThread().sleep(10);
             } catch (InterruptedException x) {
@@ -259,6 +266,27 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         BluehatUtil.drawMultilineString(graphics, fontSplash, strSuccess, 5, getHeight() / 8, 0, 225);
 
+        //Add a exit game command
+        cmdEndHack = new Command("Exit", Command.OK, 1);
+        this.addCommand(cmdEndHack);
+        this.setCommandListener(this);
+    }
+    private void showFailureScreen() {
+
+        //Erase GameMaze Screen
+        clearScreen(graphics);
+        //Setup the screen with the correct font type.
+
+        graphics = getGraphics();
+        Font fontSplash = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_LARGE);
+        graphics.setFont(fontSplash);
+
+        graphics.drawString("Failure!!!!", 0, 0, 0);
+
+        String strSuccess = "You have failed in retrieving the document.";
+
+        BluehatUtil.drawMultilineString(graphics, fontSplash, strSuccess, 5, getHeight() / 8, 0, 225);
+        
         //Add a exit game command
         cmdEndHack = new Command("Exit", Command.OK, 1);
         this.addCommand(cmdEndHack);
@@ -332,6 +360,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         return false;
 
     }
+    private boolean detectAgentCollision(){
+        if(playerSprite.collidesWith(ndiSprite, true))
+        {
+            System.out.println("Agent Hit");
+            return true;
+        }
+        return false;
+    }
 
     private boolean detectPlayerExitMaze() {
         if (playerSprite.getX() <= 0) {
@@ -402,7 +438,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
                 viableDirection.addElement(currentDirection);
                 viableDirection.addElement(currentDirection);
-                 viableDirection.addElement(currentDirection);
+                viableDirection.addElement(currentDirection);
+                viableDirection.addElement(currentDirection);
+                viableDirection.addElement(currentDirection);
             }
 
             //Where is the player Sprite?

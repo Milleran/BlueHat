@@ -13,6 +13,7 @@ import javax.microedition.lcdui.*;
 import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.game.Sprite;
 import javax.microedition.lcdui.game.TiledLayer;
+import javax.microedition.midlet.MIDlet;
 
 /**
  *
@@ -31,6 +32,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private Command cmdEndHack;
     private Form form;
     private Display display;
+    private MIDlet startgameMIDlet;
 
     private Sprite playerSprite;
     private Sprite serverSprite;
@@ -61,10 +63,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         setTitle(strTitle);
     }
 
-    public BluehatCanvas(Display start, Form stform) {
+    public BluehatCanvas(Display start, Form stform, MIDlet startMIDlet) {
         super(true);
         form = stform;
         display = start;
+        startgameMIDlet = startMIDlet;
         //Create the contract screen/game objection screen.
         this.showContractScreen();
 
@@ -143,36 +146,19 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //repaint the background
             blueHatBackground.paint(graphics);
+            
             //set the player at the new location on the screen
-
-            playerSprite.setPosition(player_x_pos, player_y_pos);
-
-            playerSprite.paint(graphics);
-
-            //paint the server with a reduced framerate.
-            serverSprite.setPosition(192, 208);
-            animationFrameRate++;
-            if (animationFrameRate / 10 == 1) {
-                serverSprite.nextFrame();
-            }
-            serverSprite.paint(graphics);
-
-            //only get the array after 16 loops of the run to match the tile size.
-            //move 16 pixels and then determine the next tile to move toward.
-            agent_change_direction++;
-            if (agent_change_direction >= 16) {
-                intAgentMove = randomAgentMovement(ndiSprite.getX(), ndiSprite.getY(), new AgentMovement(intAgentMove[0], intAgentMove[1]));
-                agent_change_direction = 0;
-            }
+            movePlayer();
             
-            ndiSprite.setPosition(ndiSprite.getX() + intAgentMove[0], ndiSprite.getY() + intAgentMove[1]);
+            //paint the server and reduce the FrameRate
+            animationFrameRate = paintServer(animationFrameRate);
             
-            if (animationFrameRate / 10 == 1) {
-                ndiSprite.nextFrame();
-            }
-            ndiSprite.paint(graphics);
-
-            if (animationFrameRate / 10 == 1) {
+            //Moves the agent and reduces the framerate of the animation
+            moveAgent(animationFrameRate);
+            
+            //control the framerate of the animations of the sprites, this
+            // reduces it by a factor of 100.
+            if (animationFrameRate / 100 == 1) {
                 animationFrameRate = 0;
             }
 
@@ -194,38 +180,77 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 showFailureScreen();
                 run_game = false;
             }
-
-            //The player exiting the maze, if the player has the object then succuess.
-            //If not then the player is prevented from leaving.
-            if (detectPlayerExitMaze()) {
-                if (player_has_objective == true) {
-                    showSuccessScreen();
-                    run_game=false;
-                } else {
-                    Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_LARGE);
-
-                    graphics.setColor(0);
-                    graphics.setFont(gameFont);
-                    graphics.drawString("Empty Handed!", 0, 288, 0);
-
-                    player_x_pos = player_x_pos_last;
-                    player_y_pos = player_y_pos_last;
-                    playerSprite.paint(graphics);
-                }
-            }
+            
+            //check if the player has retrived the document and can exit the maze.
+            determineSuccess();
 
             //flush the graphics for the next iteration of the loop.
             flushGraphics();
 
             //Put the thread asleep for 10 miliseconds.
             try {
-                Thread.currentThread().sleep(10);
+                Thread.sleep(10);
             } catch (InterruptedException x) {
 
             }
 
         }
 
+    }
+
+    private void determineSuccess() {
+        //The player exiting the maze, if the player has the object then succuess.
+        //If not then the player is prevented from leaving.
+        if (detectPlayerExitMaze()) {
+            if (player_has_objective == true) {
+                showSuccessScreen();
+                run_game=false;
+            } else {
+                Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_LARGE);
+                
+                graphics.setColor(0);
+                graphics.setFont(gameFont);
+                graphics.drawString("Empty Handed!", 0, 288, 0);
+                
+                player_x_pos = player_x_pos_last;
+                player_y_pos = player_y_pos_last;
+                playerSprite.paint(graphics);
+            }
+        }
+    }
+
+    private void moveAgent(int animationFrameRate) {
+        //only get the array after 16 loops of the run to match the tile size.
+        //move 16 pixels and then determine the next tile to move toward.
+        agent_change_direction++;
+        if (agent_change_direction >= 16) {
+            intAgentMove = randomAgentMovement(ndiSprite.getX(), ndiSprite.getY(), new AgentMovement(intAgentMove[0], intAgentMove[1]));
+            agent_change_direction = 0;
+        }
+        
+        ndiSprite.setPosition(ndiSprite.getX() + intAgentMove[0], ndiSprite.getY() + intAgentMove[1]);
+        
+        if (animationFrameRate / 10 == 1) {
+            ndiSprite.nextFrame();
+        }
+        ndiSprite.paint(graphics);
+    }
+
+    private int paintServer(int animationFrameRate) {
+        //paint the server with a reduced framerate.
+        serverSprite.setPosition(192, 208);
+        animationFrameRate++;
+        if (animationFrameRate / 10 == 1) {
+            serverSprite.nextFrame();
+        }
+        serverSprite.paint(graphics);
+        return animationFrameRate;
+    }
+
+    private void movePlayer() {
+        playerSprite.setPosition(player_x_pos, player_y_pos);
+        
+        playerSprite.paint(graphics);
     }
 
     private void showContractScreen() {
@@ -348,10 +373,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             System.out.println("End");
             run_game = false;
             
-            
-            
-            
-            
+            startgameMIDlet.notifyDestroyed();
+        
         }
 
     }
@@ -376,10 +399,10 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private boolean detectPlayerExitMaze() {
-        if (playerSprite.getX() <= 0) {
-            return true;
-        }
-        return false;
+        //Since the network maze has walls all arond the screen the only exit
+        // has a position where x =0
+        
+        return playerSprite.getX() <= 0;
     }
 
     private void drawSelectedTiles(TiledLayer tLayer, boolean seeAll, int maxScrTiles) {

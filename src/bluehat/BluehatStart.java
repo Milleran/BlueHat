@@ -25,7 +25,7 @@ public class BluehatStart extends MIDlet implements CommandListener {
     public BluehatStart(){
         form=new Form("Starter Canvas");
         display = Display.getDisplay(this);
-        bluehatCanvas = new BluehatCanvas(display,form);
+        bluehatCanvas = new BluehatCanvas(display,form, this);
         
         cmdStartGame = new Command("Start",Command.OK,1);
         cmdEndGame = new Command("Exit",Command.EXIT,1);
@@ -62,7 +62,7 @@ public class BluehatStart extends MIDlet implements CommandListener {
     public void commandAction(Command cmd, Displayable dsp) {
         if(cmd == cmdStartGame){
          form.deleteAll();
-         bluehatCanvas = new BluehatCanvas(display,form);
+         bluehatCanvas = new BluehatCanvas(display,form, this);
          display.setCurrent(bluehatCanvas);
                   
         }

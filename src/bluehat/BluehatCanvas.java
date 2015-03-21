@@ -42,6 +42,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private Image ndiSpritePage;
     private Sprite ndiSprite;
     private TiledLayer blueHatBackground;
+    private TiledLayer NetworkWall_NotAnimated;
 
     private int player_x_pos = 0;
     private int player_y_pos = 16;
@@ -56,7 +57,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     static int TILE_HEIGHT_WIDTH = 16;
     static int WALL_IMPACT = 1;
     static int WALL_TILE = 378;
-    static int FLOOR_TILE = 9;
+    static int FLOOR_TILE = 0;
 
     public BluehatCanvas(String strTitle) {
         super(true);
@@ -103,8 +104,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         playerSprite.defineReferencePixel(player_x_pos, player_y_pos);
 
         //Place the agent at the starting position.
-        ndiSprite.defineReferencePixel(176, 208);
-        ndiSprite.setPosition(176, 208);
+        ndiSprite.defineReferencePixel(80, 208);
+        ndiSprite.setPosition(80, 208);
 
         //varible to slow down the frame rate 
         int animationFrameRate = 0;
@@ -146,13 +147,13 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //repaint the background
             blueHatBackground.paint(graphics);
-            
+
             //set the player at the new location on the screen
             movePlayer();
-            
+
             //paint the server and reduce the FrameRate
             animationFrameRate = paintServer(animationFrameRate);
-            
+
             //Moves the agent and reduces the framerate of the animation
             moveAgent(animationFrameRate);
             
@@ -175,12 +176,12 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 serverSprite.setVisible(false);
                 player_has_objective = true;
             }
-            
-            if (detectAgentCollision()){
+
+            if (detectAgentCollision()) {
                 showFailureScreen();
                 run_game = false;
             }
-            
+
             //check if the player has retrived the document and can exit the maze.
             determineSuccess();
 
@@ -204,14 +205,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         if (detectPlayerExitMaze()) {
             if (player_has_objective == true) {
                 showSuccessScreen();
-                run_game=false;
+                run_game = false;
             } else {
                 Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_LARGE);
-                
+
                 graphics.setColor(0);
                 graphics.setFont(gameFont);
                 graphics.drawString("Empty Handed!", 0, 288, 0);
-                
+
                 player_x_pos = player_x_pos_last;
                 player_y_pos = player_y_pos_last;
                 playerSprite.paint(graphics);
@@ -227,9 +228,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             intAgentMove = randomAgentMovement(ndiSprite.getX(), ndiSprite.getY(), new AgentMovement(intAgentMove[0], intAgentMove[1]));
             agent_change_direction = 0;
         }
-        
+
         ndiSprite.setPosition(ndiSprite.getX() + intAgentMove[0], ndiSprite.getY() + intAgentMove[1]);
-        
+
         if (animationFrameRate / 10 == 1) {
             ndiSprite.nextFrame();
         }
@@ -238,7 +239,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     private int paintServer(int animationFrameRate) {
         //paint the server with a reduced framerate.
-        serverSprite.setPosition(192, 208);
+        serverSprite.setPosition(128,256);
         animationFrameRate++;
         if (animationFrameRate / 10 == 1) {
             serverSprite.nextFrame();
@@ -249,7 +250,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     private void movePlayer() {
         playerSprite.setPosition(player_x_pos, player_y_pos);
-        
+
         playerSprite.paint(graphics);
     }
 
@@ -297,6 +298,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         this.addCommand(cmdEndHack);
         this.setCommandListener(this);
     }
+
     private void showFailureScreen() {
 
         //Erase GameMaze Screen
@@ -312,7 +314,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         String strSuccess = "You have failed in retrieving the document.";
 
         BluehatUtil.drawMultilineString(graphics, fontSplash, strSuccess, 5, getHeight() / 8, 0, 225);
-        
+
         //Add a exit game command
         cmdEndHack = new Command("Exit", Command.OK, 1);
         this.addCommand(cmdEndHack);
@@ -324,16 +326,17 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         //Create the Sprite for the player avatar.
         try {
             //Create the background with a tiledlayer
-            Image background = Image.createImage("/Wall.png");
+            Image background = Image.createImage("/networkWall.png");
 
             int cols = getWidth() / TILE_HEIGHT_WIDTH;
             int rows = getHeight() / TILE_HEIGHT_WIDTH;
 
-            blueHatBackground = new TiledLayer(cols, rows, background, TILE_HEIGHT_WIDTH, TILE_HEIGHT_WIDTH);
+            //blueHatBackground = new TiledLayer(cols, rows, background, TILE_HEIGHT_WIDTH, TILE_HEIGHT_WIDTH);
+            blueHatBackground = getNetworkWall_NotAnimated(rows, cols, background);
 
-            int tileCount = background.getWidth() / TILE_HEIGHT_WIDTH;
+            //int tileCount = background.getWidth() / TILE_HEIGHT_WIDTH;
 
-            drawSelectedTiles(blueHatBackground, false, tileCount);
+            //drawSelectedTiles(blueHatBackground, false, tileCount);
 
             //blueHatBackground.paint(graphics);
         } catch (Exception ioe) {
@@ -372,9 +375,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         if (cmd == cmdEndHack) {
             System.out.println("End");
             run_game = false;
-            
+
             startgameMIDlet.notifyDestroyed();
-        
+
         }
 
     }
@@ -389,9 +392,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         return false;
 
     }
-    private boolean detectAgentCollision(){
-        if(playerSprite.collidesWith(ndiSprite, true))
-        {
+
+    private boolean detectAgentCollision() {
+        if (playerSprite.collidesWith(ndiSprite, true)) {
             System.out.println("Agent Hit");
             return true;
         }
@@ -401,7 +404,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private boolean detectPlayerExitMaze() {
         //Since the network maze has walls all arond the screen the only exit
         // has a position where x =0
-        
+
         return playerSprite.getX() <= 0;
     }
 
@@ -440,6 +443,45 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         };
         return maze;
+    }
+
+    public TiledLayer getNetworkWall_NotAnimated(int rows, int cols, Image background) throws java.io.IOException {
+        if (NetworkWall_NotAnimated == null) {
+
+            NetworkWall_NotAnimated = new TiledLayer(cols, rows, background, TILE_HEIGHT_WIDTH, TILE_HEIGHT_WIDTH);
+
+            int[][] tiles = {
+                {23, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 28},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+                {23, 10, 10, 0, 10, 10, 18, 0, 18, 10, 10, 10, 0, 10, 2},
+                {2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2},
+                {2, 0, 10, 10, 0, 10, 38, 0, 33, 10, 0, 10, 10, 10, 2},
+                {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+                {2, 0, 23, 10, 10, 10, 10, 0, 10, 10, 10, 10, 10, 0, 2},
+                {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+                {2, 0, 2, 0, 23, 10, 10, 10, 10, 0, 23, 0, 28, 0, 2},
+                {2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2},
+                {2, 0, 2, 0, 0, 0, 23, 10, 10, 0, 2, 0, 2, 0, 2},
+                {2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 38, 0, 2, 0, 2},
+                {2, 0, 2, 0, 2, 0, 2, 0, 23, 0, 0, 0, 2, 0, 2},
+                {2, 0, 2, 0, 2, 0, 0, 0, 33, 10, 10, 10, 38, 0, 2},
+                {2, 0, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2},
+                {2, 0, 0, 0, 2, 0, 33, 10, 10, 10, 10, 0, 10, 10, 2},
+                {2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+                {33, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 38}
+            };     
+            
+        // Set all the cells in the tiled layer
+            
+            for (int row = 0; row < rows; row++) {
+                for (int col = 0; col < cols; col++) {
+                    NetworkWall_NotAnimated.setCell(col, row, tiles[row][col]);
+                    System.out.println("Background Cell: Col:"+col+" Row:"+row);
+                }
+            }
+        }
+        // write post-init user code here
+        return NetworkWall_NotAnimated;
     }
 
     private int[] randomAgentMovement(int current_x, int current_y, AgentMovement currentDirection) {

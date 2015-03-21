@@ -23,18 +23,18 @@ public class BluehatStart extends MIDlet implements CommandListener {
     ImageItem splash;
     
     public BluehatStart(){
-        form=new Form("Starter Canvas");
+        form=new Form("Blue Hat");
         display = Display.getDisplay(this);
         bluehatCanvas = new BluehatCanvas(display,form, this);
         
         cmdStartGame = new Command("Start",Command.OK,1);
         cmdEndGame = new Command("Exit",Command.EXIT,1);
         
-        form.append(new Spacer(50,100));
+        //form.append(new Spacer(50,100));
         //Display Bluehat splash screen
         
         try{
-            Image image = Image.createImage("/bluehat75x75.png");
+            Image image = Image.createImage("/BlueHatTitle.png");
             splash = new ImageItem(null,image,ImageItem.LAYOUT_CENTER,"Blue Hat");
             
             

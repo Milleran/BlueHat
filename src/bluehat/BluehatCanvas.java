@@ -200,6 +200,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             if (detectPlayerExitMaze()) {
                 if (player_has_objective == true) {
                     showSuccessScreen();
+                    run_game=false;
                 } else {
                     Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_LARGE);
 
@@ -346,6 +347,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         if (cmd == cmdEndHack) {
             System.out.println("End");
             run_game = false;
+            
+            
+            
+            
+            
         }
 
     }

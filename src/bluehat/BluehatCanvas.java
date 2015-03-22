@@ -7,8 +7,7 @@ package bluehat;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.lang.*;
 import javax.microedition.lcdui.*;
 import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.game.Sprite;
@@ -30,12 +29,17 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private boolean endLevel = true;
     private Command cmdStartHack;
     private Command cmdEndHack;
+    private Command cmdPlayAgain;
     private Form form;
     private Display display;
     private MIDlet startgameMIDlet;
+    Random rdmNumber = new Random();
+    
 
     private Sprite playerSprite;
     private Sprite serverSprite;
+    private Vector vecServerSprites;
+    private int numberOfServers =1;
     private Image playerImage;
     private Image playerSpritePage;
     private Image serverSpritePage;
@@ -43,10 +47,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private Sprite ndiSprite;
     private TiledLayer blueHatBackground;
     private TiledLayer NetworkWall_NotAnimated;
+    
 
-    private int player_x_pos = 0;
+    private int player_x_pos = 16;
     private int player_y_pos = 16;
-    private int player_x_pos_last = 0;
+    private int player_x_pos_last = 16;
     private int player_y_pos_last = 16;
     private int agent_change_direction;
     private int[] intAgentMove = {0, 0};
@@ -70,36 +75,24 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         display = start;
         startgameMIDlet = startMIDlet;
         //Create the contract screen/game objection screen.
-        this.showContractScreen();
+        showContractScreen();
 
-        //Create the player sprite that will be used in the game.
         try {
-            playerSpritePage = Image.createImage("/Player0.png");
-            playerImage = Image.createImage(playerSpritePage, 96, 48, 16, 16, Sprite.TRANS_NONE);
-            playerSprite = new Sprite(playerImage, 16, 16);
-
-            serverSpritePage = Image.createImage("/Server.png");
-            serverSprite = new Sprite(serverSpritePage, 16, 16);
-            int[] serverFrameSeq = {0, 1, 2};
-            serverSprite.setFrameSequence(serverFrameSeq);
-
-            //Create the network intrution detection agents.
-            ndiSpritePage = Image.createImage("AgentSmith.png");
-            ndiSprite = new Sprite(ndiSpritePage, 16, 16);
-            int[] ndiFrameSeq = {0, 1, 2};
-            ndiSprite.setFrameSequence(ndiFrameSeq);
-
+            //create the game sprites
+            createGameSprites();
+            
+            //create the game background and the network maze.
+            gamemazeScreen();
+ 
         } catch (IOException ex) {
-            ex.printStackTrace();
+            System.out.println(ex.toString());
         }
 
     }
 
     public void run() {
         graphics = getGraphics();
-        //create the game background and the network maze.
-        gamemazeScreen();
-
+        
         //Place the player at the starting position.
         playerSprite.defineReferencePixel(player_x_pos, player_y_pos);
 
@@ -118,41 +111,36 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 player_y_pos_last = player_y_pos;
                 player_y_pos--;
 
-                System.out.println("X,Y: " + player_x_pos + "," + player_y_pos);
-                //spriteA.setTransform(Sprite.TRANS_NONE);
             } else if ((keyState & RIGHT_PRESSED) != 0) {
 
                 player_x_pos_last = player_x_pos;
                 player_x_pos++;
 
-                System.out.println("X,Y: " + player_x_pos + "," + player_y_pos);
-                //spriteA.setTransform(Sprite.TRANS_ROT90);
             } else if ((keyState & LEFT_PRESSED) != 0) {
 
                 player_x_pos_last = player_x_pos;
                 player_x_pos--;
 
-                System.out.println("X,Y: " + player_x_pos + "," + player_y_pos);
-                //spriteA.setTransform(Sprite.TRANS_ROT270 );
             } else if ((keyState & DOWN_PRESSED) != 0) {
 
                 player_y_pos_last = player_y_pos;
                 player_y_pos++;
 
-                System.out.println("X,Y: " + player_x_pos + "," + player_y_pos);
-                //spriteA.setTransform(spriteA.TRANS_MIRROR_ROT180);
             }
 
             this.clearScreen(graphics);
 
             //repaint the background
             blueHatBackground.paint(graphics);
-
+            
+            //increase the frame count by 1
+            animationFrameRate++;
+            
             //set the player at the new location on the screen
             movePlayer();
 
             //paint the server and reduce the FrameRate
-            animationFrameRate = paintServer(animationFrameRate);
+            paintServer(animationFrameRate);
 
             //Moves the agent and reduces the framerate of the animation
             moveAgent(animationFrameRate);
@@ -172,10 +160,13 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             }
 
             //Check for the player sprite colliding with the server
-            if (serverSprite.collidesWith(playerSprite, true)) {
-                serverSprite.setVisible(false);
-                player_has_objective = true;
-            }
+            //for (int i = 0; i < numberOfServers; i++) {
+            //    serverSprite = (Sprite) vecServerSprites.elementAt(i);
+                if (serverSprite.collidesWith(playerSprite, true)) {
+                    serverSprite.setVisible(false);
+                    player_has_objective = true;
+                }
+            //}
 
             if (detectAgentCollision()) {
                 showFailureScreen();
@@ -198,7 +189,27 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         }
 
     }
-
+    private void createGameSprites() throws IOException {
+        //Create the player sprite that will be used in the game.
+        playerSpritePage = Image.createImage("/Player0.png");
+        playerImage = Image.createImage(playerSpritePage, 96, 48, 16, 16, Sprite.TRANS_NONE);
+        playerSprite = new Sprite(playerImage, 16, 16);
+        
+        //Create the server sprite
+        serverSpritePage = Image.createImage("/Server.png");
+ //       for (int i = 0; i < numberOfServers; i++) {
+            serverSprite = new Sprite(serverSpritePage, 16, 16);
+            int[] serverFrameSeq = {0, 1, 2};
+            serverSprite.setFrameSequence(serverFrameSeq);
+            //vecServerSprites.addElement(serverSprite);
+ //       }
+        
+        //Create the network intrution detection agents.
+        ndiSpritePage = Image.createImage("AgentSmith.png");
+        ndiSprite = new Sprite(ndiSpritePage, 16, 16);
+        int[] ndiFrameSeq = {0, 1, 2};
+        ndiSprite.setFrameSequence(ndiFrameSeq);
+    }
     private void determineSuccess() {
         //The player exiting the maze, if the player has the object then succuess.
         //If not then the player is prevented from leaving.
@@ -224,7 +235,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         //only get the array after 16 loops of the run to match the tile size.
         //move 16 pixels and then determine the next tile to move toward.
         agent_change_direction++;
-        if (agent_change_direction >= 16) {
+        if (agent_change_direction >= TILE_HEIGHT_WIDTH) {
             intAgentMove = randomAgentMovement(ndiSprite.getX(), ndiSprite.getY(), new AgentMovement(intAgentMove[0], intAgentMove[1]));
             agent_change_direction = 0;
         }
@@ -237,15 +248,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         ndiSprite.paint(graphics);
     }
 
-    private int paintServer(int animationFrameRate) {
+    private void paintServer(int animationFrameRate) {
         //paint the server with a reduced framerate.
-        serverSprite.setPosition(128,256);
-        animationFrameRate++;
+                
         if (animationFrameRate / 10 == 1) {
             serverSprite.nextFrame();
         }
         serverSprite.paint(graphics);
-        return animationFrameRate;
+       
     }
 
     private void movePlayer() {
@@ -295,7 +305,12 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         //Add a exit game command
         cmdEndHack = new Command("Exit", Command.OK, 1);
+        cmdPlayAgain = new Command("Play Again",Command.OK,1);
+        
         this.addCommand(cmdEndHack);
+        this.setCommandListener(this);
+        
+        this.addCommand(cmdPlayAgain);
         this.setCommandListener(this);
     }
 
@@ -331,12 +346,24 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             int cols = getWidth() / TILE_HEIGHT_WIDTH;
             int rows = getHeight() / TILE_HEIGHT_WIDTH;
 
-            //blueHatBackground = new TiledLayer(cols, rows, background, TILE_HEIGHT_WIDTH, TILE_HEIGHT_WIDTH);
             blueHatBackground = getNetworkWall_NotAnimated(rows, cols, background);
-
-            //int tileCount = background.getWidth() / TILE_HEIGHT_WIDTH;
-
-            //drawSelectedTiles(blueHatBackground, false, tileCount);
+            
+            //Draw the Server Sprite in a random floor only area of the Maze
+            //for(int i=0;i<numberOfServers;i++){
+                boolean flag = true;
+            
+            while (flag) {
+                int random_x = rdmNumber.nextInt(16);
+                int random_y = rdmNumber.nextInt(13);
+                
+                if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE) {
+                    System.out.println("Random_y: "+random_y + "Random_x: "+ random_x);
+                    serverSprite.setPosition(random_x * TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH);
+                    flag = false;
+                }
+                
+            }
+            //}
 
             //blueHatBackground.paint(graphics);
         } catch (Exception ioe) {
@@ -379,6 +406,16 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             startgameMIDlet.notifyDestroyed();
 
         }
+        if(cmd == cmdPlayAgain){
+            System.out.println("again");
+            run_game=true;
+            this.removeCommand(cmd);
+            this.repaint();
+            clearScreen(graphics);
+
+            //runner = new Thread(this);
+            runner.start();
+        }
 
     }
 
@@ -408,75 +445,18 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         return playerSprite.getX() <= 0;
     }
 
-    private void drawSelectedTiles(TiledLayer tLayer, boolean seeAll, int maxScrTiles) {
-        int[] mazeWalls = mazeWalls();
-        int mazeCellNumber = 0;
-        for (int rowcnt = 0; rowcnt < tLayer.getRows(); rowcnt++) {
-            for (int colcnt = 0; colcnt < tLayer.getColumns(); colcnt++) {
-                blueHatBackground.setCell(colcnt, rowcnt, mazeWalls[mazeCellNumber]);
-                mazeCellNumber++; //move to the next cell
-            }
-        }
-    }
-
-    private int[] mazeWalls() {
-        int[] maze = {
-            WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE,
-            FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE,
-            WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE,
-            WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE,
-            WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE,
-            WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE,
-            WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE,
-            WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE,
-            WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE,
-            WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE,
-            WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE,
-            WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE,
-            WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE,
-            WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE,
-            WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE,
-            WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE,
-            WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, FLOOR_TILE, WALL_TILE,
-            WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE,
-            WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE, WALL_TILE
-
-        };
-        return maze;
-    }
-
     public TiledLayer getNetworkWall_NotAnimated(int rows, int cols, Image background) throws java.io.IOException {
         if (NetworkWall_NotAnimated == null) {
 
             NetworkWall_NotAnimated = new TiledLayer(cols, rows, background, TILE_HEIGHT_WIDTH, TILE_HEIGHT_WIDTH);
 
-            int[][] tiles = {
-                {23, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 28},
-                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
-                {23, 10, 10, 0, 10, 10, 18, 0, 18, 10, 10, 10, 0, 10, 2},
-                {2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2},
-                {2, 0, 10, 10, 0, 10, 38, 0, 33, 10, 0, 10, 10, 10, 2},
-                {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
-                {2, 0, 23, 10, 10, 10, 10, 0, 10, 10, 10, 10, 10, 0, 2},
-                {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
-                {2, 0, 2, 0, 23, 10, 10, 10, 10, 0, 23, 0, 28, 0, 2},
-                {2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2},
-                {2, 0, 2, 0, 0, 0, 23, 10, 10, 0, 2, 0, 2, 0, 2},
-                {2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 38, 0, 2, 0, 2},
-                {2, 0, 2, 0, 2, 0, 2, 0, 23, 0, 0, 0, 2, 0, 2},
-                {2, 0, 2, 0, 2, 0, 0, 0, 33, 10, 10, 10, 38, 0, 2},
-                {2, 0, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2},
-                {2, 0, 0, 0, 2, 0, 33, 10, 10, 10, 10, 0, 10, 10, 2},
-                {2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
-                {33, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 38}
-            };     
-            
+            int[][] tiles = generateMaps();
+           
         // Set all the cells in the tiled layer
             
             for (int row = 0; row < rows; row++) {
                 for (int col = 0; col < cols; col++) {
                     NetworkWall_NotAnimated.setCell(col, row, tiles[row][col]);
-                    System.out.println("Background Cell: Col:"+col+" Row:"+row);
                 }
             }
         }
@@ -496,7 +476,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 int tile_x = current_x / TILE_HEIGHT_WIDTH + intCoordinatesAroundAgent[i];
                 int tile_y = current_y / TILE_HEIGHT_WIDTH + intCoordinatesAroundAgent[i + 1];
 
-                if (blueHatBackground.getCell(tile_x, tile_y) == FLOOR_TILE) {
+                if (blueHatBackground.getCell(tile_x, tile_y) == FLOOR_TILE && tile_x != 0) {
                     AgentMovement agentMovement = new AgentMovement(intCoordinatesAroundAgent[i], intCoordinatesAroundAgent[i + 1]);
                     viableDirection.addElement(agentMovement);
                 }
@@ -505,7 +485,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             int tile_x = current_x / TILE_HEIGHT_WIDTH + currentDirection.getX_pos();
             int tile_y = current_y / TILE_HEIGHT_WIDTH + currentDirection.getY_pos();
 
-            if (blueHatBackground.getCell(tile_x, tile_y) == FLOOR_TILE) {
+            if (blueHatBackground.getCell(tile_x, tile_y) == FLOOR_TILE && tile_x != 0) {
 
                 viableDirection.addElement(currentDirection);
                 viableDirection.addElement(currentDirection);
@@ -516,9 +496,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //Where is the player Sprite?
             //determine the viable direction UP,DOWN,LEFT,RIGHT
-            Random rdmDirection = new Random();
+            
             int direction_size = viableDirection.size();
-            int intRandomDirection = rdmDirection.nextInt(direction_size);
+            int intRandomDirection = rdmNumber.nextInt(direction_size);
             AgentMovement direction = (AgentMovement) viableDirection.elementAt(intRandomDirection);
 
             intAgentPosition[0] = direction.getX_pos();
@@ -527,6 +507,62 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         }
 
         return intAgentPosition;
+    }
+    
+    private int[][] generateMaps(){
+        
+        int[][] returningMap = new int[18][15];
+        
+        
+        // Map arrays
+        int[][] maps = {
+                {23, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 28},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+                {23, 10, 10, 0, 10, 10, 18, 0, 18, 10, 10, 10, 0, 10, 2},
+                {2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2},
+                {2, 0, 10, 10, 0, 10, 38, 0, 33, 10, 0, 10, 10, 10, 2},
+                {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+                {2, 0, 23, 10, 10, 10, 10, 0, 10, 10, 10, 10, 10, 0, 2},
+                {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+                {2, 0, 2, 0, 23, 10, 10, 10, 10, 0, 23, 0, 28, 0, 2},
+                {2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2},
+                {2, 0, 2, 0, 0, 0, 23, 10, 10, 0, 2, 0, 2, 0, 2},
+                {2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 38, 0, 2, 0, 2},
+                {2, 0, 2, 0, 2, 0, 2, 0, 23, 0, 0, 0, 2, 0, 2},
+                {2, 0, 2, 0, 2, 0, 0, 0, 33, 10, 10, 10, 38, 0, 2},
+                {2, 0, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2},
+                {2, 0, 0, 0, 2, 0, 33, 10, 10, 10, 10, 0, 10, 10, 2},
+                {2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+                {33, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 38},
+//add the second map
+                {23, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 10, 10, 28},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2},
+                {2, 0, 10, 10, 28, 0, 2, 2, 0, 2, 0, 10, 29, 0, 2},
+                {2, 0, 0, 0, 2, 0, 2, 2, 0, 2, 0, 0, 2, 0, 2},
+                {2, 0, 23, 0, 2, 0, 2, 2, 0, 33, 10, 10, 38, 0, 2},
+                {2, 0, 33, 0, 2, 0, 2, 2, 0, 0, 0, 0, 0, 0, 2},
+                {2, 0, 0, 0, 2, 0, 0, 0, 0, 23, 10, 10, 0, 10, 2},
+                {2, 0, 10, 10, 38, 0, 2, 2, 0, 4, 0, 0, 0, 0, 2},
+                {2, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 2, 0, 0, 2},
+                {2, 0, 0, 10, 10, 10, 18, 10, 10, 39, 0, 2, 0, 10, 2},
+                {2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 2},
+                {2, 10, 10, 10, 30, 0, 2, 0, 10, 10, 10, 39, 0, 0, 2},
+                {2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2},
+                {2, 0, 2, 0, 2, 0, 0, 0, 10, 10, 10, 10, 30, 0, 2},
+                {2, 0, 33, 10, 38, 0, 2, 0, 0, 0, 0, 0, 2, 0, 2},
+                {2, 0, 0, 0, 0, 0, 2, 0, 10, 10, 28, 0, 42, 0, 2},
+                {2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 2},
+                {33, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 38}
+            }; 
+        
+        int numberOfMaps = maps.length/18; //count the rows and divide by 18
+        int startingMapRow = rdmNumber.nextInt(numberOfMaps)*18;
+        
+        for (int i = startingMapRow; i < startingMapRow+18; i++) {
+            System.arraycopy(maps[i], 0, returningMap[i-startingMapRow], 0, 15);
+        }
+                
+        return returningMap;
     }
 
 }

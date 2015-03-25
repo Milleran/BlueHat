@@ -1,23 +1,30 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/**
+* Assignment: TME1
+* Assignment Name: Blue Hat
+* Assignment Date: March 25th, 2015
+
+* @ author: Andrew Miller
+* Student ID: 2433560
+* Course: COMP 486
+
+* The primary purpose of the Bluehat Canvas class is to execute the game.
+* The class extends Game Canvas to allow the drawing of sprite's and to 
+* provide basic game functionality.
+* The class also implements the runnable interface to continuesly run game loops
+* The class also implements the CommandListner to provide a user interface to exit
+* or play again.
+*/
 package bluehat;
 
 import java.io.IOException;
 import java.util.*;
-import java.lang.*;
 import javax.microedition.lcdui.*;
 import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.game.Sprite;
 import javax.microedition.lcdui.game.TiledLayer;
 import javax.microedition.midlet.MIDlet;
 
-/**
- *
- * @author Andrew
- */
+
 public class BluehatCanvas extends GameCanvas implements Runnable, CommandListener {
 
     private Graphics graphics;

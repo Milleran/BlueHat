@@ -55,6 +55,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private TiledLayer blueHatBackground;
     private TiledLayer NetworkWall_NotAnimated;
     
+    private Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_LARGE);
+    private String strStatus;
 
     private int player_x_pos = 16;
     private int player_y_pos = 16;
@@ -81,6 +83,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         form = stform;
         display = start;
         startgameMIDlet = startMIDlet;
+        strStatus = "Obtain the secret document!";
         //Create the contract screen/game objection screen.
         showContractScreen();
 
@@ -136,7 +139,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             }
 
             this.clearScreen(graphics);
-
+            
+            //Display the game status.
+            graphics.setColor(0);
+            graphics.setFont(gameFont);
+            graphics.drawString(strStatus, 0, 288, 0);
             //repaint the background
             blueHatBackground.paint(graphics);
             
@@ -172,6 +179,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 if (serverSprite.collidesWith(playerSprite, true)) {
                     serverSprite.setVisible(false);
                     player_has_objective = true;
+                    strStatus = "You have it! Get to the exit.";
                 }
             //}
 
@@ -229,7 +237,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
                 graphics.setColor(0);
                 graphics.setFont(gameFont);
-                graphics.drawString("Empty Handed!", 0, 288, 0);
+                graphics.drawString("You must retrieve the secret document!", 0, 288, 0);
 
                 player_x_pos = player_x_pos_last;
                 player_y_pos = player_y_pos_last;
@@ -363,7 +371,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 int random_x = rdmNumber.nextInt(16);
                 int random_y = rdmNumber.nextInt(13);
                 
-                if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE) {
+                //Place the server sprite on a Floor tile and 6 or more rows below the player.
+                if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE && random_y>=6) {
                     System.out.println("Random_y: "+random_y + "Random_x: "+ random_x);
                     serverSprite.setPosition(random_x * TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH);
                     flag = false;

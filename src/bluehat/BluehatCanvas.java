@@ -6,12 +6,18 @@
 package bluehat;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.lang.*;
 import javax.microedition.lcdui.*;
 import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.game.Sprite;
 import javax.microedition.lcdui.game.TiledLayer;
+import javax.microedition.media.Manager;
+import javax.microedition.media.MediaException;
+import javax.microedition.media.Player;
+import javax.microedition.media.PlayerListener;
+import javax.microedition.media.control.VolumeControl;
 import javax.microedition.midlet.MIDlet;
 
 /**
@@ -34,12 +40,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private Display display;
     private MIDlet startgameMIDlet;
     Random rdmNumber = new Random();
-    
+
+    Player backgroundMusicPlayer;
+    Player soundEffectPlayer;
 
     private Sprite playerSprite;
     private Sprite serverSprite;
     private Vector vecServerSprites;
-    private int numberOfServers =1;
+    private int numberOfServers = 1;
     private Image playerImage;
     private Image playerSpritePage;
     private Image serverSpritePage;
@@ -47,7 +55,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private Sprite ndiSprite;
     private TiledLayer blueHatBackground;
     private TiledLayer NetworkWall_NotAnimated;
-    
 
     private int player_x_pos = 16;
     private int player_y_pos = 16;
@@ -55,6 +62,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private int player_y_pos_last = 16;
     private int agent_change_direction;
     private int[] intAgentMove = {0, 0};
+    private int animationFrameRate;
 
     private boolean player_has_objective = false;
     private boolean run_game = true;
@@ -74,25 +82,24 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         form = stform;
         display = start;
         startgameMIDlet = startMIDlet;
+        graphics = getGraphics();
+        
         //Create the contract screen/game objection screen.
         showContractScreen();
 
         try {
             //create the game sprites
             createGameSprites();
-            
+
             //create the game background and the network maze.
             gamemazeScreen();
- 
+
         } catch (IOException ex) {
             System.out.println(ex.toString());
         }
 
     }
-
-    public void run() {
-        graphics = getGraphics();
-        
+    private void initializeGame(){
         //Place the player at the starting position.
         playerSprite.defineReferencePixel(player_x_pos, player_y_pos);
 
@@ -101,7 +108,17 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         ndiSprite.setPosition(80, 208);
 
         //varible to slow down the frame rate 
-        int animationFrameRate = 0;
+        animationFrameRate = 0;
+
+        //Start the background music for the game.
+        playBackgroundMusic("toner_2.mp3", "audio/mpeg");
+    }
+
+    public void run() {
+        
+        //setup the sprites on the board
+        
+        initializeGame();
 
         //Run through the endless loop taking in the users input from the phone.
         while (run_game) {
@@ -132,10 +149,10 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //repaint the background
             blueHatBackground.paint(graphics);
-            
+
             //increase the frame count by 1
             animationFrameRate++;
-            
+
             //set the player at the new location on the screen
             movePlayer();
 
@@ -144,7 +161,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //Moves the agent and reduces the framerate of the animation
             moveAgent(animationFrameRate);
-            
+
             //control the framerate of the animations of the sprites, this
             // reduces it by a factor of 100.
             if (animationFrameRate / 100 == 1) {
@@ -162,15 +179,18 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             //Check for the player sprite colliding with the server
             //for (int i = 0; i < numberOfServers; i++) {
             //    serverSprite = (Sprite) vecServerSprites.elementAt(i);
-                if (serverSprite.collidesWith(playerSprite, true)) {
-                    serverSprite.setVisible(false);
-                    player_has_objective = true;
-                }
+            if (serverSprite.collidesWith(playerSprite, true)) {
+                serverSprite.setVisible(false);
+                player_has_objective = true;
+
+                playSoundEffect("Pickup_Coin.wav");
+                playBackgroundMusic("Chip Bit Danger.mp3", "audio/mpeg");
+            }
             //}
 
             if (detectAgentCollision()) {
                 showFailureScreen();
-                run_game = false;
+                //run_game = false;
             }
 
             //check if the player has retrived the document and can exit the maze.
@@ -189,33 +209,42 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         }
 
     }
+
     private void createGameSprites() throws IOException {
-        //Create the player sprite that will be used in the game.
-        playerSpritePage = Image.createImage("/Player0.png");
-        playerImage = Image.createImage(playerSpritePage, 96, 48, 16, 16, Sprite.TRANS_NONE);
-        playerSprite = new Sprite(playerImage, 16, 16);
-        
-        //Create the server sprite
-        serverSpritePage = Image.createImage("/Server.png");
- //       for (int i = 0; i < numberOfServers; i++) {
+
+        try {
+            //Create the player sprite that will be used in the game.
+            playerSpritePage = Image.createImage("/Player0.png");
+            playerImage = Image.createImage(playerSpritePage, 96, 48, 16, 16, Sprite.TRANS_NONE);
+            playerSprite = new Sprite(playerImage, 16, 16);
+
+            //Create the server sprite
+            serverSpritePage = Image.createImage("/Server.png");
+            //       for (int i = 0; i < numberOfServers; i++) {
             serverSprite = new Sprite(serverSpritePage, 16, 16);
             int[] serverFrameSeq = {0, 1, 2};
             serverSprite.setFrameSequence(serverFrameSeq);
             //vecServerSprites.addElement(serverSprite);
- //       }
-        
-        //Create the network intrution detection agents.
-        ndiSpritePage = Image.createImage("AgentSmith.png");
-        ndiSprite = new Sprite(ndiSpritePage, 16, 16);
-        int[] ndiFrameSeq = {0, 1, 2};
-        ndiSprite.setFrameSequence(ndiFrameSeq);
+            //       }
+
+            //Create the network intrution detection agents.
+            ndiSpritePage = Image.createImage("AgentSmith.png");
+            ndiSprite = new Sprite(ndiSpritePage, 16, 16);
+            int[] ndiFrameSeq = {0, 1, 2};
+            ndiSprite.setFrameSequence(ndiFrameSeq);
+
+        } catch (IOException ioe){
+            System.out.println(ioe.toString());
+        }
     }
+
     private void determineSuccess() {
         //The player exiting the maze, if the player has the object then succuess.
         //If not then the player is prevented from leaving.
         if (detectPlayerExitMaze()) {
             if (player_has_objective == true) {
                 showSuccessScreen();
+                playBackgroundMusic("Grey Sector v0_85.mp3", "audio/mpeg");
                 run_game = false;
             } else {
                 Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_LARGE);
@@ -250,12 +279,12 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     private void paintServer(int animationFrameRate) {
         //paint the server with a reduced framerate.
-                
+
         if (animationFrameRate / 10 == 1) {
             serverSprite.nextFrame();
         }
         serverSprite.paint(graphics);
-       
+
     }
 
     private void movePlayer() {
@@ -305,11 +334,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         //Add a exit game command
         cmdEndHack = new Command("Exit", Command.OK, 1);
-        cmdPlayAgain = new Command("Play Again",Command.OK,1);
-        
+        cmdPlayAgain = new Command("Play Again", Command.OK, 1);
+
         this.addCommand(cmdEndHack);
         this.setCommandListener(this);
-        
+
         this.addCommand(cmdPlayAgain);
         this.setCommandListener(this);
     }
@@ -347,21 +376,21 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             int rows = getHeight() / TILE_HEIGHT_WIDTH;
 
             blueHatBackground = getNetworkWall_NotAnimated(rows, cols, background);
-            
+
             //Draw the Server Sprite in a random floor only area of the Maze
             //for(int i=0;i<numberOfServers;i++){
-                boolean flag = true;
-            
+            boolean flag = true;
+
             while (flag) {
                 int random_x = rdmNumber.nextInt(16);
                 int random_y = rdmNumber.nextInt(13);
-                
+
                 if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE) {
-                    System.out.println("Random_y: "+random_y + "Random_x: "+ random_x);
+                    System.out.println("Random_y: " + random_y + "Random_x: " + random_x);
                     serverSprite.setPosition(random_x * TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH);
                     flag = false;
                 }
-                
+
             }
             //}
 
@@ -390,7 +419,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     public void commandAction(Command cmd, Displayable display) {
         if (cmd == cmdStartHack) {
-            System.out.println("start");
+
             this.removeCommand(cmd);
             this.repaint();
             clearScreen(graphics);
@@ -400,21 +429,26 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         }
         if (cmd == cmdEndHack) {
-            System.out.println("End");
+
             run_game = false;
 
             startgameMIDlet.notifyDestroyed();
 
         }
-        if(cmd == cmdPlayAgain){
-            System.out.println("again");
-            run_game=true;
-            this.removeCommand(cmd);
-            this.repaint();
+        if (cmd == cmdPlayAgain) {
+            
             clearScreen(graphics);
+            gamemazeScreen();
+            initializeGame();
+            
+            this.repaint();
+            
+            
+            
+          //How do i start a thread again??
+            
 
-            //runner = new Thread(this);
-            runner.start();
+                
         }
 
     }
@@ -432,7 +466,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     private boolean detectAgentCollision() {
         if (playerSprite.collidesWith(ndiSprite, true)) {
-            System.out.println("Agent Hit");
+            playSoundEffect("Explosion.wav");
+            playBackgroundMusic("ThisGameIsOver.wav", "audio/X-wav");
             return true;
         }
         return false;
@@ -451,9 +486,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             NetworkWall_NotAnimated = new TiledLayer(cols, rows, background, TILE_HEIGHT_WIDTH, TILE_HEIGHT_WIDTH);
 
             int[][] tiles = generateMaps();
-           
+
         // Set all the cells in the tiled layer
-            
             for (int row = 0; row < rows; row++) {
                 for (int col = 0; col < cols; col++) {
                     NetworkWall_NotAnimated.setCell(col, row, tiles[row][col]);
@@ -496,7 +530,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //Where is the player Sprite?
             //determine the viable direction UP,DOWN,LEFT,RIGHT
-            
             int direction_size = viableDirection.size();
             int intRandomDirection = rdmNumber.nextInt(direction_size);
             AgentMovement direction = (AgentMovement) viableDirection.elementAt(intRandomDirection);
@@ -508,61 +541,133 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         return intAgentPosition;
     }
-    
-    private int[][] generateMaps(){
-        
+
+    private int[][] generateMaps() {
+
         int[][] returningMap = new int[18][15];
-        
-        
+
         // Map arrays
         int[][] maps = {
-                {23, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 28},
-                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
-                {23, 10, 10, 0, 10, 10, 18, 0, 18, 10, 10, 10, 0, 10, 2},
-                {2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2},
-                {2, 0, 10, 10, 0, 10, 38, 0, 33, 10, 0, 10, 10, 10, 2},
-                {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
-                {2, 0, 23, 10, 10, 10, 10, 0, 10, 10, 10, 10, 10, 0, 2},
-                {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
-                {2, 0, 2, 0, 23, 10, 10, 10, 10, 0, 23, 0, 28, 0, 2},
-                {2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2},
-                {2, 0, 2, 0, 0, 0, 23, 10, 10, 0, 2, 0, 2, 0, 2},
-                {2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 38, 0, 2, 0, 2},
-                {2, 0, 2, 0, 2, 0, 2, 0, 23, 0, 0, 0, 2, 0, 2},
-                {2, 0, 2, 0, 2, 0, 0, 0, 33, 10, 10, 10, 38, 0, 2},
-                {2, 0, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2},
-                {2, 0, 0, 0, 2, 0, 33, 10, 10, 10, 10, 0, 10, 10, 2},
-                {2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
-                {33, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 38},
-//add the second map
-                {23, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 10, 10, 28},
-                {0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2},
-                {2, 0, 10, 10, 28, 0, 2, 2, 0, 2, 0, 10, 29, 0, 2},
-                {2, 0, 0, 0, 2, 0, 2, 2, 0, 2, 0, 0, 2, 0, 2},
-                {2, 0, 23, 0, 2, 0, 2, 2, 0, 33, 10, 10, 38, 0, 2},
-                {2, 0, 33, 0, 2, 0, 2, 2, 0, 0, 0, 0, 0, 0, 2},
-                {2, 0, 0, 0, 2, 0, 0, 0, 0, 23, 10, 10, 0, 10, 2},
-                {2, 0, 10, 10, 38, 0, 2, 2, 0, 4, 0, 0, 0, 0, 2},
-                {2, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 2, 0, 0, 2},
-                {2, 0, 0, 10, 10, 10, 18, 10, 10, 39, 0, 2, 0, 10, 2},
-                {2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 2},
-                {2, 10, 10, 10, 30, 0, 2, 0, 10, 10, 10, 39, 0, 0, 2},
-                {2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2},
-                {2, 0, 2, 0, 2, 0, 0, 0, 10, 10, 10, 10, 30, 0, 2},
-                {2, 0, 33, 10, 38, 0, 2, 0, 0, 0, 0, 0, 2, 0, 2},
-                {2, 0, 0, 0, 0, 0, 2, 0, 10, 10, 28, 0, 42, 0, 2},
-                {2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 2},
-                {33, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 38}
-            }; 
-        
-        int numberOfMaps = maps.length/18; //count the rows and divide by 18
-        int startingMapRow = rdmNumber.nextInt(numberOfMaps)*18;
-        
-        for (int i = startingMapRow; i < startingMapRow+18; i++) {
-            System.arraycopy(maps[i], 0, returningMap[i-startingMapRow], 0, 15);
+            {23, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 28},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+            {23, 10, 10, 0, 10, 10, 18, 0, 18, 10, 10, 10, 0, 10, 2},
+            {2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2},
+            {2, 0, 10, 10, 0, 10, 38, 0, 33, 10, 0, 10, 10, 10, 2},
+            {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+            {2, 0, 23, 10, 10, 10, 10, 0, 10, 10, 10, 10, 10, 0, 2},
+            {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+            {2, 0, 2, 0, 23, 10, 10, 10, 10, 0, 23, 0, 28, 0, 2},
+            {2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2},
+            {2, 0, 2, 0, 0, 0, 23, 10, 10, 0, 2, 0, 2, 0, 2},
+            {2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 38, 0, 2, 0, 2},
+            {2, 0, 2, 0, 2, 0, 2, 0, 23, 0, 0, 0, 2, 0, 2},
+            {2, 0, 2, 0, 2, 0, 0, 0, 33, 10, 10, 10, 38, 0, 2},
+            {2, 0, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2},
+            {2, 0, 0, 0, 2, 0, 33, 10, 10, 10, 10, 0, 10, 10, 2},
+            {2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+            {33, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 38},
+            //add the second map
+            {23, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 10, 10, 28},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2},
+            {2, 0, 10, 10, 28, 0, 2, 2, 0, 2, 0, 10, 29, 0, 2},
+            {2, 0, 0, 0, 2, 0, 2, 2, 0, 2, 0, 0, 2, 0, 2},
+            {2, 0, 23, 0, 2, 0, 2, 2, 0, 33, 10, 10, 38, 0, 2},
+            {2, 0, 33, 0, 2, 0, 2, 2, 0, 0, 0, 0, 0, 0, 2},
+            {2, 0, 0, 0, 2, 0, 0, 0, 0, 23, 10, 10, 0, 10, 2},
+            {2, 0, 10, 10, 38, 0, 2, 2, 0, 4, 0, 0, 0, 0, 2},
+            {2, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 2, 0, 0, 2},
+            {2, 0, 0, 10, 10, 10, 18, 10, 10, 39, 0, 2, 0, 10, 2},
+            {2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 2},
+            {2, 10, 10, 10, 30, 0, 2, 0, 10, 10, 10, 39, 0, 0, 2},
+            {2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2},
+            {2, 0, 2, 0, 2, 0, 0, 0, 10, 10, 10, 10, 30, 0, 2},
+            {2, 0, 33, 10, 38, 0, 2, 0, 0, 0, 0, 0, 2, 0, 2},
+            {2, 0, 0, 0, 0, 0, 2, 0, 10, 10, 28, 0, 42, 0, 2},
+            {2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 2},
+            {33, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 38}
+        };
+
+        int numberOfMaps = maps.length / 18; //count the rows and divide by 18
+        int startingMapRow = rdmNumber.nextInt(numberOfMaps) * 18;
+
+        for (int i = startingMapRow; i < startingMapRow + 18; i++) {
+            System.arraycopy(maps[i], 0, returningMap[i - startingMapRow], 0, 15);
         }
-                
+
         return returningMap;
+    }
+
+    private void playBackgroundMusic(String strMusic, String strFileType) {
+        /*
+         This starts the background music for the game.
+         Used music from http://www.opengameart.org/ a open source
+         public domain game asset library.
+         "This Game Is Over" - Joseph Pueyo http://www.josephpueyo.com/
+         */
+
+        //if there is background music playing then stop it and replace it with 
+        //the new file.
+        try {
+            if (backgroundMusicPlayer != null) {
+                if (backgroundMusicPlayer.getState() == Player.STARTED) {
+                    backgroundMusicPlayer.stop();
+                }
+            }
+            //bring in the file as a stream
+            InputStream inputStream = this.getClass().getResourceAsStream("/music/" + strMusic);
+
+            //Create a player for the music and fetch the music file.
+            backgroundMusicPlayer = Manager.createPlayer(inputStream, strFileType);
+            backgroundMusicPlayer.prefetch();
+
+        //Add a listener to the canvas
+            //backgroundMusicPlayer.addPlayerListener(this);
+            //loop the music forever
+            backgroundMusicPlayer.setLoopCount(-1);
+
+        //set the volumn control
+            VolumeControl backgroundVolumnControl = (VolumeControl) backgroundMusicPlayer.getControl("VolumeControl");
+            backgroundVolumnControl.setLevel(10);
+
+            //start the playing of the music.
+            backgroundMusicPlayer.start();
+        
+        
+        } catch (IOException ex) {
+            System.out.println(ex.toString());
+        } catch (MediaException ex) {
+            System.out.println(ex.toString());
+        }
+    }
+
+    private void playSoundEffect(String strSound) {
+        /*
+         This method plays sound effects for the game.
+         Used effects from http://www.opengameart.org/ a open source
+         public domain game asset library.
+         */
+
+        try {
+            //bring in the file as a stream
+            InputStream inputStream = this.getClass().getResourceAsStream("/sounds/" + strSound);
+
+            //Create a player for the music and fetch the music file.
+            soundEffectPlayer = Manager.createPlayer(inputStream, "audio/X-wav");
+            soundEffectPlayer.prefetch();
+
+        //set the volumn control
+            VolumeControl backgroundVolumnControl = (VolumeControl) backgroundMusicPlayer.getControl("VolumeControl");
+            backgroundVolumnControl.setLevel(10);
+
+            //start the playing of the music.
+            soundEffectPlayer.start();
+      
+       
+        } catch (IOException ex) {
+            System.out.println(ex.toString());
+        } catch (MediaException ex) {
+            System.out.println(ex.toString());
+        }
     }
 
 }

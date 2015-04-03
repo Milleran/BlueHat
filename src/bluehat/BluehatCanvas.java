@@ -1,14 +1,24 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/**
+* Assignment: TME1
+* Assignment Name: Blue Hat
+* Assignment Date: March 25th, 2015
+
+* @ author: Andrew Miller
+* Student ID: 2433560
+* Course: COMP 486
+
+* The primary purpose of the Bluehat Canvas class is to execute the game.
+* The class extends Game Canvas to allow the drawing of sprite's and to 
+* provide basic game functionality.
+* The class also implements the runnable interface to continuesly run game loops
+* The class also implements the CommandListner to provide a user interface to exit
+* or play again.
+*/
 package bluehat;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.lang.*;
 import javax.microedition.lcdui.*;
 import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.game.Sprite;
@@ -20,10 +30,7 @@ import javax.microedition.media.PlayerListener;
 import javax.microedition.media.control.VolumeControl;
 import javax.microedition.midlet.MIDlet;
 
-/**
- *
- * @author Andrew
- */
+
 public class BluehatCanvas extends GameCanvas implements Runnable, CommandListener {
 
     private Graphics graphics;
@@ -55,6 +62,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private Sprite ndiSprite;
     private TiledLayer blueHatBackground;
     private TiledLayer NetworkWall_NotAnimated;
+    
+    private Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_LARGE);
+    private String strStatus;
 
     private int player_x_pos = 16;
     private int player_y_pos = 16;
@@ -82,8 +92,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         form = stform;
         display = start;
         startgameMIDlet = startMIDlet;
-        graphics = getGraphics();
-        
+        strStatus = "Obtain the secret document!";
         //Create the contract screen/game objection screen.
         showContractScreen();
 
@@ -146,7 +155,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             }
 
             this.clearScreen(graphics);
-
+            
+            //Display the game status.
+            graphics.setColor(0);
+            graphics.setFont(gameFont);
+            graphics.drawString(strStatus, 0, 288, 0);
             //repaint the background
             blueHatBackground.paint(graphics);
 
@@ -179,13 +192,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             //Check for the player sprite colliding with the server
             //for (int i = 0; i < numberOfServers; i++) {
             //    serverSprite = (Sprite) vecServerSprites.elementAt(i);
-            if (serverSprite.collidesWith(playerSprite, true)) {
-                serverSprite.setVisible(false);
-                player_has_objective = true;
-
-                playSoundEffect("Pickup_Coin.wav");
-                playBackgroundMusic("Chip Bit Danger.mp3", "audio/mpeg");
-            }
+                if (serverSprite.collidesWith(playerSprite, true)) {
+                    serverSprite.setVisible(false);
+                    player_has_objective = true;
+                    strStatus = "You have it! Get to the exit.";
+                }
             //}
 
             if (detectAgentCollision()) {
@@ -251,7 +262,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
                 graphics.setColor(0);
                 graphics.setFont(gameFont);
-                graphics.drawString("Empty Handed!", 0, 288, 0);
+                graphics.drawString("You must retrieve the secret document!", 0, 288, 0);
 
                 player_x_pos = player_x_pos_last;
                 player_y_pos = player_y_pos_last;
@@ -384,9 +395,10 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             while (flag) {
                 int random_x = rdmNumber.nextInt(16);
                 int random_y = rdmNumber.nextInt(13);
-
-                if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE) {
-                    System.out.println("Random_y: " + random_y + "Random_x: " + random_x);
+                
+                //Place the server sprite on a Floor tile and 6 or more rows below the player.
+                if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE && random_y>=6) {
+                    System.out.println("Random_y: "+random_y + "Random_x: "+ random_x);
                     serverSprite.setPosition(random_x * TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH);
                     flag = false;
                 }

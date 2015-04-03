@@ -61,9 +61,7 @@ public class BluehatStart extends MIDlet implements CommandListener {
     
     public void commandAction(Command cmd, Displayable dsp) {
         if(cmd == cmdStartGame){
-         form.deleteAll();
-         bluehatCanvas = new BluehatCanvas(display,form, this);
-         display.setCurrent(bluehatCanvas);
+         reset();
                   
         }
         else if(cmd == cmdEndGame){
@@ -74,5 +72,10 @@ public class BluehatStart extends MIDlet implements CommandListener {
                 System.out.println(e.toString());
             }
      }
+    }
+    public void reset(){
+        form.deleteAll();
+         bluehatCanvas = new BluehatCanvas(display,form, this);
+         display.setCurrent(bluehatCanvas);
     }
 }

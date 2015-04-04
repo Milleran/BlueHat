@@ -121,6 +121,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         //Start the background music for the game.
         playBackgroundMusic("toner_2.mp3", "audio/mpeg");
+        
+        //Reset the player objective
+        player_has_objective = false;
     }
 
     public void run() {
@@ -195,6 +198,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 if (serverSprite.collidesWith(playerSprite, true)) {
                     serverSprite.setVisible(false);
                     player_has_objective = true;
+                    playBackgroundMusic("Chip Bit Danger.mp3", "audio/mpeg");
                     strStatus = "You have it! Get to the exit.";
                 }
             //}
@@ -256,7 +260,10 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             if (player_has_objective == true) {
                 showSuccessScreen();
                 playBackgroundMusic("Grey Sector v0_85.mp3", "audio/mpeg");
-                run_game = false;
+                run_game = true;
+                
+                //reset the player objective.
+                //player_has_objective = false;
             } else {
                 Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_LARGE);
 
@@ -450,11 +457,18 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         if (cmd == cmdPlayAgain) {
             
             clearScreen(graphics);
-            gamemazeScreen();
-            initializeGame();
             
             this.repaint();
             
+            gamemazeScreen();
+            initializeGame();
+            
+            //flush the graphics for the next iteration of the loop.
+            flushGraphics();
+            
+            if(runner.isAlive()){
+                System.out.println("its alive");
+            }
             
             
           //How do i start a thread again??

@@ -76,6 +76,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     private boolean player_has_objective = false;
     private boolean run_game = true;
+    private boolean level_complete = false;
 
     static int TILE_HEIGHT_WIDTH = 16;
     static int WALL_IMPACT = 1;
@@ -96,19 +97,26 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         //Create the contract screen/game objection screen.
         showContractScreen();
 
-        try {
-            //create the game sprites
-            createGameSprites();
 
-            //create the game background and the network maze.
-            gamemazeScreen();
+        //create the game sprites
+        createGameSprites();
+        
+        //Place all the game pieces on the board.
+        initializeGame();
 
-        } catch (IOException ex) {
-            System.out.println(ex.toString());
-        }
 
     }
     private void initializeGame(){
+        
+        //Reset the player objective and server back to visible
+        player_has_objective = false;
+        level_complete = false;
+        serverSprite.setVisible(true);
+        player_x_pos = 16;
+        player_y_pos = 16;
+        
+        //create the game background and the network maze.
+            gamemazeScreen();
         //Place the player at the starting position.
         playerSprite.defineReferencePixel(player_x_pos, player_y_pos);
 
@@ -122,16 +130,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         //Start the background music for the game.
         playBackgroundMusic("toner_2.mp3", "audio/mpeg");
         
-        //Reset the player objective
-        player_has_objective = false;
+
     }
 
     public void run() {
-        
-        //setup the sprites on the board
-        
-        initializeGame();
-
+ 
         //Run through the endless loop taking in the users input from the phone.
         while (run_game) {
             int keyState = this.getKeyStates();
@@ -212,8 +215,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             determineSuccess();
 
             //flush the graphics for the next iteration of the loop.
-            flushGraphics();
-
+            if(!level_complete){
+                flushGraphics();
+            }
             //Put the thread asleep for 10 miliseconds.
             try {
                 Thread.sleep(10);
@@ -225,7 +229,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     }
 
-    private void createGameSprites() throws IOException {
+    private void createGameSprites() {
 
         try {
             //Create the player sprite that will be used in the game.
@@ -260,10 +264,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             if (player_has_objective == true) {
                 showSuccessScreen();
                 playBackgroundMusic("Grey Sector v0_85.mp3", "audio/mpeg");
-                run_game = true;
-                
+                //run_game = true;
+                level_complete = true;
+                               
                 //reset the player objective.
-                //player_has_objective = false;
+                player_has_objective = false;
             } else {
                 Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_LARGE);
 
@@ -460,21 +465,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             
             this.repaint();
             
-            gamemazeScreen();
             initializeGame();
-            
-            //flush the graphics for the next iteration of the loop.
-            flushGraphics();
-            
+          
             if(runner.isAlive()){
                 System.out.println("its alive");
             }
-            
-            
-          //How do i start a thread again??
-            
-
-                
         }
 
     }

@@ -1,7 +1,7 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ This is a utility class for the BlueHat game.
+The following code was found on developer.nokia.com.
+
  */
 package bluehat;
 
@@ -11,7 +11,7 @@ import javax.microedition.lcdui.Graphics;
 
 /**
  *
- * @author Andrew
+ * @author Andrew Miller - 2433560
  */
 public class BluehatUtil {
 

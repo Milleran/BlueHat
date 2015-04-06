@@ -396,9 +396,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 getHeight() / 8, 0, 225);
 
         //Add a exit game command
-        cmdEndHack = new Command("Exit", Command.OK, 1);
-        this.addCommand(cmdEndHack);
-        this.setCommandListener(this);
+        if(cmdEndHack == null){
+            cmdEndHack = new Command("Exit", Command.OK, 1);
+            this.addCommand(cmdEndHack);
+            this.setCommandListener(this);
+        }
     }
 
     private void gamemazeScreen() {

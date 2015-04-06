@@ -16,6 +16,15 @@ import javax.microedition.lcdui.Graphics;
 public class BluehatUtil {
 
     static public int drawMultilineString(Graphics g, Font font, String str, int x, int y, int anchor, int width) {
+        /*
+        Name: drawMulilineString
+        Description: outputs a formatted string for the phones screen 
+        Inputs: graphics, font, string, int, int, int
+        Output: int
+        Called by Whom: showContractScreen, showSuccessScreen, showFailureScreen
+        Calls: wrap
+        */
+
         g.setFont(font);
         Vector lines = wrap(str, font, width);
         for (int i = 0; i < lines.size(); i++) {

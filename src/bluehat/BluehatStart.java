@@ -71,13 +71,20 @@ public class BluehatStart extends MIDlet implements CommandListener {
     }
     
     public void commandAction(Command cmd, Displayable dsp) {
-        //The start game will start the BlueCanvas object thread to start running.
-        //The Midlet object is passed to the Bluehat Canvas so that the canvas
-        //can exit the game to the operating system of the phone.
-        //
-        //The end game command destorys the Midlet and exits the user to the phones
-        //operating system.
+        /*
+        Name: commandAction
+        Description:  The start game will start the BlueCanvas object thread to start running.
+        The Midlet object is passed to the Bluehat Canvas so that the canvas
+        can exit the game to the operating system of the phone.
         
+        The end game command destorys the Midlet and exits the user to the phones
+        operating system.
+        Inputs: command, displayable
+        Output: void
+        Called by Whom: void
+        Calls: void
+        */
+
         if(cmd == cmdStartGame){
          reset();
                   

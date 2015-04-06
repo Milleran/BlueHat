@@ -1,19 +1,14 @@
 /**
-* Assignment: TME1
-* Assignment Name: Blue Hat
-* Assignment Date: March 25th, 2015
-
-* @ author: Andrew Miller
-* Student ID: 2433560
-* Course: COMP 486
-
-* The primary purpose of the Bluehat Canvas class is to execute the game.
-* The class extends Game Canvas to allow the drawing of sprite's and to 
-* provide basic game functionality.
-* The class also implements the runnable interface to run the game loop
-* The class also implements the CommandListner to provide a user interface to exit
-* or play again.
-*/
+ * Assignment: TME1 Assignment Name: Blue Hat Assignment Date: March 25th, 2015
+ *
+ * @ author: Andrew Miller Student ID: 2433560 Course: COMP 486
+ *
+ * The primary purpose of the Bluehat Canvas class is to execute the game. The
+ * class extends Game Canvas to allow the drawing of sprite's and to provide
+ * basic game functionality. The class also implements the runnable interface to
+ * run the game loop The class also implements the CommandListner to provide a
+ * user interface to exit or play again.
+ */
 package bluehat;
 
 import java.io.IOException;
@@ -29,7 +24,6 @@ import javax.microedition.media.Player;
 import javax.microedition.media.PlayerListener;
 import javax.microedition.media.control.VolumeControl;
 import javax.microedition.midlet.MIDlet;
-
 
 public class BluehatCanvas extends GameCanvas implements Runnable, CommandListener {
 
@@ -56,9 +50,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private Sprite ndiSprite;
     private TiledLayer blueHatBackground;
     private TiledLayer NetworkWall_NotAnimated;
-    
-    private Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, 
-                                        Font.SIZE_LARGE);
+
+    private Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD,
+            Font.SIZE_LARGE);
     private String strStatus;
 
     private int player_x_pos = 16;
@@ -84,41 +78,50 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     public BluehatCanvas(Display start, Form stform, MIDlet startMIDlet) {
-        
+
         super(true);
         form = stform;
         display = start;
         startgameMIDlet = startMIDlet;
         strStatus = "Obtain the secret document!";
-        
+
         //Create the contract screen/game objection screen.
         showContractScreen();
 
         //create the game sprites
         createGameSprites();
-        
+
         //Place all the game pieces on the board.
         initializeGame();
 
     }
-    private void initializeGame(){
-        
+
+    private void initializeGame() {
+        /*
+        Name: initializeGame
+        Description: reset the game varibles
+        Inputs: void
+        Output: void
+        Called by Whom: BluehatCanvas, commandAction
+        Calls: playBackgroundMusic
+        */
+
         //Reset the player objective and server back to visible
         player_has_objective = false;
-        run_game=true;
+        run_game = true;
         level_complete = false;
-        
+
         serverSprite.setVisible(true);
         player_x_pos = 16;
         player_y_pos = 16;
         player_x_pos_last = 16;
         player_y_pos_last = 16;
-        
+
         strStatus = "Obtain the secret document!";
-        
+
         //create the game background and the network maze.
         gamemazeScreen();
-        
+
         //Place the player at the starting position.
         playerSprite.defineReferencePixel(player_x_pos, player_y_pos);
 
@@ -131,11 +134,21 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         //Start the background music for the game.
         playBackgroundMusic("toner_2.mp3", "audio/mpeg");
-        
+
     }
 
     public void run() {
- 
+        /*
+        Name: run
+        Description: a runnable thread method, main game loop
+        Inputs: void
+        Output: void
+        Called by Whom: nothing
+        Calls: movePlayer, paintServer, moveAgent, detectWallTileCollision, 
+        playBackgroundMusic, detectAgentCollision, showFailureScreen, 
+        determineSuccuess, flushGraphics, 
+        */
+
         //Run through the endless loop taking in the users input from the phone.
         while (run_game) {
             int keyState = this.getKeyStates();
@@ -162,7 +175,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             }
 
             this.clearScreen(graphics);
-            
+
             //Display the game status.
             graphics.setColor(0);
             graphics.setFont(gameFont);
@@ -199,14 +212,13 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             //Check for the player sprite colliding with the server
             //If true then change the music and change the status message at the
             //bottom.
-            
-                if (serverSprite.collidesWith(playerSprite, true)) {
-                    serverSprite.setVisible(false);
-                    player_has_objective = true;
-                    playBackgroundMusic("Chip Bit Danger.mp3", "audio/mpeg");
-                    strStatus = "You have it! Get to the exit.";
-                }
-            
+            if (serverSprite.collidesWith(playerSprite, true)) {
+                serverSprite.setVisible(false);
+                player_has_objective = true;
+                playBackgroundMusic("Chip Bit Danger.mp3", "audio/mpeg");
+                strStatus = "You have it! Get to the exit.";
+            }
+
             //If the player character touches the agent then the game is over
             if (detectAgentCollision()) {
                 run_game = !detectAgentCollision();
@@ -217,10 +229,10 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             determineSuccess();
 
             //flush the graphics for the next iteration of the loop.
-            if(!level_complete){
+            if (!level_complete) {
                 flushGraphics();
             }
-            
+
             //Put the thread asleep for 10 miliseconds.
             try {
                 Thread.sleep(10);
@@ -233,6 +245,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void createGameSprites() {
+        /*
+        Name:createGameSprites
+        Description: creates the game sprites that will be used in the game.
+        Inputs: void
+        Output: void
+        Called by Whom: BluehatCanvas
+        Calls: nothing
+        */
 
         try {
             //Create the player sprite that will be used in the game.
@@ -245,19 +265,29 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             serverSprite = new Sprite(serverSpritePage, 16, 16);
             int[] serverFrameSeq = {0, 1, 2};
             serverSprite.setFrameSequence(serverFrameSeq);
-           
+
             //Create the network intrution detection agents.
             ndiSpritePage = Image.createImage("AgentSmith.png");
             ndiSprite = new Sprite(ndiSpritePage, 16, 16);
             int[] ndiFrameSeq = {0, 1, 2};
             ndiSprite.setFrameSequence(ndiFrameSeq);
 
-        } catch (IOException ioe){
+        } catch (IOException ioe) {
             System.out.println(ioe.toString());
         }
     }
 
     private void determineSuccess() {
+        /*
+        Name: determineSuccess
+        Description: determines if the player has the item and can exit the 
+        maze.
+        Inputs: void
+        Output: void
+        Called by Whom: run
+        Calls: detectPlayerExitMaze, showSuccessScreen, playBackgroundMusic
+        */
+
         //The player exiting the maze, if the player has the object then succuess.
         //If not then the player is prevented from leaving.
         if (detectPlayerExitMaze()) {
@@ -266,7 +296,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 playBackgroundMusic("Grey Sector v0_85.mp3", "audio/mpeg");
                 //run_game = false;
                 level_complete = true;
-                               
+
                 //reset the player objective.
                 player_has_objective = false;
             } else {
@@ -284,8 +314,17 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void moveAgent(int animationFrameRate) {
-        //only get the array after 16 loops of the run to match the tile size.
-        //move 16 pixels and then determine the next tile to move toward.
+        /*
+         Name: moveAgent
+         Description:
+         Only get the array after 16 loops of the run to match the tile size.
+         move 16 pixels and then determine the next tile to move toward.
+         Inputs: integer
+         Output: void
+         Called by Whom: run()
+         Calls: nothing
+         */
+
         agent_change_direction++;
         if (agent_change_direction >= TILE_HEIGHT_WIDTH) {
             intAgentMove = randomAgentMovement(ndiSprite.getX(), ndiSprite.getY(), new AgentMovement(intAgentMove[0], intAgentMove[1]));
@@ -301,7 +340,16 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void paintServer(int animationFrameRate) {
-        //paint the server with a reduced framerate.
+        /*
+        Name: paintServer
+        Description: paint the server with a reduced framerate.
+        Inputs: integer
+        Output: void
+        Called by Whom: run
+        Calls: nothing
+        */
+
+        
 
         if (animationFrameRate / 10 == 1) {
             serverSprite.nextFrame();
@@ -311,17 +359,34 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void movePlayer() {
-        //move the player character by one pixel on the screen.
-        //The player_x_pos and player_y_pos are controlled by the run loop.
-        
+        /*
+        Name: movePlayer
+        Description: move the player character by one pixel on the screen.
+        The player_x_pos and player_y_pos are controlled by the run loop.
+        Inputs: void
+        Output: void
+        Called by Whom: run
+        Calls: nothing
+        */
+
         playerSprite.setPosition(player_x_pos, player_y_pos);
         playerSprite.paint(graphics);
     }
 
     private void showContractScreen() {
+        /*
+        Name: showContractScreen
+        Description: displays the contract screen to the player to start the 
+        game.
+        Inputs: void
+        Output: void
+        Called by Whom: BluehatCanvas
+        Calls: drawMultilineString
+        */
+        
         //Setup the screen with the correct font type.
         graphics = getGraphics();
-        Font fontSplash = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, 
+        Font fontSplash = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD,
                 Font.SIZE_LARGE);
         graphics.setFont(fontSplash);
 
@@ -330,12 +395,12 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         String strContract = "You must retrieve the specification document "
                 + "of the next new computer chip. "
                 + "Your hacking will allow us to review and update our IT security."
-                +" "
-                +"Once you have the document you must exit the maze.";
+                + " "
+                + "Once you have the document you must exit the maze.";
 
-        BluehatUtil.drawMultilineString(graphics, fontSplash, strContract, 5, 
+        BluehatUtil.drawMultilineString(graphics, fontSplash, strContract, 5,
                 getHeight() / 8, 0, 225);
-        
+
         //create a command button for the contract screen.
         cmdStartHack = new Command("Start", Command.OK, 1);
         this.addCommand(cmdStartHack);
@@ -344,12 +409,20 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void showSuccessScreen() {
+        /*
+        Name: showSuccessScreen
+        Description: displays the success screen to the player if the player
+        exits the maze.
+        Inputs: void
+        Output: void
+        Called by Whom: determinSuccess
+        Calls: clearScreen, drawMultilineString
+        */
 
         //Erase GameMaze Screen
         clearScreen(graphics);
-        
-        //Setup the screen with the correct font type.
 
+        //Setup the screen with the correct font type.
         graphics = getGraphics();
         Font fontSplash = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_LARGE);
         graphics.setFont(fontSplash);
@@ -360,17 +433,17 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 + "Our IT security group will have to go through the data and "
                 + "develop a stronger defense against hackers.";
 
-        BluehatUtil.drawMultilineString(graphics, fontSplash, strSuccess, 5, 
+        BluehatUtil.drawMultilineString(graphics, fontSplash, strSuccess, 5,
                 getHeight() / 8, 0, 225);
 
         //Add a exit game command
-        if(cmdEndHack == null){
-            cmdEndHack = new Command("Exit", Command.OK, 1); 
-            this.addCommand(cmdEndHack); 
+        if (cmdEndHack == null) {
+            cmdEndHack = new Command("Exit", Command.OK, 1);
+            this.addCommand(cmdEndHack);
             this.setCommandListener(this);
         }
-        
-        if(cmdPlayAgain == null){
+
+        if (cmdPlayAgain == null) {
             cmdPlayAgain = new Command("Play Again", Command.OK, 1);
             this.addCommand(cmdPlayAgain);
             this.setCommandListener(this);
@@ -378,13 +451,22 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void showFailureScreen() {
+        /*
+        Name: showFailureScreen
+        Description: displays the failure screen to the player if they are caught
+        by the agent.
+        Inputs: void
+        Output: void
+        Called by Whom: run
+        Calls: clearScreen,drawMultilineString 
+        */
 
         //Erase GameMaze Screen
         clearScreen(graphics);
-        
+
         //Setup the screen with the correct font type.
         graphics = getGraphics();
-        Font fontSplash = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, 
+        Font fontSplash = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD,
                 Font.SIZE_LARGE);
         graphics.setFont(fontSplash);
 
@@ -392,11 +474,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         String strSuccess = "Your hack has failed to retrieve the document.";
 
-        BluehatUtil.drawMultilineString(graphics, fontSplash, strSuccess, 5, 
+        BluehatUtil.drawMultilineString(graphics, fontSplash, strSuccess, 5,
                 getHeight() / 8, 0, 225);
 
         //Add a exit game command
-        if(cmdEndHack == null){
+        if (cmdEndHack == null) {
             cmdEndHack = new Command("Exit", Command.OK, 1);
             this.addCommand(cmdEndHack);
             this.setCommandListener(this);
@@ -404,6 +486,15 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void gamemazeScreen() {
+        /*
+        Name: gamemazeScreen
+        Description: Creates the bluehat maze and places the server in a 
+        random area of the maze.
+        Inputs: void
+        Output: void
+        Called by Whom: initializeGame
+        Calls: getNetworkWall_NotAnimated
+        */
 
         //Create the Sprite for the player avatar.
         try {
@@ -416,21 +507,20 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             blueHatBackground = getNetworkWall_NotAnimated(rows, cols, background);
 
             //Draw the Server Sprite in a random floor only area of the Maze
-            
             boolean flag = true;
 
             while (flag) {
                 int random_x = rdmNumber.nextInt(16);
                 int random_y = rdmNumber.nextInt(13);
-                
+
                 //Place the server sprite on a Floor tile and 6 or more rows below the player.
-                if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE && random_y>=6) {
+                if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE && random_y >= 6) {
                     serverSprite.setPosition(random_x * TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH);
                     flag = false;
                 }
 
             }
-            
+
         } catch (Exception ioe) {
             System.out.println("Unable to get the background Image: " + ioe.toString());
         }
@@ -438,14 +528,30 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void clearScreen(Graphics g) {
-        //Clear the screen with white.
+        /*
+         Name: clearScreen
+         Description:Clear the screen with white.
+         Inputs: graphics
+         Output: void
+         Called by Whom: run, showSuccessScreen, showFailureScreen, commandAction
+         Calls: nothing
+         */
+
         g.setColor(0xFFFFFF);
         g.fillRect(0, 0, getWidth(), getHeight());
 
     }
 
     Image createImage(String strFileName) {
-        //steps to create an image from a file on the phones local memory.
+        /*
+         Name: createImage
+         Description: Steps to create an image from a file on the phones local memory.
+         Inputs: string
+         Output: image
+         Called by Whom:
+         Calls: Nothing
+         */
+
         Image tempImage = null;
         try {
             tempImage = Image.createImage(strFileName);
@@ -456,16 +562,22 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     public void commandAction(Command cmd, Displayable display) {
-        
-        //The method captures the command events on the phone.
-        
+        /*
+         Name: commmandAction
+         Description: The method captures the command events on the phone.
+         Inputs: command, displayable
+         Output: void
+         Called by Whom: nothing 
+         Calls: clearScreen, playSoundEffect, initializeGame
+         */
+
         if (cmd == cmdStartHack) {
 
             this.removeCommand(cmd);
             this.repaint();
             clearScreen(graphics);
             playSoundEffect("Powerup.wav");
-            
+
             //starts the game loop.
             runner = new Thread(this);
             runner.start();
@@ -478,19 +590,27 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         }
         if (cmd == cmdPlayAgain) {
-            
+
             clearScreen(graphics);
             this.repaint();
-            
+
             //need a reset function on all the varibles.
             playSoundEffect("Powerup.wav");
             initializeGame();
-          
+
         }
 
     }
 
     private boolean detectWallTileCollision() {
+        /*
+        Name: detectWallTileCollision
+        Description: returns if the player collides with the wall.
+        Inputs: void
+        Output: boolean
+        Called by Whom: run
+        Calls: nothing
+        */
 
         if (playerSprite.collidesWith(blueHatBackground, true)) {
             //must not allow the user to go into the wall of the network maze.
@@ -501,28 +621,51 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private boolean detectAgentCollision() {
-        //if the player hits the agent then change the music and return true.
+        /*
+        Name: detectAgentCollision
+        Description: returns if the player collides with the agent.
+        Inputs: void
+        Output: boolean
+        Called by Whom: run
+        Calls: playSoundEffect, playBackgroundMusic
+        */
         
+        //if the player hits the agent then change the music and return true.
+
         if (playerSprite.collidesWith(ndiSprite, true)) {
             playSoundEffect("Explosion.wav");
             playBackgroundMusic("ThisGameIsOver.wav", "audio/X-wav");
-            
+
             return true;
         }
         return false;
     }
 
     private boolean detectPlayerExitMaze() {
-        //Since the network maze has walls all arond the screen the only exit
-        // has a position where x =0
-
+        /*
+        Name: detectPlayerExitMaze
+        Description: Since the network maze has walls all arond the screen the only exit
+        has a position where x =0
+        Inputs: void
+        Output: boolean
+        Called by Whom: determineSuccess
+        Calls: nothing
+        */
+        
         return playerSprite.getX() <= 0;
     }
 
     public TiledLayer getNetworkWall_NotAnimated(int rows, int cols, Image background) throws java.io.IOException {
-        //The method creates the tilelayer for the maze.
-        //it will loop through a 2 Dimenstional array to create the tiledlayer.
-
+        /*
+        Name: getNetworkWall_NotAnimated
+        Description:  The method creates the tilelayer for the maze.
+        it will loop through a 2 Dimenstional array to create the tiledlayer.
+        Inputs: int, int, Image
+        Output: TiledLayer
+        Called by Whom: gamemazeScreen
+        Calls: generateMaps
+        */
+        
         //Reset the tilelayer 
         NetworkWall_NotAnimated = null;
 
@@ -543,15 +686,19 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private int[] randomAgentMovement(int current_x, int current_y, AgentMovement currentDirection) {
-        
         /*
-        The random agent movement method will randomly determine the direction of the 
-        agent every 16 pixels traveled. To stop the agent from moving back and 
-        forth in the same area I added multiple of the same direction into the 
-        vector. Then the application generates a random number to choose from
-        the vector and that determines the next direction that the agent moves.
+        Name: randomAgentMovement
+        Description: The random agent movement method will randomly determine the direction of the 
+         agent every 16 pixels traveled. To stop the agent from moving back and 
+         forth in the same area I added multiple of the same direction into the 
+         vector. Then the application generates a random number to choose from
+         the vector and that determines the next direction that the agent moves.
+        Inputs: int, int, AgentMovement
+        Output: int array
+        Called by Whom: moveAgent
+        Calls: AgentMovement
         */
-        
+
         int intAgentPosition[] = {0, 0};
 
         if (blueHatBackground.isVisible()) {
@@ -564,9 +711,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 int tile_y = current_y / TILE_HEIGHT_WIDTH + intCoordinatesAroundAgent[i + 1];
 
                 if (blueHatBackground.getCell(tile_x, tile_y) == FLOOR_TILE && tile_x != 0) {
-                    AgentMovement agentMovement = new AgentMovement
-                        (intCoordinatesAroundAgent[i], 
-                         intCoordinatesAroundAgent[i + 1]);
+                    AgentMovement agentMovement = new AgentMovement(intCoordinatesAroundAgent[i],
+                            intCoordinatesAroundAgent[i + 1]);
                     viableDirection.addElement(agentMovement);
                 }
             }
@@ -585,7 +731,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //determine the viable direction UP,DOWN,LEFT,RIGHT with the random
             //selection of a vector element.
-            
             int direction_size = viableDirection.size();
             int intRandomDirection = rdmNumber.nextInt(direction_size);
             AgentMovement direction = (AgentMovement) viableDirection.elementAt(intRandomDirection);
@@ -600,11 +745,16 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     private int[][] generateMaps() {
         /*
-        Store all the mazes in a 2 dimenstional array calles maps.
-        The array will hold multiple maps and then method will randomally
-        select a map. Each map is 18 rows.
-        
+        Name: generateMaps
+        Description: Store all the mazes in a 2 dimenstional array calles maps.
+         The array will hold multiple maps and then method will randomally
+         select a map. Each map is 18 rows.
+        Inputs: void
+        Output: int array
+        Called by Whom: getNetworkWall_NotAnimated
+        Calls: nothing
         */
+
         int[][] returningMap = new int[18][15];
 
         // Map arrays
@@ -660,11 +810,17 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     private void playBackgroundMusic(String strMusic, String strFileType) {
         /*
-         This starts the background music for the game.
+        Name: playBackgroundMusic
+        Description: This starts the background music for the game.
          Used music from http://www.opengameart.org/ a open source
          public domain game asset library.
          "This Game Is Over" - Joseph Pueyo http://www.josephpueyo.com/
-         */
+        Inputs: string, string
+        Output: void
+        Called by Whom: initializeGame, run, determineSuccess, 
+        detectAgentCollision
+        Calls: nothing
+        */
 
         //if there is background music playing then stop it and replace it with 
         //the new file.
@@ -681,19 +837,18 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             backgroundMusicPlayer = Manager.createPlayer(inputStream, strFileType);
             backgroundMusicPlayer.prefetch();
 
-        //Add a listener to the canvas
+            //Add a listener to the canvas
             //backgroundMusicPlayer.addPlayerListener(this);
             //loop the music forever
             backgroundMusicPlayer.setLoopCount(-1);
 
-        //set the volumn control
+            //set the volumn control
             VolumeControl backgroundVolumnControl = (VolumeControl) backgroundMusicPlayer.getControl("VolumeControl");
             backgroundVolumnControl.setLevel(10);
 
             //start the playing of the music.
             backgroundMusicPlayer.start();
-        
-        
+
         } catch (IOException ex) {
             System.out.println(ex.toString());
         } catch (MediaException ex) {
@@ -703,10 +858,15 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     private void playSoundEffect(String strSound) {
         /*
-         This method plays sound effects for the game.
+        Name:playSoundEffect
+        Description:  This method plays sound effects for the game.
          Used effects from http://www.opengameart.org/ a open source
          public domain game asset library.
-         */
+        Inputs: string
+        Output: void
+        Called by Whom: commandAction, detectAgentCollision
+        Calls: nothing
+        */
 
         try {
             //bring in the file as a stream
@@ -716,14 +876,13 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             soundEffectPlayer = Manager.createPlayer(inputStream, "audio/X-wav");
             soundEffectPlayer.prefetch();
 
-        //set the volumn control
+            //set the volumn control
             VolumeControl backgroundVolumnControl = (VolumeControl) backgroundMusicPlayer.getControl("VolumeControl");
             backgroundVolumnControl.setLevel(10);
 
             //start the playing of the music.
             soundEffectPlayer.start();
-      
-       
+
         } catch (IOException ex) {
             System.out.println(ex.toString());
         } catch (MediaException ex) {

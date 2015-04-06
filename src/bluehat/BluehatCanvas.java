@@ -34,12 +34,8 @@ import javax.microedition.midlet.MIDlet;
 public class BluehatCanvas extends GameCanvas implements Runnable, CommandListener {
 
     private Graphics graphics;
-    private Image imageSplash;
-    private Image imageSplashBackground;
+
     private Thread runner;
-    private Timer gameClock;
-    //private BluehatTask clock;
-    private boolean endLevel = true;
     private Command cmdStartHack;
     private Command cmdEndHack;
     private Command cmdPlayAgain;
@@ -53,8 +49,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     private Sprite playerSprite;
     private Sprite serverSprite;
-    private Vector vecServerSprites;
-    private int numberOfServers = 1;
     private Image playerImage;
     private Image playerSpritePage;
     private Image serverSpritePage;
@@ -335,7 +329,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         String strContract = "You must retrieve the specification document "
                 + "of the next new computer chip. "
-                + "Your hacking will allow us to review and update our IT security.";
+                + "Your hacking will allow us to review and update our IT security."
+                +" "
+                +"Once you have the document you must exit the maze.";
 
         BluehatUtil.drawMultilineString(graphics, fontSplash, strContract, 5, 
                 getHeight() / 8, 0, 225);

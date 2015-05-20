@@ -32,9 +32,13 @@ public class RMS_Character {
 
     }
 
-    public void closeRecordStore() throws Exception {
+    public void closeRecordStore() {
         //Close the record store
+        try{
         rs.closeRecordStore();
+        }catch(RecordStoreException rse){
+            System.out.println(rse.toString());
+        }
 
     }
 
@@ -46,7 +50,6 @@ public class RMS_Character {
         PlayerAvatar pc = new PlayerAvatar();
 
         String strPC = new String(rs.getRecord(recID));
-        System.out.println(strPC);
         Vector vecHackingSkills = new Vector();
 
         //set the record ID
@@ -57,17 +60,14 @@ public class RMS_Character {
         end = strPC.indexOf(",");
 
         pc.setName(strPC.substring(start, end));
-        System.out.println("Name:" +pc.getName());
-
+        
         //get the background
         start = end+1;
         end = strPC.indexOf(",", start);
         
         pc.setBackground(strPC.substring(start, end));
         
-        System.out.println("Background:" +pc.getBackground());
-
-            //get the hacking skills of the player character
+        //get the hacking skills of the player character
         // they should have a least one skill
         
         while (strPC.indexOf(",",end_skill_level + 1) != strPC.lastIndexOf(',')){

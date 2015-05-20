@@ -222,7 +222,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             //If the player character touches the agent then the game is over
             if (detectAgentCollision()) {
                 run_game = !detectAgentCollision();
-                showFailureScreen();
+                //showFailureScreen();
+                showHackScreen("Router");
             }
 
             //check if the player has retrived the document and can exit the maze.
@@ -373,6 +374,31 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         playerSprite.paint(graphics);
     }
 
+    private void showHackScreen(String strNPC){
+        //Get the NPC object to hack.
+        RMS_NPC objRMSNPC = new RMS_NPC();
+        NPC objNPC = objRMSNPC.readNPCData(strNPC);
+        
+        graphics = getGraphics();
+        //clearScreen(graphics);
+        
+        Font fontSplash = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD,
+                Font.SIZE_LARGE);
+        graphics.setFont(fontSplash);
+        
+        graphics.drawString("Cracking - "+objNPC.getName(), 0, 0, 0);
+        
+        //graphics.drawImage(this.createImage(objNPC.getImage_name()), 50, 0, 0);
+        
+        graphics.drawString(String.valueOf(objNPC.getSecurity_defense_level()), 100, 0, 0);
+        
+        graphics.drawString("Hacker Skill", 140, 0, 0);
+        
+        graphics.drawString("Hack Attack: ", 150, 0, 0);
+        
+        
+    }
+    
     private void showContractScreen() {
         /*
         Name: showContractScreen
@@ -418,7 +444,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         Called by Whom: determinSuccess
         Calls: clearScreen, drawMultilineString
         */
-
+        
         //Erase GameMaze Screen
         clearScreen(graphics);
 
@@ -672,8 +698,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         NetworkWall_NotAnimated = new TiledLayer(cols, rows, background,
                 TILE_HEIGHT_WIDTH, TILE_HEIGHT_WIDTH);
 
-        int[][] tiles = generateMaps();
-
+        //int[][] tiles = generateMaps();
+        int[][] tiles = new RMS_MazeMap().readMazeMapData(17);
         // Set all the cells in the tiled layer
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {

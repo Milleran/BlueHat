@@ -60,30 +60,30 @@ public class RMS_MazeMap {
                     start = end + 1;
                 }
                 end = strMap.indexOf(",", start);
-                System.out.println("Start: " + start);
-                System.out.println("End: " + end);
+//                System.out.println("Start: " + start);
+//                System.out.println("End: " + end);
                 
 
                 if (end > -1) {
                     intMap[arrayCounter] = Integer.parseInt(strMap.substring(start, end).trim());
-                    System.out.println("Value: " + strMap.substring(start, end));
+//                    System.out.println("Value: " + strMap.substring(start, end));
                     arrayCounter++;
                 }else{
                     //grab the last number from the string.
                     intMap[arrayCounter] = Integer.parseInt(strMap.substring(start).trim());
-                    System.out.println("Value: " + strMap.substring(start));
+//                    System.out.println("Value: " + strMap.substring(start));
                 }
             }
 
             //Transfer the 1d array into a 2d array
-            System.out.println("Starting the trasnfer to 2D");
+//            System.out.println("Starting the trasnfer to 2D");
             arrayCounter = 0; //reset for the transfer
 
             for (int row = 0; row <= 17; row++) {
                 for (int col = 0; col <= 14; col++) {
                     returningMap[row][col] = intMap[arrayCounter];
                     arrayCounter++;
-                    System.out.println("Transfer to Cell: " + row + "," + col +","+returningMap[row][col]);
+//                    System.out.println("Transfer to Cell: " + row + "," + col +","+returningMap[row][col]);
                 }
             }
 

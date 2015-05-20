@@ -29,6 +29,8 @@ public class BluehatStart extends MIDlet implements CommandListener {
     Command cmdStartGame;
     Command cmdEndGame;
     ImageItem splash;
+    
+    private PlayerAvatar pc;
 
     public BluehatStart() {
         //Create a new form and display objects and provide them to the new
@@ -57,7 +59,7 @@ public class BluehatStart extends MIDlet implements CommandListener {
         
          try{
          RMS_Character obj = new RMS_Character();
-         PlayerAvatar pc = new PlayerAvatar();
+         
          
 //         RMS_NPC rms_npc = new RMS_NPC();
 //         NPC npc = rms_npc.readNPCData("Router");
@@ -107,8 +109,18 @@ public class BluehatStart extends MIDlet implements CommandListener {
 //         vecHackSkills.addElement(hs3);
 //         vecHackSkills.addElement(hs4);
 //        
-//         pc.setVectorHackingSkill(vecHackSkills);
-        
+////         pc.setVectorHackingSkill(vecHackSkills);
+//        HackSkill hs1 = new HackSkill("Hardware Cracking",1);
+//        HackSkill hs2 = new HackSkill("Social Engineering",3);
+//        
+//      
+//            
+//         pc = obj.readPlayerCharacterData(1);
+//         pc.getVectorHackingSkill().addElement(hs1);
+//         pc.getVectorHackingSkill().addElement(hs2);
+//         
+//         obj.writePlayerCharacterData(pc);
+         
          pc = obj.readPlayerCharacterData(1);
          
          System.out.println("Player Character: " + pc.toString());

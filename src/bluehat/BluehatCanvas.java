@@ -86,6 +86,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     //Create the player avatar
     PlayerAvatar pc;
     NPC objNPC;
+    int intMapNumber = 1;
 
     //Threat Level for the game
     static final int GAME_OVER_THREAT_LEVEL = 3;
@@ -396,7 +397,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         //Get the NPC object to hack.
         RMS_NPC objRMSNPC = new RMS_NPC();
         objNPC = objRMSNPC.readNPCData(strNPC);
-
+        //need to save all the screen data and the objects positions
+        resumeGame();
+        
         clearScreen(graphics);
         graphics = getGraphics();
 
@@ -670,8 +673,12 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         }
         if (cmd == cmdResume) {
+            
+            resumeGame();
+            
             display.removeCommand(cmdResume);
             //Redraw the maze from it previous state.
+            
         }
         if (cmd == cmdReHack) {
             //remove any existing string text in the results area
@@ -758,7 +765,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 TILE_HEIGHT_WIDTH, TILE_HEIGHT_WIDTH);
 
         //int[][] tiles = generateMaps();
-        int[][] tiles = new RMS_MazeMap().readMazeMapData(17);
+        int[][] tiles = new RMS_MazeMap().readMazeMapData(intMapNumber);
         // Set all the cells in the tiled layer
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
@@ -985,8 +992,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
                 //generate a random roll between 1 and 6
                 Random r = new Random();
-//                    int intHackAttackRoll = r.nextInt(5)+1;
-                int intHackAttackRoll = 1;
+                int intHackAttackRoll = r.nextInt(5)+1;
+//                int intHackAttackRoll = 1;
                 int intHackerSkill = 0;
                 int intHackerAttackValue = 0;
 
@@ -1035,5 +1042,29 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         }
 
         return attackResult;
+    }
+
+    private void resumeGame() {
+        
+        //Redraw the map
+        try{
+            if(!runner.isAlive()){
+                runner.start();
+            }
+       //Create the background with a tiledlayer
+//            Image background = Image.createImage("/networkWall.png");
+//
+//            int cols = getWidth() / TILE_HEIGHT_WIDTH;
+//            int rows = getHeight() / TILE_HEIGHT_WIDTH;
+//
+//            blueHatBackground = getNetworkWall_NotAnimated(rows, cols, background);
+//            
+//            blueHatBackground.setVisible(true);
+           
+            
+        }catch(Exception e){
+            System.out.println(e.toString());
+        }
+            
     }
 }

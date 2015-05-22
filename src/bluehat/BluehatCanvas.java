@@ -46,11 +46,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     private Sprite playerSprite;
     private Sprite serverSprite;
+    private Image firewallSpritePage;
+    private Sprite firewallSprite;
     private Image playerImage;
     private Image playerSpritePage;
     private Image serverSpritePage;
     private Image ndiSpritePage;
-    private Sprite ndiSprite;
+    private AgentSprite ndiSprite;
+    private AgentSprite[] ndiSprites;
     private TiledLayer blueHatBackground;
     private TiledLayer NetworkWall_NotAnimated;
 
@@ -63,12 +66,13 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private int player_x_pos_last = 16;
     private int player_y_pos_last = 16;
     private int agent_change_direction;
-    private int[] intAgentMove = {0, 0};
     private int animationFrameRate;
 
     private boolean player_has_objective = false;
     private boolean run_game = true;
     private boolean level_complete = false;
+    private boolean game_paused = false;
+    private boolean firewall_hacked = false;
 
     static int TILE_HEIGHT_WIDTH = 16;
     static int WALL_IMPACT = 1;
@@ -149,6 +153,15 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         //Place the agent at the starting position.
         ndiSprite.defineReferencePixel(80, 208);
         ndiSprite.setPosition(80, 208);
+        
+        ndiSprites[0].setPosition(80, 224);
+        ndiSprites[1].setPosition(80, 240);
+        ndiSprites[2].setPosition(80, 192);
+            
+
+        //Place the firewall portal in a corner.
+        firewallSprite.setPosition(80, 208);
+        firewallSprite.setVisible(true);
 
         //varible to slow down the frame rate 
         animationFrameRate = 0;
@@ -172,6 +185,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         //Run through the endless loop taking in the users input from the phone.
         while (run_game) {
+            //System.out.println("The game thread is still running!!!$$%%##");
             int keyState = this.getKeyStates();
             if ((keyState & UP_PRESSED) != 0) {
 
@@ -212,6 +226,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //paint the server at a reduced FrameRate
             paintServer(animationFrameRate);
+            
+            //paint the firewall at the reduced framerate
+            paintFireWall(animationFrameRate);
 
             //Moves the agent and reduces the framerate of the animation
             moveAgent(animationFrameRate);
@@ -242,9 +259,58 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //If the player character touches the agent then the game is over
             if (detectAgentCollision()) {
-                run_game = !detectAgentCollision();
+                //run_game = !detectAgentCollision();
                 //showFailureScreen();
-                showHackScreen("Router");
+                
+                showHackScreen("NDI Level 1");
+                while(game_paused){
+                    
+                    try {
+                        runner.sleep(100);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                    
+                }
+                
+                flushGraphics();
+                
+                resumeGame();
+                
+                //repostion the NDI Sprite
+                
+                 playSoundEffect("Pickup_Coin.wav");
+                
+            }
+            
+            if(detectFirewallCollision()){
+                
+                showHackScreen("Firewall Level 1");
+                while(game_paused){
+                    
+                    try {
+                        runner.sleep(100);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                    
+                }
+                //have to remove the player sprite from the game.
+                firewallSprite.setVisible(false);
+                
+                //If the firewall has been hacked then the player can move on to 
+                //the next level.
+                
+                if(firewall_hacked){
+                    intMapNumber = 19;
+                    initializeGame();
+                }
+                resumeGame();
+                
+                                
+                flushGraphics();
+                
+
             }
 
             //check if the player has retrived the document and can exit the maze.
@@ -290,9 +356,25 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //Create the network intrution detection agents.
             ndiSpritePage = Image.createImage("AgentSmith.png");
-            ndiSprite = new Sprite(ndiSpritePage, 16, 16);
+            ndiSprite = new AgentSprite(ndiSpritePage, 16, 16);
             int[] ndiFrameSeq = {0, 1, 2};
             ndiSprite.setFrameSequence(ndiFrameSeq);
+            
+            //Create an array of NDISprites
+            ndiSprites = new AgentSprite[3];
+            ndiSprites[0]=new AgentSprite(ndiSpritePage,16,16);
+            ndiSprites[1]=new AgentSprite(ndiSpritePage,16,16);
+            ndiSprites[2]=new AgentSprite(ndiSpritePage,16,16);
+            ndiSprites[0].setFrameSequence(ndiFrameSeq);
+            ndiSprites[1].setFrameSequence(ndiFrameSeq);
+            ndiSprites[2].setFrameSequence(ndiFrameSeq);
+            
+            
+            //Create the Firewall sprite that will move the character to different maps (levels)
+            firewallSpritePage = Image.createImage("Firewall_icon.png");
+            firewallSprite =  new Sprite(firewallSpritePage,16,16);
+            int [] firewallFrameSeq ={0,1,2};
+            firewallSprite.setFrameSequence(firewallFrameSeq);
 
         } catch (IOException ioe) {
             System.out.println(ioe.toString());
@@ -348,17 +430,38 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
          */
 
         agent_change_direction++;
-        if (agent_change_direction >= TILE_HEIGHT_WIDTH) {
-            intAgentMove = randomAgentMovement(ndiSprite.getX(), ndiSprite.getY(), new AgentMovement(intAgentMove[0], intAgentMove[1]));
+        if (agent_change_direction >= TILE_HEIGHT_WIDTH) { //check if the sprite has moved a tile before changing the direction.
+            //pass the agents current position and the current direction.
+            ndiSprite.setDirection(randomAgentMovement(ndiSprite.getX(), ndiSprite.getY(), ndiSprite.getDirection()));
             agent_change_direction = 0;
+            
+            //Collection movement
+            for (int i = 0; i < ndiSprites.length; i++) {
+                ndiSprites[i].setDirection(randomAgentMovement(ndiSprites[i].getX(), ndiSprites[i].getY(), ndiSprites[i].getDirection()));
+                ndiSprites[i].setPosition(ndiSprites[i].getX() + ndiSprites[i].getDirection().getX_pos(), ndiSprites[i].getY() + ndiSprites[i].getDirection().getY_pos());
+            }
         }
-
-        ndiSprite.setPosition(ndiSprite.getX() + intAgentMove[0], ndiSprite.getY() + intAgentMove[1]);
+        //Collection set movement
+        for (int j = 0; j < ndiSprites.length; j++) {
+            ndiSprites[j].setPosition(ndiSprites[j].getX() + ndiSprites[j].getDirection().getX_pos(), ndiSprites[j].getY() + ndiSprites[j].getDirection().getY_pos());
+        }
+        ndiSprite.setPosition(ndiSprite.getX() + ndiSprite.getDirection().getX_pos(), ndiSprite.getY() + ndiSprite.getDirection().getY_pos());
+        
+        
+        
+ 
 
         if (animationFrameRate / 10 == 1) {
             ndiSprite.nextFrame();
+            for (int i = 0; i < ndiSprites.length; i++) {
+                ndiSprites[i].nextFrame();
+            }
         }
         ndiSprite.paint(graphics);
+
+        for (int i = 0; i < ndiSprites.length; i++) {
+            ndiSprites[i].paint(graphics);
+        }
     }
 
     private void paintServer(int animationFrameRate) {
@@ -375,6 +478,22 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             serverSprite.nextFrame();
         }
         serverSprite.paint(graphics);
+
+    }
+    private void paintFireWall(int animationFrameRate) {
+        /*
+         Name: paintFireWall
+         Description: paint the firewall with a reduced framerate.
+         Inputs: integer
+         Output: void
+         Called by Whom: run
+         Calls: nothing
+         */
+
+        if (animationFrameRate / 10 == 1) {
+            firewallSprite.nextFrame();
+        }
+        firewallSprite.paint(graphics);
 
     }
 
@@ -394,7 +513,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void showHackScreen(String strNPC) {
+        //Pause the game thread.
+        game_paused =true;
+
         //Get the NPC object to hack.
+               
         RMS_NPC objRMSNPC = new RMS_NPC();
         objNPC = objRMSNPC.readNPCData(strNPC);
         //need to save all the screen data and the objects positions
@@ -423,12 +546,17 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             pc = obj.readPlayerCharacterData(1);
             Enumeration playSkills = pc.getVectorHackingSkill().elements();
             int skill_pos = 205;
+            boolean show_no_skill = true;
             while (playSkills.hasMoreElements()) {
                 HackSkill hs = (HackSkill) playSkills.nextElement();
                 if (hs.getSkillName().equals(objNPC.getHack_attack().getSkillName())) {
                     graphics.drawString(hs.getSkillName() + ":" + String.valueOf(hs.getSkillLevel()), 25, skill_pos, BOTTOM | LEFT);
                     skill_pos += 15;
+                    show_no_skill = false;
                 }
+            }
+            if (show_no_skill){
+                graphics.drawString("No Skill", 25, skill_pos, BOTTOM | LEFT);
             }
 
             //create a command button to hack the defense.
@@ -570,13 +698,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         //Create the Sprite for the player avatar.
         try {
-            //Create the background with a tiledlayer
-            Image background = Image.createImage("/networkWall.png");
-
-            int cols = getWidth() / TILE_HEIGHT_WIDTH;
-            int rows = getHeight() / TILE_HEIGHT_WIDTH;
-
-            blueHatBackground = getNetworkWall_NotAnimated(rows, cols, background);
+               drawMap();
 
             //Draw the Server Sprite in a random floor only area of the Maze
             boolean flag = true;
@@ -674,22 +796,28 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         }
         if (cmd == cmdResume) {
             
-            resumeGame();
+            game_paused = false;
             
             display.removeCommand(cmdResume);
             //Redraw the maze from it previous state.
+            this.repaint();
             
         }
         if (cmd == cmdReHack) {
             //remove any existing string text in the results area
             graphics.setColor(0xFFFFFF);
             graphics.fillRect(0, 250, getWidth(), 270);
+            
             conductHackAttack(display);
-
+            
+            display.removeCommand(cmdReHack);
+            this.repaint();
         }
         if (cmd == cmdHack) {
 
             conductHackAttack(display);
+            
+            this.repaint();
 
         }
 
@@ -712,7 +840,21 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         return false;
 
     }
-
+    private boolean detectFirewallCollision() {
+        /*
+         Name: detectFirewallCollision
+         Description: returns if the player collides with the firewall.
+         Inputs: void
+         Output: boolean
+         Called by Whom: run
+         Calls: playSoundEffect, playBackgroundMusic
+         */
+        //if the player hits the agent then change the music and return true.
+        if (playerSprite.collidesWith(firewallSprite, true)) {
+            return true;
+        }
+        return false;
+    }
     private boolean detectAgentCollision() {
         /*
          Name: detectAgentCollision
@@ -724,12 +866,15 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
          */
 
         //if the player hits the agent then change the music and return true.
-        if (playerSprite.collidesWith(ndiSprite, true)) {
-            playSoundEffect("Explosion.wav");
-            playBackgroundMusic("ThisGameIsOver.wav", "audio/X-wav");
-
-            return true;
+        for (int i = 0; i < ndiSprites.length; i++) {
+            if (playerSprite.collidesWith(ndiSprites[i], true)) {
+                playSoundEffect("Explosion.wav");
+                playBackgroundMusic("ThisGameIsOver.wav", "audio/X-wav");
+                ndiSprites[i].setPosition(33, 16);
+                return true;
+            }
         }
+
         return false;
     }
 
@@ -777,7 +922,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         return NetworkWall_NotAnimated;
     }
 
-    private int[] randomAgentMovement(int current_x, int current_y, AgentMovement currentDirection) {
+    private AgentMovement randomAgentMovement(int current_x, int current_y, AgentMovement currentDirection) {
         /*
          Name: randomAgentMovement
          Description: The random agent movement method will randomly determine the direction of the 
@@ -832,7 +977,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         }
 
-        return intAgentPosition;
+        return new AgentMovement(intAgentPosition[0], intAgentPosition[1]);
     }
 
     private int[][] generateMaps() {
@@ -993,7 +1138,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 //generate a random roll between 1 and 6
                 Random r = new Random();
                 int intHackAttackRoll = r.nextInt(5)+1;
-//                int intHackAttackRoll = 1;
+
                 int intHackerSkill = 0;
                 int intHackerAttackValue = 0;
 
@@ -1020,6 +1165,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                     display.addCommand(cmdResume);
                     this.setCommandListener(this);
                     attackResult = true;
+                    
+                    //Check if the hack was against a firewall to get to the next level.
+                    if(objNPC.getName().startsWith("Firewall")){
+                        firewall_hacked = true;
+                    }
 
                 } else {
                     //Threat Level increase by 1 and attempt again.
@@ -1047,24 +1197,26 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private void resumeGame() {
         
         //Redraw the map
-        try{
-            if(!runner.isAlive()){
-                runner.start();
-            }
-       //Create the background with a tiledlayer
-//            Image background = Image.createImage("/networkWall.png");
-//
-//            int cols = getWidth() / TILE_HEIGHT_WIDTH;
-//            int rows = getHeight() / TILE_HEIGHT_WIDTH;
-//
-//            blueHatBackground = getNetworkWall_NotAnimated(rows, cols, background);
-//            
-//            blueHatBackground.setVisible(true);
-           
-            
-        }catch(Exception e){
+        try {
+            drawMap();
+
+        } catch (Exception e) {
             System.out.println(e.toString());
         }
             
     }
+
+    private void drawMap() throws IOException {
+        //Create the background with a tiledlayer
+        Image background = Image.createImage("/networkWall.png");
+        
+        int cols = getWidth() / TILE_HEIGHT_WIDTH;
+        int rows = getHeight() / TILE_HEIGHT_WIDTH;
+        
+        blueHatBackground = getNetworkWall_NotAnimated(rows, cols, background);
+        
+        blueHatBackground.setVisible(true);
+    }
+    
+ 
 }

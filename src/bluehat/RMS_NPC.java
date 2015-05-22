@@ -38,6 +38,7 @@ public class RMS_NPC {
             System.out.println(rse.toString());
         }
     }
+    
 
     /**
      *

@@ -16,6 +16,9 @@ public class AgentSprite extends Sprite{
     
     private AgentMovement direction = new AgentMovement(0, 0);
 
+    
+    private int ndi_x_pos_last;
+    private int ndi_y_pos_last;
 
     public AgentSprite(Image image) {
         super(image);
@@ -29,7 +32,7 @@ public class AgentSprite extends Sprite{
      */
     public AgentSprite(Image img, int x, int y) {
         super(img, x, y);
- 
+
     }
 
     public AgentMovement getDirection() {
@@ -40,4 +43,18 @@ public class AgentSprite extends Sprite{
         this.direction = direction;
     }
     
+    public int getNdi_x_pos_last() {
+        return ndi_x_pos_last;
+    }
+
+    public int getNdi_y_pos_last() {
+        return ndi_y_pos_last;
+    }
+
+    public void setPosition(int x, int y) { 
+        ndi_x_pos_last = this.getX();
+        ndi_y_pos_last = this.getY();
+        super.setPosition(x, y); //To change body of generated methods, choose Tools | Templates.
+       
+    }
 }

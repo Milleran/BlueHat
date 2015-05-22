@@ -151,8 +151,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         playerSprite.defineReferencePixel(player_x_pos, player_y_pos);
 
         //Place the agent at the starting position.
-        ndiSprite.defineReferencePixel(80, 208);
-        ndiSprite.setPosition(80, 208);
+//        ndiSprite.defineReferencePixel(80, 208);
+//        ndiSprite.setPosition(80, 208);
         
         ndiSprites[0].setPosition(80, 224);
         ndiSprites[1].setPosition(80, 240);
@@ -232,6 +232,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //Moves the agent and reduces the framerate of the animation
             moveAgent(animationFrameRate);
+            
 
             //control the framerate of the animations of the sprites, this
             // reduces it by a factor of 100.
@@ -241,7 +242,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //Check for wall collisions, if collision occurs then place them
             //back at the last known good x,y
-            if (detectWallTileCollision()) {
+            if (detectWallTileCollision(playerSprite)) {
                 player_x_pos = player_x_pos_last;
                 player_y_pos = player_y_pos_last;
                 playerSprite.paint(graphics);
@@ -356,9 +357,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //Create the network intrution detection agents.
             ndiSpritePage = Image.createImage("AgentSmith.png");
-            ndiSprite = new AgentSprite(ndiSpritePage, 16, 16);
+//            ndiSprite = new AgentSprite(ndiSpritePage, 16, 16);
             int[] ndiFrameSeq = {0, 1, 2};
-            ndiSprite.setFrameSequence(ndiFrameSeq);
+//            ndiSprite.setFrameSequence(ndiFrameSeq);
             
             //Create an array of NDISprites
             ndiSprites = new AgentSprite[3];
@@ -432,32 +433,32 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         agent_change_direction++;
         if (agent_change_direction >= TILE_HEIGHT_WIDTH) { //check if the sprite has moved a tile before changing the direction.
             //pass the agents current position and the current direction.
-            ndiSprite.setDirection(randomAgentMovement(ndiSprite.getX(), ndiSprite.getY(), ndiSprite.getDirection()));
-            agent_change_direction = 0;
             
-            //Collection movement
             for (int i = 0; i < ndiSprites.length; i++) {
                 ndiSprites[i].setDirection(randomAgentMovement(ndiSprites[i].getX(), ndiSprites[i].getY(), ndiSprites[i].getDirection()));
                 ndiSprites[i].setPosition(ndiSprites[i].getX() + ndiSprites[i].getDirection().getX_pos(), ndiSprites[i].getY() + ndiSprites[i].getDirection().getY_pos());
+                if(detectWallTileCollision(ndiSprites[i])){
+//                    System.out.println("X:"+ndiSprites[i].getX());
+//                    System.out.println("Y:"+ndiSprites[i].getY());
+//                    System.out.println("Last X:"+ndiSprites[i].getNdi_x_pos_last());
+//                    System.out.println("Last Y:"+ndiSprites[i].getNdi_y_pos_last());
+                    ndiSprites[i].setPosition(ndiSprites[i].getNdi_x_pos_last() + ndiSprites[i].getDirection().getX_pos(), ndiSprites[i].getNdi_y_pos_last()+ ndiSprites[i].getDirection().getY_pos());
+                }
             }
+            agent_change_direction = 0;
         }
         //Collection set movement
         for (int j = 0; j < ndiSprites.length; j++) {
             ndiSprites[j].setPosition(ndiSprites[j].getX() + ndiSprites[j].getDirection().getX_pos(), ndiSprites[j].getY() + ndiSprites[j].getDirection().getY_pos());
         }
-        ndiSprite.setPosition(ndiSprite.getX() + ndiSprite.getDirection().getX_pos(), ndiSprite.getY() + ndiSprite.getDirection().getY_pos());
-        
-        
-        
- 
 
         if (animationFrameRate / 10 == 1) {
-            ndiSprite.nextFrame();
+//            ndiSprite.nextFrame();
             for (int i = 0; i < ndiSprites.length; i++) {
                 ndiSprites[i].nextFrame();
             }
         }
-        ndiSprite.paint(graphics);
+//        ndiSprite.paint(graphics);
 
         for (int i = 0; i < ndiSprites.length; i++) {
             ndiSprites[i].paint(graphics);
@@ -823,7 +824,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     }
 
-    private boolean detectWallTileCollision() {
+    private boolean detectWallTileCollision(Sprite objSprite) {
         /*
          Name: detectWallTileCollision
          Description: returns if the player collides with the wall.
@@ -833,7 +834,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
          Calls: nothing
          */
 
-        if (playerSprite.collidesWith(blueHatBackground, true)) {
+        if (objSprite.collidesWith(blueHatBackground, true)) {
             //must not allow the user to go into the wall of the network maze.
             return true;
         }

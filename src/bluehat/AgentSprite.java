@@ -16,7 +16,9 @@ public class AgentSprite extends Sprite{
     
     private AgentMovement direction = new AgentMovement(0, 0);
 
-    
+    private int ndi_level = 1;
+
+
     private int ndi_x_pos_last;
     private int ndi_y_pos_last;
 
@@ -56,5 +58,13 @@ public class AgentSprite extends Sprite{
         ndi_y_pos_last = this.getY();
         super.setPosition(x, y); //To change body of generated methods, choose Tools | Templates.
        
+    }
+    
+    public int getNdi_level() {
+        return ndi_level;
+    }
+
+    public void setNdi_level(int ndi_level) {
+        this.ndi_level = ndi_level;
     }
 }

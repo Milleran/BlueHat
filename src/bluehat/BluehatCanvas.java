@@ -92,7 +92,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     NPC objNPC;
     
     //Set the level of play, there are 6 levels to the game.
-    int intMapLevel = 1;
+    int intMapLevel = 6;
 
     //Threat Level for the game
     static final int GAME_OVER_THREAT_LEVEL = 3;
@@ -203,10 +203,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //set the player at the new location on the screen
             movePlayer();
+            if (intMapLevel == 6) {
+                //paint the server at a reduced FrameRate
+                paintServer(animationFrameRate);
+            }
 
-            //paint the server at a reduced FrameRate
-            paintServer(animationFrameRate);
-            
             //paint the firewall at the reduced framerate
             paintFireWall(animationFrameRate);
 
@@ -233,6 +234,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             //bottom.
             if (serverSprite.collidesWith(playerSprite, true)) {
                 serverSprite.setVisible(false);
+                showHackScreen("Encryption Level 1");
                 player_has_objective = true;
                 playBackgroundMusic("Chip Bit Danger.mp3", "audio/mpeg");
                 //strStatus = "You have it! Get to the exit.";
@@ -324,6 +326,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //check if the player has retrived the document and can exit the maze.
             determineSuccess();
+            
+            //determine if the system threat level has reached the threshold.
+            if(current_threat_level >= GAME_OVER_THREAT_LEVEL){
+                showFailureScreen();
+            }
 
             //flush the graphics for the next iteration of the loop.
             if (!level_complete) {
@@ -655,13 +662,13 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 Font.SIZE_LARGE);
         graphics.setFont(fontSplash);
 
-        graphics.drawString("Contract", 0, 0, 0);
+        graphics.drawString("Contract - " + pc.getName(), 0, 0, 0);
 
         String strContract = "You must retrieve the specification document "
                 + "of the next new computer chip. "
                 + "Your hacking will allow us to review and update our IT security."
                 + " "
-                + "Once you have the document you must exit the maze.";
+                + "Once you have decrypted the document you will have receive your payment.";
 
         BluehatUtil.drawMultilineString(graphics, fontSplash, strContract, 5,
                 getHeight() / 8, 0, 225);
@@ -763,21 +770,22 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         //Create the Sprite for the player avatar.
         try {
-               drawMap();
+            drawMap(); 
+            if (intMapLevel == 6) {
+                //Draw the Server Sprite in a random floor only area of the Maze
+                boolean flag = true;
 
-            //Draw the Server Sprite in a random floor only area of the Maze
-            boolean flag = true;
+                while (flag) {
+                    int random_x = rdmNumber.nextInt(16);
+                    int random_y = rdmNumber.nextInt(13);
 
-            while (flag) {
-                int random_x = rdmNumber.nextInt(16);
-                int random_y = rdmNumber.nextInt(13);
+                    //Place the server sprite on a Floor tile and 6 or more rows below the player.
+                    if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE && random_y >= 6) {
+                        serverSprite.setPosition(random_x * TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH);
+                        flag = false;
+                    }
 
-                //Place the server sprite on a Floor tile and 6 or more rows below the player.
-                if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE && random_y >= 6) {
-                    serverSprite.setPosition(random_x * TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH);
-                    flag = false;
                 }
-
             }
 
         } catch (Exception ioe) {

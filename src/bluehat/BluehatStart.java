@@ -139,7 +139,7 @@ public class BluehatStart extends MIDlet implements CommandListener {
 //        System.out.println("NPC Data "+ npc.toString());
          
         //Create the NDI Agents for the game
-         HackSkill hs = new HackSkill("Log Tracing", 0);
+         HackSkill hs = new HackSkill("Log Manipulation", 0);
          NPC npc = new NPC(0,"NDI Level 1",3,"NDI_Level_1.png",hs);
          System.out.println("NPC Number: "+rms_npc.writeNPCData(npc));
          
@@ -156,10 +156,9 @@ public class BluehatStart extends MIDlet implements CommandListener {
         
          
          //Create the Firewalls
-         HackSkill hsFireWall = new HackSkill("Firmware Hacking",0);
+         HackSkill hsFireWall = new HackSkill("Packet Sniffing",0);
          npc = new NPC(0,"Firewall Level 1",2,"FireWall_Level_1.png",hsFireWall);
          System.out.println("NPC Number: "+rms_npc.writeNPCData(npc));
-         
          npc = new NPC(0,"Firewall Level 2",3,"FireWall_Level_2.png",hsFireWall);
          System.out.println("NPC Number: "+rms_npc.writeNPCData(npc));
          npc = new NPC(0,"Firewall Level 3",4,"FireWall_Level_3.png",hsFireWall);
@@ -175,8 +174,10 @@ public class BluehatStart extends MIDlet implements CommandListener {
          System.out.println("NPC Number: "+rms_npc.writeNPCData(npc));
          
          //Create the Document Encryption 
-         HackSkill hsEncryption = new HackSkill("Encryption",0);
+         HackSkill hsEncryption = new HackSkill("Decryption",0);
          npc = new NPC(0,"Encryption Level 1",4,".png",hsEncryption);
+         System.out.println("NPC Number: "+rms_npc.writeNPCData(npc));
+         
 
          
          
@@ -350,6 +351,17 @@ public class BluehatStart extends MIDlet implements CommandListener {
                 System.out.println(e.toString());
             }
         }
+        if (cmd == cmdExitCreateCharacter){
+           display.setCurrent(formCharacterList);
+        }
+        if(cmd == cmdExitChooseCharacter){
+            try {
+                this.destroyApp(true);
+                notifyDestroyed();
+            } catch (Exception e) {
+                System.out.println(e.toString());
+            }
+        }
         
         if(cmd==cmdChooseCharacter){
             reset();
@@ -362,10 +374,7 @@ public class BluehatStart extends MIDlet implements CommandListener {
         }
         
         if(cmd==cmdSaveCharacter){
-//                private TextField txtName;
-//    private TextField txtBackground;
-//    private TextField txtSkillPoints;
-//    private ChoiceGroup cgHackingSkills;
+            pc.setRecordID(0);
             pc.setName(txtName.getString());
             pc.setBackground(txtBackground.getString());
             
@@ -373,10 +382,19 @@ public class BluehatStart extends MIDlet implements CommandListener {
             Vector vecHS = new Vector();
             for(int i =0;i<cgHackingSkills.size();i++){
                 String strHackLabel = cgHackingSkills.getString(i);
+                int charDividerPosition = strHackLabel.indexOf("-");
+                String strHackSkill = strHackLabel.substring(0,charDividerPosition-1).trim();
+                String strHackLevel = strHackLabel.substring(strHackLabel.length()-1).trim();
+                
+                HackSkill hs = new HackSkill(strHackSkill,Integer.parseInt(strHackLevel));
+                vecHS.addElement(hs);
             }
             
+            pc.setVectorHackingSkill(vecHS);
                     
             rmsCharacter.writePlayerCharacterData(pc);
+            
+            reset();
             
             
         }
@@ -394,7 +412,6 @@ public class BluehatStart extends MIDlet implements CommandListener {
         
         characterChoiceGroup = new ChoiceGroup("Choose a Character:",Choice.EXCLUSIVE);
         
-        
         Vector vecPlayerAvatar = rmsCharacter.readAllPlayerCharacterData();
               
         //Add the values to the characterChoiceGroup.
@@ -404,18 +421,31 @@ public class BluehatStart extends MIDlet implements CommandListener {
             characterChoiceGroup.append(pc.getName(), null);
         }
         
-        characterChoiceGroup.setSelectedIndex(0, true);
-        
-        cmdExitChooseCharacter = new Command("Exit", Command.EXIT,2);
-        cmdChooseCharacter = new Command("Select", Command.OK,1);
-        cmdCreateCharacter = new Command("Create", Command.SCREEN,3);
+                
+        //cmdChooseCharacter = new Command("Select", Command.OK,1);
+        cmdExitChooseCharacter = new Command("Exit Game", Command.EXIT,2);
+        cmdCreateCharacter = new Command("Create New Character", Command.SCREEN,3);
         
         characterChoiceGroupIndex = formCharacterList.append(characterChoiceGroup);
         
-        formCharacterList.addCommand(cmdChooseCharacter);
+        //formCharacterList.addCommand(cmdChooseCharacter);
+        
         formCharacterList.addCommand(cmdExitChooseCharacter);
         formCharacterList.addCommand(cmdCreateCharacter);
         formCharacterList.setCommandListener(this);
+        
+        formCharacterList.setItemStateListener(new ItemStateListener() {
+
+            public void itemStateChanged(Item item) {
+                if (item == characterChoiceGroup) {
+                    ChoiceGroup cg = (ChoiceGroup)item;
+                    String strCharacterName = cg.getString(cg.getSelectedIndex());
+                    pc = rmsCharacter.readPlayerCharacterData(strCharacterName);
+                    reset();
+                }
+            }
+
+        });
         
         return formCharacterList;
     }
@@ -430,7 +460,7 @@ public class BluehatStart extends MIDlet implements CommandListener {
         cgHackingSkills = new ChoiceGroup("Hacking Skills",ChoiceGroup.EXCLUSIVE);
         
         
-        cgHackingSkills.append("Hardware Cracking - Level 0", null);
+        cgHackingSkills.append("Log Manipulation - Level 0", null);
         cgHackingSkills.append("Packet Sniffing - Level 0", null);
         cgHackingSkills.append("Decryption - Level 0", null);
         cgHackingSkills.append("Luck - Level 0", null);
@@ -447,7 +477,7 @@ public class BluehatStart extends MIDlet implements CommandListener {
                         ChoiceGroup cg = (ChoiceGroup)item;
                                                 
                         String strNewLevel = cg.getString(cg.getSelectedIndex()).substring(cg.getString(cg.getSelectedIndex()).trim().length() - 1);
-                        System.out.println("Skill Level"+strNewLevel);
+                        
                         int intNewLabel = Integer.parseInt(strNewLevel) + 1;
                         String strNewLabel;
                         strNewLabel = cg.getString(cg.getSelectedIndex()).trim().substring(0, cg.getString(cg.getSelectedIndex()).length() - 1) + intNewLabel;

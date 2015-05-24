@@ -55,6 +55,22 @@ public class RMS_Character {
 
         return vecAllPlayers;
     }
+    
+    public PlayerAvatar readPlayerCharacterData(String playerName){
+        PlayerAvatar retrivedPlayer = new PlayerAvatar();
+        try{
+            TextFilter filter = new TextFilter(playerName);
+            RecordEnumeration enumPlayer = rs.enumerateRecords(filter, null, true);
+            while(enumPlayer.hasNextElement()){
+                retrivedPlayer = readPlayerCharacterData(enumPlayer.nextRecordId());
+            }
+
+        }catch(Exception ex){
+            ex.toString();
+        }
+        
+        return retrivedPlayer;
+    }
 
     public PlayerAvatar readPlayerCharacterData(int recID)  {
         /*

@@ -72,6 +72,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private boolean level_complete = false;
     private boolean game_paused = false;
     private boolean firewall_hacked = false;
+    private int playerid;
 
     static int TILE_HEIGHT_WIDTH = 16;
     static int WALL_IMPACT = 1;
@@ -102,13 +103,13 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         setTitle(strTitle);
     }
 
-    public BluehatCanvas(Display start, Form stform, MIDlet startMIDlet) {
+    public BluehatCanvas(Display start, Form stform, MIDlet startMIDlet, PlayerAvatar objPlayerAvatar) {
 
         super(true);
         form = stform;
         display = start;
         startgameMIDlet = startMIDlet;
-
+        pc = objPlayerAvatar;
         strStatus = "Current System Threat Level: ";
 
         //Create the contract screen/game objection screen.
@@ -131,6 +132,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         player_y_pos = 16;
         player_x_pos_last = 16;
         player_y_pos_last = 16;
+        
         strStatus = "Current System Threat Level: ";
         gamemazeScreen();
         playerSprite.defineReferencePixel(player_x_pos, player_y_pos);
@@ -606,8 +608,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         //create a string that represents the hackers skills with the objects hacker vulnerability
         try {
-            RMS_Character obj = new RMS_Character();
-            pc = obj.readPlayerCharacterData(1);
+
             Enumeration playSkills = pc.getVectorHackingSkill().elements();
             int skill_pos = 205;
             boolean show_no_skill = true;

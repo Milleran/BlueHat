@@ -17,6 +17,7 @@
 package bluehat;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Vector;
 import javax.microedition.midlet.*;
 import javax.microedition.lcdui.*;
@@ -27,8 +28,20 @@ public class BluehatStart extends MIDlet implements CommandListener {
     private BluehatCanvas bluehatCanvas;
     private Display display;
     Form form;
+    Form frmPC;
+    
     Command cmdStartGame;
     Command cmdEndGame;
+    
+    //Choose Character Form
+    Form formCharacterList;
+    Command cmdChooseCharacterForm;
+    private ChoiceGroup characterChoiceGroup;
+    Command cmdChooseCharacter;
+    Command cmdExitChooseCharacter;
+    int characterChoiceGroupIndex;
+    
+    
     ImageItem splash;
     
     private PlayerAvatar pc;
@@ -42,6 +55,7 @@ public class BluehatStart extends MIDlet implements CommandListener {
 
         cmdStartGame = new Command("Start", Command.OK, 1);
         cmdEndGame = new Command("Exit", Command.EXIT, 1);
+        
 
         //Display the game title screen
         try {
@@ -312,7 +326,9 @@ public class BluehatStart extends MIDlet implements CommandListener {
          */
 
         if (cmd == cmdStartGame) {
-            reset();
+            //reset();
+            frmPC = createCharacterChoiceForm();
+            display.setCurrent(frmPC);
 
         } else if (cmd == cmdEndGame) {
             try {
@@ -322,11 +338,46 @@ public class BluehatStart extends MIDlet implements CommandListener {
                 System.out.println(e.toString());
             }
         }
+        
+        if(cmd==cmdChooseCharacter){
+            reset();
+            
+        }
     }
 
     public void reset() {
         form.deleteAll();
-        bluehatCanvas = new BluehatCanvas(display, form, this);
+        bluehatCanvas = new BluehatCanvas(display, form, this, pc);
         display.setCurrent(bluehatCanvas);
+    }
+    
+    public Form createCharacterChoiceForm(){
+        
+       formCharacterList = new Form("Characters");
+        
+        characterChoiceGroup = new ChoiceGroup("Choose a Character:",Choice.EXCLUSIVE);
+        
+        RMS_Character rmsCharacter = new RMS_Character();
+        Vector vecPlayerAvatar = rmsCharacter.readAllPlayerCharacterData();
+              
+        //Add the values to the characterChoiceGroup.
+        Enumeration enumPC = vecPlayerAvatar.elements();
+        while(enumPC.hasMoreElements()){
+            PlayerAvatar pc = (PlayerAvatar)enumPC.nextElement();
+            characterChoiceGroup.append(pc.getName(), null);
+        }
+        
+        characterChoiceGroup.setSelectedIndex(0, true);
+        
+        cmdExitChooseCharacter = new Command("Exit", Command.EXIT,2);
+        cmdChooseCharacter = new Command("Select", Command.OK,1);
+        
+        characterChoiceGroupIndex = formCharacterList.append(characterChoiceGroup);
+        
+        formCharacterList.addCommand(cmdChooseCharacter);
+        formCharacterList.addCommand(cmdExitChooseCharacter);
+        formCharacterList.setCommandListener(this);
+        
+        return formCharacterList;
     }
 }

@@ -38,6 +38,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private Command cmdReHack;
     private Form form;
     private Display display;
+    private Display displaystart;
     private MIDlet startgameMIDlet;
     Random rdmNumber = new Random();
 
@@ -108,6 +109,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         super(true);
         form = stform;
         display = start;
+        displaystart = start;
         startgameMIDlet = startMIDlet;
         pc = objPlayerAvatar;
         strStatus = "Current System Threat Level: ";
@@ -143,9 +145,10 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             ndiSprites[i].setPosition(80, 224);
         }
         
-        
-        firewallSprite.setPosition(80, 208);
-        firewallSprite.setVisible(true);
+        if (intMapLevel < 6) {
+            firewallSprite.setPosition(80, 208);
+            firewallSprite.setVisible(true);
+        }
         animationFrameRate = 0;
         playBackgroundMusic("toner_2.mp3", "audio/mpeg");
 
@@ -234,9 +237,19 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             //bottom.
             if (serverSprite.collidesWith(playerSprite, true)) {
                 serverSprite.setVisible(false);
-                showHackScreen("Encryption Level 1");
-                player_has_objective = true;
                 playBackgroundMusic("Chip Bit Danger.mp3", "audio/mpeg");
+                showHackScreen("Encryption Level 1");
+                while(game_paused){
+                    
+                    try {
+                        runner.sleep(100);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                    
+                }
+                player_has_objective = true;
+                
                 //strStatus = "You have it! Get to the exit.";
             }
 
@@ -467,7 +480,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         //The player exiting the maze, if the player has the object then succuess.
         //If not then the player is prevented from leaving.
-        if (detectPlayerExitMaze()) {
+        
             if (player_has_objective == true) {
                 showSuccessScreen();
                 playBackgroundMusic("Grey Sector v0_85.mp3", "audio/mpeg");
@@ -476,18 +489,19 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
                 //reset the player objective.
                 player_has_objective = false;
-            } else {
-                Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_LARGE);
-
-                graphics.setColor(0);
-                graphics.setFont(gameFont);
-                graphics.drawString("You must retrieve the secret document!", 0, 288, 0);
-
-                player_x_pos = player_x_pos_last;
-                player_y_pos = player_y_pos_last;
-                playerSprite.paint(graphics);
             }
-        }
+//            } else {
+//                Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_LARGE);
+//
+//                graphics.setColor(0);
+//                graphics.setFont(gameFont);
+//                graphics.drawString("You must retrieve the secret document!", 0, 288, 0);
+//
+//                player_x_pos = player_x_pos_last;
+//                player_y_pos = player_y_pos_last;
+//                playerSprite.paint(graphics);
+//            }
+        
     }
 
     private void moveAgent(int animationFrameRate) {
@@ -566,7 +580,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         if (animationFrameRate / 10 == 1) {
             firewallSprite.nextFrame();
         }
-        firewallSprite.paint(graphics);
+        if(intMapLevel<6){
+            firewallSprite.paint(graphics);
+        }
 
     }
 
@@ -860,12 +876,13 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         if (cmd == cmdPlayAgain) {
 
             clearScreen(graphics);
-            this.repaint();
-
+            
+            displaystart = Display.getDisplay(startgameMIDlet);
+            displaystart.setCurrent(form);
+            
             //need a reset function on all the varibles.
             playSoundEffect("Powerup.wav");
-            initializeGame();
-
+            
         }
         if (cmd == cmdResume) {
             

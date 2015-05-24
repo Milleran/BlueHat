@@ -175,7 +175,7 @@ public class BluehatStart extends MIDlet implements CommandListener {
          
          //Create the Document Encryption 
          HackSkill hsEncryption = new HackSkill("Decryption",0);
-         npc = new NPC(0,"Encryption Level 1",4,".png",hsEncryption);
+         npc = new NPC(0,"Encryption Level 1",4,"Document_Encrypted.png",hsEncryption);
          System.out.println("NPC Number: "+rms_npc.writeNPCData(npc));
          
 

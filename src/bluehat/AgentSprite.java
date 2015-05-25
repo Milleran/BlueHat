@@ -12,12 +12,13 @@ import javax.microedition.lcdui.game.Sprite;
  *
  * @author Andrew
  */
-public class AgentSprite extends Sprite{
-    
+public class AgentSprite extends Sprite {
+
     private AgentMovement direction = new AgentMovement(0, 0);
 
     private int ndi_level = 1;
 
+    private int change_direction=0;
 
     private int ndi_x_pos_last;
     private int ndi_y_pos_last;
@@ -44,7 +45,7 @@ public class AgentSprite extends Sprite{
     public void setDirection(AgentMovement direction) {
         this.direction = direction;
     }
-    
+
     public int getNdi_x_pos_last() {
         return ndi_x_pos_last;
     }
@@ -53,18 +54,26 @@ public class AgentSprite extends Sprite{
         return ndi_y_pos_last;
     }
 
-    public void setPosition(int x, int y) { 
+    public void setPosition(int x, int y) {
         ndi_x_pos_last = this.getX();
         ndi_y_pos_last = this.getY();
         super.setPosition(x, y); //To change body of generated methods, choose Tools | Templates.
-       
+
     }
-    
+
     public int getNdi_level() {
         return ndi_level;
     }
 
     public void setNdi_level(int ndi_level) {
         this.ndi_level = ndi_level;
+    }
+
+    public int getChange_direction() {
+        return change_direction;
+    }
+
+    public void setChange_direction(int change_direction) {
+        this.change_direction = change_direction;
     }
 }

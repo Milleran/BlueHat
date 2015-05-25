@@ -73,7 +73,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private boolean level_complete = false;
     private boolean game_paused = false;
     private boolean firewall_hacked = false;
-    private int playerid;
 
     static int TILE_HEIGHT_WIDTH = 16;
     static int WALL_IMPACT = 1;
@@ -91,9 +90,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     //Create the player avatar
     PlayerAvatar pc;
     NPC objNPC;
-    
+
     //Set the level of play, there are 6 levels to the game.
-    int intMapLevel = 6;
+    int intMapLevel = 1;
 
     //Threat Level for the game
     static final int GAME_OVER_THREAT_LEVEL = 3;
@@ -134,17 +133,17 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         player_y_pos = 16;
         player_x_pos_last = 16;
         player_y_pos_last = 16;
-        
+
         strStatus = "Current System Threat Level: ";
         gamemazeScreen();
         playerSprite.defineReferencePixel(player_x_pos, player_y_pos);
-        
+
         createNDIAgents();
-        
-        for(int i=0;i<ndiSprites.length;i++){
+
+        for (int i = 0; i < ndiSprites.length; i++) {
             ndiSprites[i].setPosition(80, 224);
         }
-        
+
         if (intMapLevel < 6) {
             firewallSprite.setPosition(80, 208);
             firewallSprite.setVisible(true);
@@ -216,7 +215,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //Moves the agent and reduces the framerate of the animation
             moveAgent(animationFrameRate);
-            
 
             //control the framerate of the animations of the sprites, this
             // reduces it by a factor of 100.
@@ -239,17 +237,17 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 serverSprite.setVisible(false);
                 playBackgroundMusic("Chip Bit Danger.mp3", "audio/mpeg");
                 showHackScreen("Encryption Level 1");
-                while(game_paused){
-                    
+                while (game_paused) {
+
                     try {
                         runner.sleep(100);
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     }
-                    
+
                 }
                 player_has_objective = true;
-                
+
                 //strStatus = "You have it! Get to the exit.";
             }
 
@@ -257,91 +255,99 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             if (detectAgentCollision()) {
                 //run_game = !detectAgentCollision();
                 //showFailureScreen();
-                switch(intMapLevel){
-                    case 1: showHackScreen("NDI Level 1");
+                switch (intMapLevel) {
+                    case 1:
+                        showHackScreen("NDI Level 1");
                         break;
-                    case 2: showHackScreen("NDI Level 2");
+                    case 2:
+                        showHackScreen("NDI Level 2");
                         break;
-                    case 3: showHackScreen("NDI Level 2");
+                    case 3:
+                        showHackScreen("NDI Level 2");
                         break;
-                    case 4: showHackScreen("NDI Level 3");
+                    case 4:
+                        showHackScreen("NDI Level 3");
                         break;
-                    case 5: showHackScreen("NDI Level 3");
+                    case 5:
+                        showHackScreen("NDI Level 3");
                         break;
-                    case 6: showHackScreen("NDI Level 4");
+                    case 6:
+                        showHackScreen("NDI Level 4");
                         break;
                 }
-                
-                while(game_paused){
-                    
+
+                while (game_paused) {
+
                     try {
                         runner.sleep(100);
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     }
-                    
+
                 }
-                
+
                 flushGraphics();
-                
+
                 resumeGame();
-                
+
                 //repostion the NDI Sprite
-                
-                 playSoundEffect("Pickup_Coin.wav");
-                
+                playSoundEffect("Pickup_Coin.wav");
+
             }
-            
-            if(detectFirewallCollision()){
-                
-                switch(intMapLevel){
-                    case 1: showHackScreen("Firewall Level 1");
+
+            if (detectFirewallCollision()) {
+
+                switch (intMapLevel) {
+                    case 1:
+                        showHackScreen("Firewall Level 1");
                         break;
-                    case 2: showHackScreen("Firewall Level 2");
+                    case 2:
+                        showHackScreen("Firewall Level 2");
                         break;
-                    case 3: showHackScreen("Firewall Level 3");
+                    case 3:
+                        showHackScreen("Firewall Level 3");
                         break;
-                    case 4: showHackScreen("Firewall Level 4");
+                    case 4:
+                        showHackScreen("Firewall Level 4");
                         break;
-                    case 5: showHackScreen("Firewall Level 5");
+                    case 5:
+                        showHackScreen("Firewall Level 5");
                         break;
-                    case 6: showHackScreen("Firewall Level 5");
+                    case 6:
+                        showHackScreen("Firewall Level 5");
                         break;
                 }
-                
-                while(game_paused){
-                    
+
+                while (game_paused) {
+
                     try {
                         runner.sleep(100);
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     }
-                    
+
                 }
                 //have to remove the player sprite from the game.
                 firewallSprite.setVisible(false);
-                
+
                 //If the firewall has been hacked then the player can move on to 
                 //the next level.
-                
-                if(firewall_hacked){
+                if (firewall_hacked) {
                     intMapLevel++;
-                    
+
                     initializeGame();
                 }
                 resumeGame();
-                
-                                
+
                 flushGraphics();
-                
 
             }
 
             //check if the player has retrived the document and can exit the maze.
             determineSuccess();
-            
+
             //determine if the system threat level has reached the threshold.
-            if(current_threat_level >= GAME_OVER_THREAT_LEVEL){
+            if (current_threat_level >= GAME_OVER_THREAT_LEVEL) {
                 showFailureScreen();
             }
 
@@ -387,8 +393,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //Create the Firewall sprite that will move the character to different maps (levels)
             firewallSpritePage = Image.createImage("Firewall_icon.png");
-            firewallSprite =  new Sprite(firewallSpritePage,16,16);
-            int [] firewallFrameSeq ={0,1,2};
+            firewallSprite = new Sprite(firewallSpritePage, 16, 16);
+            int[] firewallFrameSeq = {0, 1, 2};
             firewallSprite.setFrameSequence(firewallFrameSeq);
 
         } catch (IOException ioe) {
@@ -404,24 +410,24 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             int[] ndiFrameSeq = {0, 1, 2};
 //            ndiSprite.setFrameSequence(ndiFrameSeq);
             //Create an array of NDISprites
-            switch(intMapLevel){
-                case 1: 
+            switch (intMapLevel) {
+                case 1:
                     ndiSprites = new AgentSprite[2];
                     ndiSprites[0] = new AgentSprite(ndiSpritePage, 16, 16);
                     ndiSprites[1] = new AgentSprite(ndiSpritePage, 16, 16);
                     ndiSprites[0].setFrameSequence(ndiFrameSeq);
                     ndiSprites[1].setFrameSequence(ndiFrameSeq);
-                   
-                   break;
+
+                    break;
                 case 2:
                     ndiSprites = new AgentSprite[2];
                     ndiSprites[0] = new AgentSprite(ndiSpritePage, 16, 16);
                     ndiSprites[1] = new AgentSprite(ndiSpritePage, 16, 16);
                     ndiSprites[0].setFrameSequence(ndiFrameSeq);
                     ndiSprites[1].setFrameSequence(ndiFrameSeq);
-                    
-                   break;
-              case 3:
+
+                    break;
+                case 3:
                     ndiSprites = new AgentSprite[3];
                     ndiSprites[0] = new AgentSprite(ndiSpritePage, 16, 16);
                     ndiSprites[1] = new AgentSprite(ndiSpritePage, 16, 16);
@@ -429,8 +435,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                     ndiSprites[0].setFrameSequence(ndiFrameSeq);
                     ndiSprites[1].setFrameSequence(ndiFrameSeq);
                     ndiSprites[2].setFrameSequence(ndiFrameSeq);
-                   break;
-              case 4:
+                    break;
+                case 4:
                     ndiSprites = new AgentSprite[3];
                     ndiSprites[0] = new AgentSprite(ndiSpritePage, 16, 16);
                     ndiSprites[1] = new AgentSprite(ndiSpritePage, 16, 16);
@@ -438,8 +444,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                     ndiSprites[0].setFrameSequence(ndiFrameSeq);
                     ndiSprites[1].setFrameSequence(ndiFrameSeq);
                     ndiSprites[2].setFrameSequence(ndiFrameSeq);
-                   break;
-              case 5:
+                    break;
+                case 5:
                     ndiSprites = new AgentSprite[4];
                     ndiSprites[0] = new AgentSprite(ndiSpritePage, 16, 16);
                     ndiSprites[1] = new AgentSprite(ndiSpritePage, 16, 16);
@@ -449,8 +455,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                     ndiSprites[1].setFrameSequence(ndiFrameSeq);
                     ndiSprites[2].setFrameSequence(ndiFrameSeq);
                     ndiSprites[3].setFrameSequence(ndiFrameSeq);
-                   break;                  
-              case 6:
+                    break;
+                case 6:
                     ndiSprites = new AgentSprite[4];
                     ndiSprites[0] = new AgentSprite(ndiSpritePage, 16, 16);
                     ndiSprites[1] = new AgentSprite(ndiSpritePage, 16, 16);
@@ -460,7 +466,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                     ndiSprites[1].setFrameSequence(ndiFrameSeq);
                     ndiSprites[2].setFrameSequence(ndiFrameSeq);
                     ndiSprites[3].setFrameSequence(ndiFrameSeq);
-                   break;  
+                    break;
             }
         } catch (IOException ioe) {
 
@@ -480,16 +486,15 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         //The player exiting the maze, if the player has the object then succuess.
         //If not then the player is prevented from leaving.
-        
-            if (player_has_objective == true) {
-                showSuccessScreen();
-                playBackgroundMusic("Grey Sector v0_85.mp3", "audio/mpeg");
-                //run_game = false;
-                level_complete = true;
+        if (player_has_objective == true) {
+            showSuccessScreen();
+            playBackgroundMusic("Grey Sector v0_85.mp3", "audio/mpeg");
+            //run_game = false;
+            level_complete = true;
 
-                //reset the player objective.
-                player_has_objective = false;
-            }
+            //reset the player objective.
+            player_has_objective = false;
+        }
 //            } else {
 //                Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_LARGE);
 //
@@ -501,7 +506,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 //                player_y_pos = player_y_pos_last;
 //                playerSprite.paint(graphics);
 //            }
-        
+
     }
 
     private void moveAgent(int animationFrameRate) {
@@ -515,23 +520,25 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
          Called by Whom: run()
          Calls: nothing
          */
+        for (int i = 0; i < ndiSprites.length; i++) {
+            ndiSprites[i].setChange_direction(ndiSprites[i].getChange_direction() + 1);
+            if (ndiSprites[i].getChange_direction() >= TILE_HEIGHT_WIDTH) { //check if the sprite has moved a tile before changing the direction.
+                //pass the agents current position and the current direction.
 
-        agent_change_direction++;
-        if (agent_change_direction >= TILE_HEIGHT_WIDTH) { //check if the sprite has moved a tile before changing the direction.
-            //pass the agents current position and the current direction.
-            
-            for (int i = 0; i < ndiSprites.length; i++) {
+                System.out.println("Sprite:" + i + " X:" + ndiSprites[i].getX());
+                System.out.println("Sprite:" + i + " Y:" + ndiSprites[i].getY());
                 ndiSprites[i].setDirection(randomAgentMovement(ndiSprites[i].getX(), ndiSprites[i].getY(), ndiSprites[i].getDirection()));
                 ndiSprites[i].setPosition(ndiSprites[i].getX() + ndiSprites[i].getDirection().getX_pos(), ndiSprites[i].getY() + ndiSprites[i].getDirection().getY_pos());
-                if(detectWallTileCollision(ndiSprites[i])){
+                if (detectWallTileCollision(ndiSprites[i])) {
 //                    System.out.println("X:"+ndiSprites[i].getX());
 //                    System.out.println("Y:"+ndiSprites[i].getY());
 //                    System.out.println("Last X:"+ndiSprites[i].getNdi_x_pos_last());
 //                    System.out.println("Last Y:"+ndiSprites[i].getNdi_y_pos_last());
-                    ndiSprites[i].setPosition(ndiSprites[i].getNdi_x_pos_last() + ndiSprites[i].getDirection().getX_pos(), ndiSprites[i].getNdi_y_pos_last()+ ndiSprites[i].getDirection().getY_pos());
+                    ndiSprites[i].setPosition(ndiSprites[i].getNdi_x_pos_last() + ndiSprites[i].getDirection().getX_pos(), ndiSprites[i].getNdi_y_pos_last() + ndiSprites[i].getDirection().getY_pos());
                 }
+                ndiSprites[i].setChange_direction(0);
             }
-            agent_change_direction = 0;
+            
         }
         //Collection set movement
         for (int j = 0; j < ndiSprites.length; j++) {
@@ -567,6 +574,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         serverSprite.paint(graphics);
 
     }
+
     private void paintFireWall(int animationFrameRate) {
         /*
          Name: paintFireWall
@@ -580,7 +588,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         if (animationFrameRate / 10 == 1) {
             firewallSprite.nextFrame();
         }
-        if(intMapLevel<6){
+        if (intMapLevel < 6) {
             firewallSprite.paint(graphics);
         }
 
@@ -603,15 +611,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     private void showHackScreen(String strNPC) {
         //Pause the game thread.
-        game_paused =true;
+        game_paused = true;
 
         //Get the NPC object to hack.
-               
         RMS_NPC objRMSNPC = new RMS_NPC();
         objNPC = objRMSNPC.readNPCData(strNPC);
         //need to save all the screen data and the objects positions
         resumeGame();
-        
+
         clearScreen(graphics);
         graphics = getGraphics();
 
@@ -643,7 +650,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                     show_no_skill = false;
                 }
             }
-            if (show_no_skill){
+            if (show_no_skill) {
                 graphics.drawString("No Skill", 25, skill_pos, BOTTOM | LEFT);
             }
 
@@ -786,7 +793,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         //Create the Sprite for the player avatar.
         try {
-            drawMap(); 
+            drawMap();
             if (intMapLevel == 6) {
                 //Draw the Server Sprite in a random floor only area of the Maze
                 boolean flag = true;
@@ -876,37 +883,37 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         if (cmd == cmdPlayAgain) {
 
             clearScreen(graphics);
-            
+
             displaystart = Display.getDisplay(startgameMIDlet);
             displaystart.setCurrent(form);
-            
+
             //need a reset function on all the varibles.
             playSoundEffect("Powerup.wav");
-            
+
         }
         if (cmd == cmdResume) {
-            
+
             game_paused = false;
-            
+
             display.removeCommand(cmdResume);
             //Redraw the maze from it previous state.
             this.repaint();
-            
+
         }
         if (cmd == cmdReHack) {
             //remove any existing string text in the results area
             graphics.setColor(0xFFFFFF);
             graphics.fillRect(0, 250, getWidth(), 270);
-            
+
             conductHackAttack(display);
-            
+
             display.removeCommand(cmdReHack);
             this.repaint();
         }
         if (cmd == cmdHack) {
 
             conductHackAttack(display);
-            
+
             this.repaint();
 
         }
@@ -930,6 +937,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         return false;
 
     }
+
     private boolean detectFirewallCollision() {
         /*
          Name: detectFirewallCollision
@@ -945,6 +953,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         }
         return false;
     }
+
     private boolean detectAgentCollision() {
         /*
          Name: detectAgentCollision
@@ -1036,6 +1045,15 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 int intCoordinatesAroundAgent[] = {0, -1, 1, 0, 0, 1, -1, 0}; //x and y coordinates
                 int tile_x = current_x / TILE_HEIGHT_WIDTH + intCoordinatesAroundAgent[i];
                 int tile_y = current_y / TILE_HEIGHT_WIDTH + intCoordinatesAroundAgent[i + 1];
+                if (tile_x < 0) {
+                    tile_x = 1;
+                };
+                if (tile_y < 0) {
+                    tile_y = 1;
+                };
+                
+                System.out.println("tile_x:" + tile_x);
+                System.out.println("tile_y:" + tile_y);
 
                 if (blueHatBackground.getCell(tile_x, tile_y) == FLOOR_TILE && tile_x != 0) {
                     AgentMovement agentMovement = new AgentMovement(intCoordinatesAroundAgent[i],
@@ -1244,7 +1262,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 }
                 intHackerAttackValue = intHackAttackRoll + intHackerSkill;
 
-                    //Determine failure
+                //Determine failure
                 if (intHackerAttackValue >= objNPC.getSecurity_defense_level()) {
                     //Sucessful hack and back to the network maze.
                     graphics.drawString(String.valueOf(intHackerSkill) + " Skill + " + String.valueOf(intHackAttackRoll) + " Roll = " + String.valueOf(intHackerAttackValue), getWidth() / 2, 250, TOP | HCENTER);
@@ -1256,9 +1274,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                     display.addCommand(cmdResume);
                     this.setCommandListener(this);
                     attackResult = true;
-                    
+
                     //Check if the hack was against a firewall to get to the next level.
-                    if(objNPC.getName().startsWith("Firewall")){
+                    if (objNPC.getName().startsWith("Firewall")) {
                         firewall_hacked = true;
                     }
 
@@ -1270,7 +1288,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
                     display.removeCommand(cmdHack);
                     display.removeCommand(cmdReHack);
-                    
+
                     cmdReHack = new Command("Rehack?", Command.OK, 1);
                     display.addCommand(cmdReHack);
                     attackResult = false;
@@ -1286,7 +1304,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void resumeGame() {
-        
+
         //Redraw the map
         try {
             drawMap();
@@ -1294,20 +1312,19 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         } catch (Exception e) {
             System.out.println(e.toString());
         }
-            
+
     }
 
     private void drawMap() throws IOException {
         //Create the background with a tiledlayer
         Image background = Image.createImage("/networkWall.png");
-        
+
         int cols = getWidth() / TILE_HEIGHT_WIDTH;
         int rows = getHeight() / TILE_HEIGHT_WIDTH;
-        
+
         blueHatBackground = getNetworkWall_NotAnimated(rows, cols, background);
-        
+
         blueHatBackground.setVisible(true);
     }
-    
- 
+
 }

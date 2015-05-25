@@ -141,7 +141,19 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         createNDIAgents();
 
         for (int i = 0; i < ndiSprites.length; i++) {
-            ndiSprites[i].setPosition(80, 224);
+              boolean flag = true;
+
+                while (flag) {
+                    int random_x = rdmNumber.nextInt(14);
+                    int random_y = rdmNumber.nextInt(11);
+
+                    //Place the server sprite on a Floor tile and 6 or more rows below the player.
+                    if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE && random_y >= 6) {
+                        //ndiSprites[i].setPosition(random_x * TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH);
+                        ndiSprites[i].setPosition(random_x * TILE_HEIGHT_WIDTH-TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH-TILE_HEIGHT_WIDTH);
+                        flag = false;
+                    }
+                }
         }
 
         if (intMapLevel < 6) {
@@ -1045,12 +1057,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 int intCoordinatesAroundAgent[] = {0, -1, 1, 0, 0, 1, -1, 0}; //x and y coordinates
                 int tile_x = current_x / TILE_HEIGHT_WIDTH + intCoordinatesAroundAgent[i];
                 int tile_y = current_y / TILE_HEIGHT_WIDTH + intCoordinatesAroundAgent[i + 1];
-                if (tile_x < 0) {
-                    tile_x = 1;
-                };
-                if (tile_y < 0) {
-                    tile_y = 1;
-                };
                 
                 System.out.println("tile_x:" + tile_x);
                 System.out.println("tile_y:" + tile_y);
@@ -1245,13 +1251,13 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
                 //generate a random roll between 1 and 6
                 Random r = new Random();
-                //int intHackAttackRoll = r.nextInt(5)+1;
-                int intHackAttackRoll = 6;
+                int intHackAttackRoll = r.nextInt(5)+1;
+                //int intHackAttackRoll = 6;
 
                 int intHackerSkill = 0;
                 int intHackerAttackValue = 0;
-
-                //Add Skill level to the random roll.
+                int intLuckValue =0;
+                //Add Skill and Luck level to the random roll.
                 Enumeration playSkills = pc.getVectorHackingSkill().elements();
                 while (playSkills.hasMoreElements()) {
                     HackSkill hs = (HackSkill) playSkills.nextElement();
@@ -1259,13 +1265,17 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                         intHackerSkill = hs.getSkillLevel();
 
                     }
+                    if (hs.getSkillName().equals("Luck")) {
+                        intLuckValue = hs.getSkillLevel();
+
+                    }
                 }
-                intHackerAttackValue = intHackAttackRoll + intHackerSkill;
+                intHackerAttackValue = intHackAttackRoll + intHackerSkill + intLuckValue;
 
                 //Determine failure
                 if (intHackerAttackValue >= objNPC.getSecurity_defense_level()) {
                     //Sucessful hack and back to the network maze.
-                    graphics.drawString(String.valueOf(intHackerSkill) + " Skill + " + String.valueOf(intHackAttackRoll) + " Roll = " + String.valueOf(intHackerAttackValue), getWidth() / 2, 250, TOP | HCENTER);
+                    graphics.drawString(String.valueOf(intHackerSkill) + " Skill + " + String.valueOf(intHackAttackRoll) + " Roll + "+ String.valueOf(intLuckValue) +" Luck = "+ String.valueOf(intHackerAttackValue), getWidth() / 2, 250, TOP | HCENTER);
                     graphics.drawString("CRACKED!!!!", getWidth() / 2, 270, TOP | HCENTER);
 
                     display.removeCommand(cmdHack);

@@ -1285,12 +1285,12 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                                 break;
                             case 2:
                                 if (intLuckChanceRoll <= 50) {
-                                    intLuckValue = 2;
+                                    intLuckValue = 1;
                                 }
                                 break;
                             case 3:
                                 if (intLuckChanceRoll <= 75) {
-                                    intLuckValue = 3;
+                                    intLuckValue = 1;
                                 }
                             default:
                                 intLuckChanceRoll = 0;

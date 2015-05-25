@@ -697,7 +697,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 Font.SIZE_LARGE);
         graphics.setFont(fontSplash);
 
-        graphics.drawString("Contract - " + pc.getName(), 0, 0, 0);
+        graphics.drawString("Contract", 0, 0, 0);
 
         String strContract = "You must retrieve the specification document "
                 + "of the next new computer chip. "
@@ -707,7 +707,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         BluehatUtil.drawMultilineString(graphics, fontSplash, strContract, 5,
                 getHeight() / 8, 0, 225);
-
+        
+        int intNewLine = 150;
+        graphics.drawString("Hacker Skills - " + pc.getName(), 10, intNewLine, 0);
+         
+        for(int i=0;i<pc.getVectorHackingSkill().size();i++){
+           intNewLine = intNewLine+15;
+           graphics.drawString( pc.getVectorHackingSkill().elementAt(i).toString(), 20, intNewLine, 0);  
+        }        
         //create a command button for the contract screen.
         cmdStartHack = new Command("Start", Command.OK, 1);
         this.addCommand(cmdStartHack);
@@ -1252,6 +1259,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 //generate a random roll between 1 and 6
                 Random r = new Random();
                 int intHackAttackRoll = r.nextInt(5)+1;
+                
+                int intLuckChanceRoll = r.nextInt(100);
+                
                 //int intHackAttackRoll = 6;
 
                 int intHackerSkill = 0;
@@ -1267,9 +1277,30 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                     }
                     if (hs.getSkillName().equals("Luck")) {
                         intLuckValue = hs.getSkillLevel();
+                        switch (intLuckValue) {
+                            case 1:
+                                if (intLuckChanceRoll < 25) {
+                                    intLuckValue = 1;
+                                }
+                                break;
+                            case 2:
+                                if (intLuckChanceRoll <= 50) {
+                                    intLuckValue = 2;
+                                }
+                                break;
+                            case 3:
+                                if (intLuckChanceRoll <= 75) {
+                                    intLuckValue = 3;
+                                }
+                            default:
+                                intLuckChanceRoll = 0;
+                                break;
+
+                        }
 
                     }
                 }
+                
                 intHackerAttackValue = intHackAttackRoll + intHackerSkill + intLuckValue;
 
                 //Determine failure
@@ -1292,7 +1323,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
                 } else {
                     //Threat Level increase by 1 and attempt again.
-                    graphics.drawString(String.valueOf(intHackerSkill) + " Skill + " + String.valueOf(intHackAttackRoll) + " roll = " + String.valueOf(intHackerAttackValue), getWidth() / 2, 250, TOP | HCENTER);
+                    graphics.drawString(String.valueOf(intHackerSkill) + " Skill + " + String.valueOf(intHackAttackRoll) + " Roll + "+ String.valueOf(intLuckValue) +" Luck = "+ String.valueOf(intHackerAttackValue), getWidth() / 2, 250, TOP | HCENTER);
                     graphics.drawString("FAILED, The Threat Level has increased!!!!", getWidth() / 2, 270, TOP | HCENTER);
                     current_threat_level += 1;
 

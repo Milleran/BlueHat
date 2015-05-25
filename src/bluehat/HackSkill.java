@@ -35,6 +35,13 @@ public class HackSkill {
         return skillName;
     }
 
+    public String toString() {
+        
+        return skillName + " - " + skillLevel;
+    }
+    
+    
+
     public void finalize() throws Throwable {
 
     }

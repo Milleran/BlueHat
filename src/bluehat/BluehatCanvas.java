@@ -96,7 +96,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     //Threat Level for the game
     static final int GAME_OVER_THREAT_LEVEL = 3;
-    int current_threat_level = 0;
+    int current_threat_level = 2;
 
     public BluehatCanvas(String strTitle) {
         super(true);
@@ -1279,21 +1279,22 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                         intLuckValue = hs.getSkillLevel();
                         switch (intLuckValue) {
                             case 1:
-                                if (intLuckChanceRoll < 25) {
+                                if (intLuckChanceRoll < 10) {
                                     intLuckValue = 1;
                                 }
                                 break;
                             case 2:
-                                if (intLuckChanceRoll <= 50) {
+                                if (intLuckChanceRoll <= 20) {
                                     intLuckValue = 1;
                                 }
                                 break;
                             case 3:
-                                if (intLuckChanceRoll <= 75) {
+                                if (intLuckChanceRoll <= 30) {
                                     intLuckValue = 1;
                                 }
+                                break;
                             default:
-                                intLuckChanceRoll = 0;
+                                intLuckValue = 0;
                                 break;
 
                         }

@@ -417,8 +417,8 @@ public class BluehatStart extends MIDlet implements CommandListener {
         //Add the values to the characterChoiceGroup.
         Enumeration enumPC = vecPlayerAvatar.elements();
         while(enumPC.hasMoreElements()){
-            PlayerAvatar pc = (PlayerAvatar)enumPC.nextElement();
-            characterChoiceGroup.append(pc.getName(), null);
+            PlayerAvatar pa = (PlayerAvatar)enumPC.nextElement();
+            characterChoiceGroup.append(pa.getName(), null);
         }
         
                 

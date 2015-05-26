@@ -13,6 +13,7 @@ public class AgentMovement {
     private int x_pos;
     private int y_pos;
     
+    
     AgentMovement(int x, int y){
         x_pos = x;
         y_pos = y;

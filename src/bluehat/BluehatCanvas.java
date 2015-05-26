@@ -992,6 +992,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 playSoundEffect("Explosion.wav");
                 playBackgroundMusic("ThisGameIsOver.wav", "audio/X-wav");
                 ndiSprites[i].setPosition(33, 16);
+                ndiSprites[i].setDirection(new AgentMovement(0, 0));
                 return true;
             }
         }
@@ -1070,11 +1071,12 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 
                 System.out.println("tile_x:" + tile_x);
                 System.out.println("tile_y:" + tile_y);
-
-                if (blueHatBackground.getCell(tile_x, tile_y) == FLOOR_TILE && tile_x != 0) {
-                    AgentMovement agentMovement = new AgentMovement(intCoordinatesAroundAgent[i],
-                            intCoordinatesAroundAgent[i + 1]);
-                    viableDirection.addElement(agentMovement);
+                if (tile_x > 0 && tile_y > 0 && tile_x < 15 && tile_y < 18) {
+                    if (blueHatBackground.getCell(tile_x, tile_y) == FLOOR_TILE && tile_x != 0) {
+                        AgentMovement agentMovement = new AgentMovement(intCoordinatesAroundAgent[i],
+                                intCoordinatesAroundAgent[i + 1]);
+                        viableDirection.addElement(agentMovement);
+                    }
                 }
             }
             //Add the current direction if its a FLOOR_TILE

@@ -710,7 +710,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         
         int intNewLine = 150;
         graphics.drawString("Hacker Skills - " + pc.getName(), 10, intNewLine, 0);
-         
+        intNewLine +=20;
+        graphics.drawString(pc.getBackground(), 10, intNewLine, 0);
+        System.out.println("Number of Skills: "+pc.getVectorHackingSkill().size());
         for(int i=0;i<pc.getVectorHackingSkill().size();i++){
            intNewLine = intNewLine+15;
            graphics.drawString( pc.getVectorHackingSkill().elementAt(i).toString(), 20, intNewLine, 0);  

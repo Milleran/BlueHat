@@ -44,12 +44,15 @@ public class RMS_Character {
     public Vector readAllPlayerCharacterData() {
         Vector vecAllPlayers = new Vector();
         try {
-            RecordEnumeration enumPlayers = rs.enumerateRecords(null, null, true);
+            RecordEnumeration enumPlayers = rs.enumerateRecords(null, null, false);
             while (enumPlayers.hasNextElement()) {
                 PlayerAvatar pc = readPlayerCharacterData(enumPlayers.nextRecordId());
                 vecAllPlayers.addElement(pc);
             }
-        } catch (Exception ex) {
+            
+        } catch (RecordStoreNotOpenException ex) {
+            System.out.println(ex.toString());
+        } catch (InvalidRecordIDException ex) {
             System.out.println(ex.toString());
         }
 
@@ -60,7 +63,7 @@ public class RMS_Character {
         PlayerAvatar retrivedPlayer = new PlayerAvatar();
         try{
             TextFilter filter = new TextFilter(playerName);
-            RecordEnumeration enumPlayer = rs.enumerateRecords(filter, null, true);
+            RecordEnumeration enumPlayer = rs.enumerateRecords(filter, null, false);
             while(enumPlayer.hasNextElement()){
                 retrivedPlayer = readPlayerCharacterData(enumPlayer.nextRecordId());
             }
@@ -81,6 +84,7 @@ public class RMS_Character {
         PlayerAvatar pc = new PlayerAvatar();
         try {
             String strPC = new String(rs.getRecord(recID));
+            System.out.println("Raw Data:"+strPC);
             Vector vecHackingSkills = new Vector();
 
             //set the record ID
@@ -89,6 +93,7 @@ public class RMS_Character {
             // get the Name
             start = 0;
             end = strPC.indexOf(",");
+            end_skill_level =0;
 
             pc.setName(strPC.substring(start, end));
 
@@ -101,6 +106,7 @@ public class RMS_Character {
         //get the hacking skills of the player character
             // they should have a least one skill
             while (strPC.indexOf(",", end_skill_level + 1) != strPC.lastIndexOf(',')) {
+                System.out.println("In the Loop");
                 if (end_skill_level != 0) {
                     start = end_skill_level + 1;
                 } else {
@@ -111,7 +117,7 @@ public class RMS_Character {
 
                 HackSkill hackskill = new HackSkill(strPC.substring(start, end), Integer.parseInt(strPC.substring(end + 1, end_skill_level)));
                 vecHackingSkills.addElement(hackskill);
-
+                
                 if (strPC.indexOf(",", end_skill_level + 1) == strPC.lastIndexOf(',')) {
                     start = end_skill_level + 1;
                     end = strPC.indexOf(",", start);
@@ -121,7 +127,7 @@ public class RMS_Character {
                 }
 
             }
-
+            System.out.println("VecSize:"+vecHackingSkills.size());
             pc.setVectorHackingSkill(vecHackingSkills);
         } catch (Exception ex) {
             System.out.println(ex.toString());

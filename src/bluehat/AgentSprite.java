@@ -21,6 +21,7 @@ public class AgentSprite extends Sprite {
     private int change_direction=0;
 
     private int ndi_x_pos_last;
+    
     private int ndi_y_pos_last;
 
     public AgentSprite(Image image) {

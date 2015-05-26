@@ -106,7 +106,7 @@ public class RMS_Character {
         //get the hacking skills of the player character
             // they should have a least one skill
             while (strPC.indexOf(",", end_skill_level + 1) != strPC.lastIndexOf(',')) {
-                System.out.println("In the Loop");
+                
                 if (end_skill_level != 0) {
                     start = end_skill_level + 1;
                 } else {
@@ -127,7 +127,7 @@ public class RMS_Character {
                 }
 
             }
-            System.out.println("VecSize:"+vecHackingSkills.size());
+            
             pc.setVectorHackingSkill(vecHackingSkills);
         } catch (Exception ex) {
             System.out.println(ex.toString());

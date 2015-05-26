@@ -15,6 +15,7 @@ public class RMS_MazeMap {
 
     private static final String REC_STORE = "MazeMapRS";
     private RecordStore rs;
+    
     int start;
     int end = -1;
 

@@ -716,7 +716,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         for(int i=0;i<pc.getVectorHackingSkill().size();i++){
            intNewLine = intNewLine+15;
            graphics.drawString( pc.getVectorHackingSkill().elementAt(i).toString(), 20, intNewLine, 0);  
-        }        
+        }
+        
         //create a command button for the contract screen.
         cmdStartHack = new Command("Start", Command.OK, 1);
         this.addCommand(cmdStartHack);

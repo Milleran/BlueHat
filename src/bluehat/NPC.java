@@ -13,6 +13,7 @@ public class NPC {
 
 
     private String image_name;
+    
     private int recordID;
     public NPC(){
         

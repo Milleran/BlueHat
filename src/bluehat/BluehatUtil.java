@@ -26,6 +26,7 @@ public class BluehatUtil {
         */
 
         g.setFont(font);
+        
         Vector lines = wrap(str, font, width);
         for (int i = 0; i < lines.size(); i++) {
             int liney = y + (i * font.getHeight());

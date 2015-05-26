@@ -26,6 +26,7 @@ import javax.microedition.rms.RecordStore;
 public class BluehatStart extends MIDlet implements CommandListener {
 
     private BluehatCanvas bluehatCanvas;
+    
     private Display display;
     Form form;
     Form frmPC;

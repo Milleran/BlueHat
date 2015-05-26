@@ -16,6 +16,7 @@ public class RMS_NPC {
 
     int start;
     int end;
+    
     int end_skill_level;
 
     public RMS_NPC() {

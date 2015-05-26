@@ -21,6 +21,7 @@ public class TextFilter implements RecordFilter {
     
     public boolean matches(byte[] value){
         String str = new String(value).toLowerCase();
+        
         if(textToFind != null && str.indexOf(textToFind)!=-1){
             return true;
         }else{

@@ -10,6 +10,7 @@ import java.util.Vector;
 public class PlayerAvatar {
 
     private String background;
+    
     private Vector vectorHackingSkill = new Vector();
     private String name;
     private int recordID;

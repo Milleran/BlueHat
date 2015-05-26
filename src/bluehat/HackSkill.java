@@ -17,6 +17,7 @@ public class HackSkill {
     }
     public HackSkill(String strSkillName, int intSkillLevel) {
         skillLevel = intSkillLevel;
+        
         skillName = strSkillName;
     }
     public void setSkillLevel(int skillLevel) {

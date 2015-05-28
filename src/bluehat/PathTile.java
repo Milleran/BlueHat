@@ -39,11 +39,10 @@ public class PathTile {
 
     }
 
-    public PathTile(int position_x, int position_y, int intTileHeight, int intTileWidth) {
+    public PathTile(int position_x, int position_y) {
         this.position_x = position_x;
         this.position_y = position_y;
-        this.intTileHeight = intTileHeight;
-        this.intTileWidth = intTileWidth;
+
     }
 
     public int getIntFValue() {
@@ -69,6 +68,30 @@ public class PathTile {
 
     public void setIntHValue(int intHValue) {
         this.intHValue = intHValue;
+    }
+
+    public int hashCode() {
+        int hash = 3;
+        hash = 23 * hash + this.position_x;
+        hash = 23 * hash + this.position_y;
+        return hash;
+    }
+
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PathTile other = (PathTile) obj;
+        if ((int) Math.floor(this.position_x/BluehatCanvas.TILE_HEIGHT_WIDTH) != (int) Math.floor(other.position_x/BluehatCanvas.TILE_HEIGHT_WIDTH)) {
+            return false;
+        }
+        if ((int) Math.floor(this.position_y/BluehatCanvas.TILE_HEIGHT_WIDTH) != (int) Math.floor(other.position_y/BluehatCanvas.TILE_HEIGHT_WIDTH)) {
+            return false;
+        }
+        return true;
     }
 
 }

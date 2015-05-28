@@ -1063,6 +1063,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         if (blueHatBackground.isVisible()) {
             //Discover what is around the agent sprite on the tile layaer
             java.util.Vector viableDirection = new java.util.Vector();
+            
 
             for (int i = 0; i < 8; i = i + 2) {
                 int intCoordinatesAroundAgent[] = {0, -1, 1, 0, 0, 1, -1, 0}; //x and y coordinates

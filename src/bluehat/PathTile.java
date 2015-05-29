@@ -48,7 +48,7 @@ public class PathTile {
     }
 
     public int getIntFValue() {
-        intFValue = intGValue+intHValue;
+        
         return intFValue;
     }
 
@@ -87,12 +87,10 @@ public class PathTile {
             return false;
         }
         final PathTile other = (PathTile) obj;
-        if ((int) Math.floor(this.position_x/BluehatCanvas.TILE_HEIGHT_WIDTH) != (int) Math.floor(other.position_x/BluehatCanvas.TILE_HEIGHT_WIDTH)) {
+        if (this.position_x != other.position_x || this.position_y != other.position_y) {
             return false;
         }
-        if ((int) Math.floor(this.position_y/BluehatCanvas.TILE_HEIGHT_WIDTH) != (int) Math.floor(other.position_y/BluehatCanvas.TILE_HEIGHT_WIDTH)) {
-            return false;
-        }
+        
         return true;
     }
 

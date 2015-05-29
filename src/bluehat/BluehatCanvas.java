@@ -149,8 +149,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
                     //Place the server sprite on a Floor tile and 6 or more rows below the player.
                     if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE && random_y >= 6) {
-                        //ndiSprites[i].setPosition(random_x * TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH);
-                        ndiSprites[i].setPosition(random_x * TILE_HEIGHT_WIDTH-TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH-TILE_HEIGHT_WIDTH);
+                        
+                        //ndiSprites[i].setPosition(random_x * TILE_HEIGHT_WIDTH-TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH-TILE_HEIGHT_WIDTH);
+                        ndiSprites[i].setPosition(5*TILE_HEIGHT_WIDTH, 10*TILE_HEIGHT_WIDTH);
                         flag = false;
                     }
                 }
@@ -178,6 +179,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
          */
 
         //Run through the endless loop taking in the users input from the phone.
+        boolean flag = true;
         while (run_game) {
             //System.out.println("The game thread is still running!!!$$%%##");
             int keyState = this.getKeyStates();
@@ -229,7 +231,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             moveAgent(animationFrameRate);
             
             //Testing the pathfinding method
-            boolean flag = true;
+            
             while(flag){
             Vector vecPath = ndiSprites[1].findPath(ndiSprites[1].getX(),ndiSprites[1].getY() ,16 ,16 ,0 , blueHatBackground);
             printPath(vecPath);
@@ -544,8 +546,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             if (ndiSprites[i].getChange_direction() >= TILE_HEIGHT_WIDTH) { //check if the sprite has moved a tile before changing the direction.
                 //pass the agents current position and the current direction.
 
-                System.out.println("Sprite:" + i + " X:" + ndiSprites[i].getX());
-                System.out.println("Sprite:" + i + " Y:" + ndiSprites[i].getY());
+                //System.out.println("Sprite:" + i + " X:" + ndiSprites[i].getX());
+                //System.out.println("Sprite:" + i + " Y:" + ndiSprites[i].getY());
                 ndiSprites[i].setDirection(randomAgentMovement(ndiSprites[i].getX(), ndiSprites[i].getY(), ndiSprites[i].getDirection()));
                 ndiSprites[i].setPosition(ndiSprites[i].getX() + ndiSprites[i].getDirection().getX_pos(), ndiSprites[i].getY() + ndiSprites[i].getDirection().getY_pos());
                 if (detectWallTileCollision(ndiSprites[i])) {

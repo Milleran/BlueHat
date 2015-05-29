@@ -106,16 +106,20 @@ public class AgentSprite extends Sprite {
 //Create the pathtile object the sprite is currently occupying and add it to the closed array
         PathTile pt = new PathTile(intCell_x, intCell_y);
         PathTile ptEndPoint = new PathTile(intTargetCell_x, intTargetCell_y);
+        
         pt.setIntGValue(intG);
         pt.setIntHValue((Math.abs(intTargetCell_x - intCell_x) + (Math.abs(intTargetCell_y - intCell_y))));
+        pt.setIntFValue(pt.getIntGValue()+pt.getIntHValue());
         vecClosedPath.addElement(pt);
         
 
 //get the last pathtile from the ClosedPath vector
         PathTile ptCurrentTile = (PathTile) vecClosedPath.lastElement();
+        System.out.println("PT Current: "+ ptCurrentTile.toString());
+        System.out.println("PT End: "+ ptEndPoint.toString());
         
         while (!ptCurrentTile.equals(ptEndPoint)) {
-            
+            System.out.println("In the Loop");
             ptCurrentTile = (PathTile) vecClosedPath.lastElement();
             intG++;
             //Create pathtiles around the agent and if unblocked then add them to openpath vector.
@@ -161,6 +165,7 @@ public class AgentSprite extends Sprite {
             }
             //place the objClosePT in the Closed Vector
             vecClosedPath.addElement(objNewClosePT);
+            System.out.println(objNewClosePT.toString());
             vecOpenPath.removeAllElements();//remove the elements to prepare for the next pathtile.
 
         }//do it again with the new closed pathtile but add one to G

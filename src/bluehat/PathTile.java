@@ -32,11 +32,13 @@ public class PathTile {
     private int intFValue;
     private int intGValue;
     private int intHValue;
-    private int intTileHeight;
-    private int intTileWidth;
 
     public PathTile() {
 
+    }
+
+    public String toString() {
+        return "PathTile{" + "position_x=" + position_x + ", position_y=" + position_y + ", intFValue=" + intFValue + ", intGValue=" + intGValue + ", intHValue=" + intHValue + '}';
     }
 
     public PathTile(int position_x, int position_y) {

@@ -227,7 +227,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //Moves the agent and reduces the framerate of the animation
             moveAgent(animationFrameRate);
-
+            
+            //Testing the pathfinding method
+            boolean flag = true;
+            while(flag){
+            Vector vecPath = ndiSprites[1].findPath(ndiSprites[1].getX(),ndiSprites[1].getY() ,16 ,16 ,0 , blueHatBackground);
+            printPath(vecPath);
+            flag = false;
+            }
             //control the framerate of the animations of the sprites, this
             // reduces it by a factor of 100.
             if (animationFrameRate / 100 == 1) {
@@ -556,6 +563,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         for (int j = 0; j < ndiSprites.length; j++) {
             ndiSprites[j].setPosition(ndiSprites[j].getX() + ndiSprites[j].getDirection().getX_pos(), ndiSprites[j].getY() + ndiSprites[j].getDirection().getY_pos());
         }
+        
+        
 
         if (animationFrameRate / 10 == 1) {
 //            ndiSprite.nextFrame();
@@ -1373,6 +1382,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         blueHatBackground = getNetworkWall_NotAnimated(rows, cols, background);
 
         blueHatBackground.setVisible(true);
+    }
+
+    private void printPath(Vector vecPath) {
+        Enumeration enumPath = vecPath.elements();
+        while(enumPath.hasMoreElements()){
+            PathTile pt = (PathTile)enumPath.nextElement();
+            System.out.println(pt.toString());
+        }
     }
 
 }

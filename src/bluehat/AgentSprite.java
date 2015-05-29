@@ -5,7 +5,7 @@
  */
 package bluehat;
 
-import static java.lang.Math.abs;
+
 import java.util.Enumeration;
 import java.util.Vector;
 import javax.microedition.lcdui.Image;
@@ -82,7 +82,7 @@ public class AgentSprite extends Sprite {
         this.change_direction = change_direction;
     }
 
-    private Vector findPath(int currentPosition_X, int currentPosition_Y, int targetPosition_X, int targetPosition_Y, int tileUnblocked, TiledLayer tlMap) {
+    public Vector findPath(int currentPosition_X, int currentPosition_Y, int targetPosition_X, int targetPosition_Y, int tileUnblocked, TiledLayer tlMap) {
         //Create two vectors to hold the closed path and the open path
         //The closed vector will be the vector used to move the Sprite in the 
         //maze.
@@ -107,7 +107,7 @@ public class AgentSprite extends Sprite {
         PathTile pt = new PathTile(intCell_x, intCell_y);
         PathTile ptEndPoint = new PathTile(intTargetCell_x, intTargetCell_y);
         pt.setIntGValue(intG);
-        pt.setIntHValue((abs(intTargetCell_x - intCell_x) + (abs(intTargetCell_y - intCell_y))));
+        pt.setIntHValue((Math.abs(intTargetCell_x - intCell_x) + (Math.abs(intTargetCell_y - intCell_y))));
         vecClosedPath.addElement(pt);
         
 
@@ -135,7 +135,7 @@ public class AgentSprite extends Sprite {
                     if (intMapValue == tileUnblocked) { //the tile is open, not a wall
                         PathTile ptOpen = new PathTile(intCell_x, intCell_y);
                         ptOpen.setIntGValue(intG);
-                        ptOpen.setIntHValue(abs(intTargetCell_x - intCell_x) + abs(intTargetCell_y - intCell_y));
+                        ptOpen.setIntHValue(Math.abs(intTargetCell_x - intCell_x) + Math.abs(intTargetCell_y - intCell_y));
                         if (!checkClosedPathTiles(vecClosedPath, ptOpen)) { //check if it exists in the closed vector
                             vecOpenPath.addElement(ptOpen);
                         };
@@ -166,7 +166,7 @@ public class AgentSprite extends Sprite {
         }//do it again with the new closed pathtile but add one to G
 
         //
-        return null;
+        return vecClosedPath;
     }
 
     private boolean checkClosedPathTiles(Vector vecClosedPath, PathTile ptOpen) {

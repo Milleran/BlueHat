@@ -146,26 +146,36 @@ public class AgentSprite extends Sprite {
                     }
                 }
             }
+            System.out.println("Number of open elements: "+ vecOpenPath.size());
+            Enumeration enumOpenPath = vecOpenPath.elements();
+            while(enumOpenPath.hasMoreElements()){
+                System.out.println(((PathTile)enumOpenPath.nextElement()).toString());
+            }
 
         //iterate through the OPEN Vector and determine the Pathtile with the lowest F value which will become 
         // the new addition to the CLOSED Vector and newest step in the path.
-            Enumeration enumOpenPathTiles = vecOpenPath.elements();
-            PathTile objNewClosePT = null;
-
-            while (enumOpenPathTiles.hasMoreElements()) {
-
-                PathTile objOpenPT = (PathTile) enumOpenPathTiles.nextElement();
-                if (objNewClosePT == null) {
-                    objNewClosePT = objOpenPT;
-                } else if (objOpenPT.getIntFValue() < objNewClosePT.getIntFValue()) {
-                    objNewClosePT = objOpenPT;
-
-                }
-
-            }
+//            Enumeration enumOpenPathTiles = vecOpenPath.elements();
+//            PathTile objNewClosePT = null;
+//
+//            while (enumOpenPathTiles.hasMoreElements()) {
+//
+//                PathTile objOpenPT = (PathTile) enumOpenPathTiles.nextElement();
+//                
+//                if (objNewClosePT == null) {
+//                    objNewClosePT = objOpenPT;
+//                } else if (objOpenPT.getIntFValue() < objNewClosePT.getIntFValue()) {
+//                    objNewClosePT = objOpenPT;
+//
+//                }
+//
+//            }
+            
+            vecOpenPath = sortPathTiles(vecOpenPath);
+            
             //place the objClosePT in the Closed Vector
-            vecClosedPath.addElement(objNewClosePT);
-            System.out.println(objNewClosePT.toString());
+            vecClosedPath.addElement(vecOpenPath.firstElement());
+            
+            //System.out.println(objNewClosePT.toString());
             vecOpenPath.removeAllElements();//remove the elements to prepare for the next pathtile.
 
         }//do it again with the new closed pathtile but add one to G
@@ -185,5 +195,32 @@ public class AgentSprite extends Sprite {
             }
         }
         return false;
+    }
+    
+    private Vector sortPathTiles(Vector sort) {
+        
+        //http://stackoverflow.com/questions/6569414/how-to-sort-a-vector-of-string-in-java-me
+        
+        Vector v = new Vector();
+        for(int count = 0; count < sort.size(); count++) {
+            String s = String.valueOf(((PathTile)sort.elementAt(count)).getIntFValue());
+            System.out.println("S: "+s);
+            int i = 0;
+            for (i = 0; i < v.size(); i++) {
+                PathTile pt = (PathTile) v.elementAt(i);
+                System.out.println("pt: "+pt.getIntFValue());
+                int c = s.compareTo(String.valueOf(pt.getIntFValue()));
+                if (c < 0) {
+                    v.insertElementAt(sort.elementAt(count), i);
+                    break;
+                } else if (c == 0) {
+                    break;
+                }
+            }
+            if (i >= v.size()) {
+                v.addElement(s);
+            }
+        }
+        return v;
     }
 }

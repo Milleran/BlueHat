@@ -237,6 +237,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             printPath(vecPath);
             flag = false;
             }
+            
             //control the framerate of the animations of the sprites, this
             // reduces it by a factor of 100.
             if (animationFrameRate / 100 == 1) {
@@ -1081,8 +1082,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 int tile_x = current_x / TILE_HEIGHT_WIDTH + intCoordinatesAroundAgent[i];
                 int tile_y = current_y / TILE_HEIGHT_WIDTH + intCoordinatesAroundAgent[i + 1];
                 
-                System.out.println("tile_x:" + tile_x);
-                System.out.println("tile_y:" + tile_y);
+//                System.out.println("tile_x:" + tile_x);
+//                System.out.println("tile_y:" + tile_y);
                 if (tile_x > 0 && tile_y > 0 && tile_x < 15 && tile_y < 18) {
                     if (blueHatBackground.getCell(tile_x, tile_y) == FLOOR_TILE && tile_x != 0) {
                         AgentMovement agentMovement = new AgentMovement(intCoordinatesAroundAgent[i],

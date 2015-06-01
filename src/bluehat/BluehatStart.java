@@ -1,7 +1,7 @@
 /*
- Assignment: TME1
+ Assignment: TME3
  Assignment Name: Blue Hat
- Assignement Date: March 25th, 2015
+ Assignement Date: June 1st, 2015
 
  @ author: Andrew Miller
  Student ID: 2433560
@@ -260,8 +260,8 @@ public class BluehatStart extends MIDlet implements CommandListener {
         try {
 
             //Delete the existing NPC and MazeMap RecordStores
-//            RecordStore.deleteRecordStore("NPCRS");
-//            RecordStore.deleteRecordStore("MazeMapRS");
+            RecordStore.deleteRecordStore("NPCRS");
+            RecordStore.deleteRecordStore("MazeMapRS");
 //            RecordStore.deleteRecordStore("PlayerCharacterRS");
         } catch (Exception e) {
             System.out.println(e.toString());

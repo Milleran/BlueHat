@@ -1,7 +1,16 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ Assignment: TME3
+ Assignment Name: Blue Hat
+ Assignement Date: June 1st, 2015
+
+ @ author: Andrew Miller
+ Student ID: 2433560
+ Course: COMP 486
+
+ * This is an object holds the agents movement in the x and y attributes.
+ *
+ * @version 1.0
+
  */
 package bluehat;
 

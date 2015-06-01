@@ -128,6 +128,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void initializeGame() {
+        /*
+         Name:initializeGame
+         Description: This method setups the game board to play.
+         Inputs: void
+         Output: void
+         Called by Whom: BluehatCanvas, run
+         Calls: nothing
+         */
         player_has_objective = false;
         run_game = true;
         level_complete = false;
@@ -179,7 +187,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
          Called by Whom: nothing
          Calls: movePlayer, paintServer, moveAgent, detectWallTileCollision, 
          playBackgroundMusic, detectAgentCollision, showFailureScreen, 
-         determineSuccuess, flushGraphics, 
+         determineSuccuess, flushGraphics, getKeyStates, paintServer, paintFireWall,
+         showHackScreen,resumeGame,playSoundEffect, detectFirewallCollision, showFailureScreen
+        
          */
 
         //Run through the endless loop taking in the users input from the phone.
@@ -392,7 +402,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
          Inputs: void
          Output: void
          Called by Whom: BluehatCanvas
-         Calls: nothing
+         Calls: createNDIAgents
          */
 
         try {
@@ -421,6 +431,15 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void createNDIAgents() {
+        /*
+         Name:createNDIAgents
+         Description: creates the ndi agent game sprites that will be used in the game.
+         Inputs: void
+         Output: void
+         Called by Whom: initializeGame, createGameSprites
+         Calls: AgentSprite
+         */
+
         try {
 
             //Create the network intrution detection agents.
@@ -494,12 +513,12 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private void determineSuccess() {
         /*
          Name: determineSuccess
-         Description: determines if the player has the item and can exit the 
+         Description: shows the player success screen and plays the success music 
          maze.
          Inputs: void
          Output: void
          Called by Whom: run
-         Calls: detectPlayerExitMaze, showSuccessScreen, playBackgroundMusic
+         Calls: showSuccessScreen, playBackgroundMusic
          */
 
         //The player exiting the maze, if the player has the object then succuess.
@@ -528,11 +547,23 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void moveAgent(int animationFrameRate) {
+        /*
+         Name: moveAgent
+         Description: determines if the direction and moves the ndi Sprite or Agents 
+         within the maze.
+         Inputs: animationFrameRate
+         Output: void
+         Called by Whom: run
+         Calls: AgentMovement, AgentSprite
+         */
         try {
             //if (animationFrameRate / 10 == 1 || animationFrameRate / 5 == 2) {
+            AgentMovement agentMove = new AgentMovement(0, 0);
             for (int i = 0; i < ndiSprites.length; i++) {
                 try {
                     Vector vecPathTile;
+
+                    //ndiSprites[i].setDirection(agentMove);
                     if (ndiSprites[i].getVecAgentPath() != null) {
                         vecPathTile = ndiSprites[i].getVecAgentPath();
                     } else {
@@ -541,37 +572,41 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                         vecPathTile = ndiSprites[i].getVecAgentPath();
                     }
 
+                    //setup the initial direction for the agents to start walking.
+                    //ndiSprites[i].setDirection(getDirection((PathTile)vecPathTile.firstElement(), (PathTile) vecPathTile.elementAt(1)));
                     //Iterate through the PathTile vector to find the PathTile the ndiAgent is located
                     for (int j = 0; j < vecPathTile.size(); j++) {
                         PathTile pt = (PathTile) vecPathTile.elementAt(j);
                         int intSprite_x = (int) Math.floor(ndiSprites[i].getX() / TILE_HEIGHT_WIDTH);
                         int intSprite_y = (int) Math.floor(ndiSprites[i].getY() / TILE_HEIGHT_WIDTH);
-                        int intPathTile_x = pt.getPosition_x() * TILE_HEIGHT_WIDTH;
-                        int intPathTile_y = pt.getPosition_y() * TILE_HEIGHT_WIDTH;
 
-                        //check if the sprite is in the PathTile an needs to move within the pathtile
-                        if (intSprite_x == pt.getPosition_x() && intSprite_y == pt.getPosition_y()) {
-                            if (pt.getIntHValue() == 0) {
-                                //reached the end point time to recalculate a path based on current position and the new player location.
-                                ndiSprites[i].setVecAgentPath(ndiSprites[i].findPath(ndiSprites[i].getX(), ndiSprites[i].getY(), playerSprite.getX(), playerSprite.getY(), FLOOR_TILE, blueHatBackground));
-                            } else {
-                                System.out.println("j: " + j);
-                                System.out.println("Size: " + vecPathTile.size());
-                                System.out.println("H Value: " + pt.getIntHValue());
-                                if (j == vecPathTile.size()) {
-                                    ndiSprites[i].setVecAgentPath(ndiSprites[i].findPath(ndiSprites[i].getX(), ndiSprites[i].getY(), playerSprite.getX(), playerSprite.getY(), FLOOR_TILE, blueHatBackground));
-                                } else {
-                                    AgentMovement agentMove = getDirection(pt, (PathTile) vecPathTile.elementAt(j + 1));
-                                    ndiSprites[i].setPosition(ndiSprites[i].getX() + agentMove.getX_pos(), ndiSprites[i].getY() + agentMove.getY_pos());
-                                    if (ndiSprites[i].collidesWith(blueHatBackground, true)) {
-                                        PathTile ptNext = (PathTile) vecPathTile.elementAt(j + 1);
-                                        ndiSprites[i].setPosition(ptNext.getPosition_x() * TILE_HEIGHT_WIDTH, ptNext.getPosition_y() * TILE_HEIGHT_WIDTH);
-                                    }
-                                }
-                            }
+                        int intSprite_x_bottom_right = (ndiSprites[i].getX() + (TILE_HEIGHT_WIDTH - 1)) / TILE_HEIGHT_WIDTH;
+                        int intSprite_y_bottom_right = (ndiSprites[i].getY() + (TILE_HEIGHT_WIDTH - 1)) / TILE_HEIGHT_WIDTH;
+
+                        /*check if the sprite is in the PathTile an needs to move within the pathtile                                
+                         System.out.println("j: " + j);
+                         System.out.println("Size: " + vecPathTile.size());
+                         System.out.println("H Value: " + pt.getIntHValue());
+                         
+                         System.out.println("intSprite_x: " + intSprite_x);
+                         System.out.println("intSprite_y: " + intSprite_y);
+                         System.out.println("intSprite_x_bottom_right: " + intSprite_x_bottom_right);
+                         System.out.println("intSprite_y_bottom_right: " + intSprite_y_bottom_right);
+                         System.out.println("PT_getPosition_x: " + pt.getPosition_x());
+                         System.out.println("PT_getPosition_y: " + pt.getPosition_y());
+                         */
+                        if (intSprite_x == pt.getPosition_x() && intSprite_y == pt.getPosition_y() && intSprite_x_bottom_right == pt.getPosition_x() && intSprite_y_bottom_right == pt.getPosition_y()) {
+
+                            //need to check the current x or y, need to reach max tilewidth before moving to the next pathtile
+                            agentMove = getDirection(pt, (PathTile) vecPathTile.elementAt(j + 1));
+                            ndiSprites[i].setDirection(agentMove);
                         }
 
                     }
+                    //System.out.println("Moving Sprite");
+                    //System.out.println("Direction" +ndiSprites[i].getDirection().getX_pos()+","+ ndiSprites[i].getDirection().getY_pos());
+                    ndiSprites[i].setPosition(ndiSprites[i].getX() + ndiSprites[i].getDirection().getX_pos(), ndiSprites[i].getY() + ndiSprites[i].getDirection().getY_pos());
+
                 } catch (Exception ex) {
 
                     ex.printStackTrace();
@@ -600,6 +635,15 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private AgentMovement getDirection(PathTile currentPT, PathTile nextPT) {
+        /*
+         Name:getDirection
+         Description: This method determines the direction of the agent by determining 
+         the current pathtile and the next pathtile.
+         Inputs: PathTile, PathTile
+         Output: AgentMovement
+         Called by Whom: moveAgent
+         Calls: PathTile.getPosition_x,PathTile.getPosition_y
+         */
         AgentMovement agentdirection = new AgentMovement(0, 0);
         //going left
         if (currentPT.getPosition_x() > nextPT.getPosition_x()) {
@@ -723,6 +767,15 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void showHackScreen(String strNPC) {
+        /*
+         Name:showHackScreen
+         Description: This method shows the hacking detail screen when hacking
+         a router, firewall, or decrypting a document.
+         Inputs: String
+         Output: void
+         Called by Whom: run
+         Calls: RMS_NPC, resumeGame, clearScreen, createImage, HackSkill
+         */
         //Pause the game thread.
         game_paused = true;
 
@@ -1050,7 +1103,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
          Inputs: void
          Output: boolean
          Called by Whom: run
-         Calls: nothing
+         Calls: collidesWith
          */
 
         if (objSprite.collidesWith(blueHatBackground, true)) {
@@ -1101,20 +1154,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         }
 
         return false;
-    }
-
-    private boolean detectPlayerExitMaze() {
-        /*
-         Name: detectPlayerExitMaze
-         Description: Since the network maze has walls all arond the screen the only exit
-         has a position where x =0
-         Inputs: void
-         Output: boolean
-         Called by Whom: determineSuccess
-         Calls: nothing
-         */
-
-        return playerSprite.getX() <= 0;
     }
 
     public TiledLayer getNetworkWall_NotAnimated(int rows, int cols, Image background) throws java.io.IOException {
@@ -1357,6 +1396,15 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private boolean conductHackAttack(Displayable display) {
+        /*
+         Name:conductHackAttack
+         Description: This method determines the success or failure of the 
+         hack attack on anything in the game.
+         Inputs: Displayable
+         Output: boolean
+         Called by Whom: commandAction
+         Calls: getGraphics, Random
+         */
         graphics = getGraphics();
 
         boolean attackResult = false;
@@ -1453,7 +1501,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void resumeGame() {
-
+        /*
+         Name:resumeGame
+         Description: This method redraws the map. Will need to refactor.
+         Inputs: void
+         Output: void
+         Called by Whom: run, showHackScreen
+         Calls: nothing
+         */
         //Redraw the map
         try {
             drawMap();
@@ -1465,6 +1520,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void drawMap() throws IOException {
+        /*
+         Name:drawMap
+         Description: This method sets the map tiles for the game.
+         Inputs: void
+         Output: void
+         Called by Whom: commandAction
+         Calls: getNetworkWall_NotAnimated
+         */
         //Create the background with a tiledlayer
         Image background = Image.createImage("/networkWall.png");
 
@@ -1485,6 +1548,15 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void randomAgentPlacement(AgentSprite ndiSprite) {
+        /*
+         Name:randomagentPlacement
+         Description: THis method randomly places the agent in the lower half
+         of the maze.
+         Inputs: AgentSprite
+         Output: void
+         Called by Whom: initializeGame, detectAgentCollision
+         Calls: nothing
+         */
         boolean flag = true;
 
         while (flag) {

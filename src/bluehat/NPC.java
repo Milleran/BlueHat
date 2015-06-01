@@ -1,10 +1,22 @@
-package bluehat;
 
-/**
+/*
+ Assignment: TME3
+ Assignment Name: Blue Hat
+ Assignement Date: June 1st, 2015
+
+ @ author: Andrew Miller
+ Student ID: 2433560
+ Course: COMP 486
+
+ * This is an object that holds the information about a NPC like a firewall.
+ *
  * @author MillerAn
  * @version 1.0
- * @created 17-May-2015 2:11:34 PM
+
  */
+package bluehat;
+
+
 public class NPC {
 
     private HackSkill hack_attack;

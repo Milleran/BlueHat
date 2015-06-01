@@ -1,3 +1,18 @@
+/*
+ Assignment: TME3
+ Assignment Name: Blue Hat
+ Assignement Date: June 1st, 2015
+
+ @ author: Andrew Miller
+ Student ID: 2433560
+ Course: COMP 486
+
+ * This is an object controls the record management system for characters.
+ *
+ * @version 1.0
+
+ */
+
 package bluehat;
 
 import javax.microedition.rms.*;

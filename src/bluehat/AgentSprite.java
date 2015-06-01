@@ -1,7 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Assignment: TME3 Assignment Name: Blue Hat Assignment Date: June 1st, 2015
+ *
+ * @ author: Andrew Miller Student ID: 2433560 Course: COMP 486
+ *
+ * The primary purpose of the AgentSprite class is to create a extended sprite
+ * object that would find and retain its own path and movement direction
  */
 package bluehat;
 
@@ -92,10 +95,19 @@ public class AgentSprite extends Sprite {
     }
 
     public Vector findPath(int currentPosition_X, int currentPosition_Y, int targetPosition_X, int targetPosition_Y, int tileUnblocked, TiledLayer tlMap) {
+
+        /*
+         Name:findPath
+         Description: This method detmines the pathfinding algorthium A*. It takes in
+         two positions and determines the correct path.
+         Inputs: integer, integer, integer, integer, integer, TiledLayer
+         Output: Vector
+         Called by Whom: moveAgent
+         Calls: PathTile, sortPathTiles
+         */
         //Create two vectors to hold the closed path and the open path
         //The closed vector will be the vector used to move the Sprite in the 
         //maze.
-
         Vector vecOpenPath = new Vector();
         Vector vecClosedPath = new Vector();
         int intCell_x = 0;
@@ -165,9 +177,9 @@ public class AgentSprite extends Sprite {
                 if (!vecOpenPath.isEmpty()) {
                     vecOpenPath = sortPathTiles(vecOpenPath);
 
-                //place the objClosePT in the Closed Vector
+                    //place the objClosePT in the Closed Vector
                     vecClosedPath.addElement(vecOpenPath.firstElement());
-                }else{
+                } else {
                     return vecClosedPath;
                 }
                 vecOpenPath.removeAllElements();//remove the elements to prepare for the next pathtile.
@@ -187,7 +199,15 @@ public class AgentSprite extends Sprite {
     }
 
     private boolean checkClosedPathTiles(Vector vecClosedPath, PathTile ptOpen) {
-        //Checks if the pathtile is in the closed vector. 
+        /*
+         Name:checkClosedPathTiles
+         Description: This method checks if the pathtile is in the closed vector.  
+         hack attack on anything in the game.
+         Inputs: Vector, PathTile
+         Output: boolean
+         Called by Whom: findPath
+         Calls: PathTile
+         */
 
         Enumeration enumClosedPathTiles = vecClosedPath.elements();
         while (enumClosedPathTiles.hasMoreElements()) {
@@ -200,10 +220,17 @@ public class AgentSprite extends Sprite {
     }
 
     private Vector sortPathTiles(Vector sort) {
+        /*
+         Name:sortPathTiles
+         Description: Since Java 1.3 doesn't have any sorting abilities had to create one
+         for pathtiles specificly. used the following link as a guide.
+         http://stackoverflow.com/questions/6569414/how-to-sort-a-vector-of-string-in-java-me
+         Inputs: Vector
+         Output: Vector
+         Called by Whom: findPath
+         Calls: nothing
+         */
 
-        //http://stackoverflow.com/questions/6569414/how-to-sort-a-vector-of-string-in-java-me
-        //Since Java 1.3 doesn't have any sorting abilities had to create one
-        //for pathtiles specificly.
         Vector v = new Vector();
         for (int count = 0; count < sort.size(); count++) {
             String s = String.valueOf(((PathTile) sort.elementAt(count)).getIntFValue());

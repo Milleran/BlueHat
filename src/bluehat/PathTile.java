@@ -1,7 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Assignment: TME3 Assignment Name: Blue Hat Assignment Date: June 1st, 2015
+ *
+ * @ author: Andrew Miller Student ID: 2433560 Course: COMP 486
+ *
+ * The primary purpose of the PathTile class is to create a path for the NDI Agents
+ * using the A* algorithm. Holds the x and y maze tiles and calculates the F, G, H
+ * values required to execute the A* algorithm.
  */
 package bluehat;
 

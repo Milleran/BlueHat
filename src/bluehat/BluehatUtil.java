@@ -1,6 +1,14 @@
 /*
+ Assignment: TME3
+ Assignment Name: Blue Hat
+ Assignement Date: June 1st, 2015
+
+ @ author: Andrew Miller
+ Student ID: 2433560
+ Course: COMP 486
+
  This is a utility class for the BlueHat game.
-The following code was found on developer.nokia.com.
+ The following code was found on developer.nokia.com.
 
  */
 package bluehat;
@@ -17,16 +25,16 @@ public class BluehatUtil {
 
     static public int drawMultilineString(Graphics g, Font font, String str, int x, int y, int anchor, int width) {
         /*
-        Name: drawMulilineString
-        Description: outputs a formatted string for the phones screen 
-        Inputs: graphics, font, string, int, int, int
-        Output: int
-        Called by Whom: showContractScreen, showSuccessScreen, showFailureScreen
-        Calls: wrap
-        */
+         Name: drawMulilineString
+         Description: outputs a formatted string for the phones screen 
+         Inputs: graphics, font, string, int, int, int
+         Output: int
+         Called by Whom: showContractScreen, showSuccessScreen, showFailureScreen
+         Calls: wrap
+         */
 
         g.setFont(font);
-        
+
         Vector lines = wrap(str, font, width);
         for (int i = 0; i < lines.size(); i++) {
             int liney = y + (i * font.getHeight());

@@ -12,33 +12,13 @@ package bluehat;
 public class PathTile {
 
     private int position_x;
-
-    public int getPosition_x() {
-        return position_x;
-    }
-
-    public void setPosition_x(int position_x) {
-        this.position_x = position_x;
-    }
-
-    public int getPosition_y() {
-        return position_y;
-    }
-
-    public void setPosition_y(int position_y) {
-        this.position_y = position_y;
-    }
     private int position_y;
-    private int intFValue;
-    private int intGValue;
-    private int intHValue;
+    private int intFValue=0;
+    private int intGValue=0;
+    private int intHValue=0;
 
     public PathTile() {
 
-    }
-
-    public String toString() {
-        return "PathTile{" + "position_x=" + position_x + ", position_y=" + position_y + ", intFValue=" + intFValue + ", intGValue=" + intGValue + ", intHValue=" + intHValue + '}';
     }
 
     public PathTile(int position_x, int position_y) {
@@ -48,6 +28,7 @@ public class PathTile {
     }
 
     public int getIntFValue() {
+        intFValue = intGValue+intHValue;
         
         return intFValue;
     }
@@ -90,8 +71,27 @@ public class PathTile {
         if (this.position_x != other.position_x || this.position_y != other.position_y) {
             return false;
         }
-        
+
         return true;
+    }
+
+    public int getPosition_x() {
+        return position_x;
+    }
+
+    public void setPosition_x(int position_x) {
+        this.position_x = position_x;
+    }
+
+    public int getPosition_y() {
+        return position_y;
+    }
+
+    public void setPosition_y(int position_y) {
+        this.position_y = position_y;
+    }
+    public String toString() {
+        return "PathTile{" + "position_x=" + position_x + ", position_y=" + position_y + ", intFValue=" + intFValue + ", intGValue=" + intGValue + ", intHValue=" + intHValue + '}';
     }
 
 }

@@ -5,7 +5,6 @@
  */
 package bluehat;
 
-
 import java.util.Enumeration;
 import java.util.Vector;
 import javax.microedition.lcdui.Image;
@@ -19,6 +18,8 @@ import javax.microedition.lcdui.game.TiledLayer;
 public class AgentSprite extends Sprite {
 
     private AgentMovement direction = new AgentMovement(0, 0);
+
+    private Vector vecAgentPath = null;
 
     private int ndi_level = 1;
 
@@ -82,111 +83,112 @@ public class AgentSprite extends Sprite {
         this.change_direction = change_direction;
     }
 
+    public Vector getVecAgentPath() {
+        return vecAgentPath;
+    }
+
+    public void setVecAgentPath(Vector vecAgentPath) {
+        this.vecAgentPath = vecAgentPath;
+    }
+
     public Vector findPath(int currentPosition_X, int currentPosition_Y, int targetPosition_X, int targetPosition_Y, int tileUnblocked, TiledLayer tlMap) {
         //Create two vectors to hold the closed path and the open path
         //The closed vector will be the vector used to move the Sprite in the 
         //maze.
-        
+
         Vector vecOpenPath = new Vector();
         Vector vecClosedPath = new Vector();
-        int intCell_x;
-        int intCell_y;
+        int intCell_x = 0;
+        int intCell_y = 0;
 
         int intG = 0;
 
-        int intTargetCell_x;
-        int intTargetCell_y;
+        int intTargetCell_x = 0;
+        int intTargetCell_y = 0;
+        try {
 //convert from pixels to cell location on the tiledlayer
-        intCell_x = (int) Math.floor(currentPosition_X / BluehatCanvas.TILE_HEIGHT_WIDTH); 
-        intCell_y = (int) Math.floor(currentPosition_Y / BluehatCanvas.TILE_HEIGHT_WIDTH);
+            intCell_x = (int) Math.floor(currentPosition_X / BluehatCanvas.TILE_HEIGHT_WIDTH);
+            intCell_y = (int) Math.floor(currentPosition_Y / BluehatCanvas.TILE_HEIGHT_WIDTH);
 
-        intTargetCell_x = (int) Math.floor(targetPosition_X / BluehatCanvas.TILE_HEIGHT_WIDTH);
-        intTargetCell_y = (int) Math.floor(targetPosition_Y / BluehatCanvas.TILE_HEIGHT_WIDTH);
+            intTargetCell_x = (int) Math.floor(targetPosition_X / BluehatCanvas.TILE_HEIGHT_WIDTH);
+            intTargetCell_y = (int) Math.floor(targetPosition_Y / BluehatCanvas.TILE_HEIGHT_WIDTH);
 
 //Create the pathtile object the sprite is currently occupying and add it to the closed array
-        PathTile pt = new PathTile(intCell_x, intCell_y);
-        PathTile ptEndPoint = new PathTile(intTargetCell_x, intTargetCell_y);
-        
-        pt.setIntGValue(intG);
-        pt.setIntHValue((Math.abs(intTargetCell_x - intCell_x) + (Math.abs(intTargetCell_y - intCell_y))));
-        pt.setIntFValue(pt.getIntGValue()+pt.getIntHValue());
-        vecClosedPath.addElement(pt);
-        
+            PathTile ptStartPoint = new PathTile(intCell_x, intCell_y);
+            PathTile ptEndPoint = new PathTile(intTargetCell_x, intTargetCell_y);
+
+            ptStartPoint.setIntGValue(intG);
+            ptStartPoint.setIntHValue((Math.abs(intTargetCell_x - intCell_x) + (Math.abs(intTargetCell_y - intCell_y))));
+
+            vecClosedPath.addElement(ptStartPoint);
 
 //get the last pathtile from the ClosedPath vector
-        PathTile ptCurrentTile = (PathTile) vecClosedPath.lastElement();
-        System.out.println("PT Current: "+ ptCurrentTile.toString());
-        System.out.println("PT End: "+ ptEndPoint.toString());
-        
-        while (!ptCurrentTile.equals(ptEndPoint)) {
-            System.out.println("In the Loop");
-            ptCurrentTile = (PathTile) vecClosedPath.lastElement();
-            intG++;
-            //Create pathtiles around the agent and if unblocked then add them to openpath vector.
-            for (int i = 0; i < 8; i = i + 2) {
-            //0,-1 = cell below
-                //1,0 = cell to the right
-                //0,1 = cell above
-                //-1,0 = cell to the left
+            PathTile ptCurrentTile = (PathTile) vecClosedPath.lastElement();
 
-                int intCoordinatesAroundAgent[] = {0, -1, 1, 0, 0, 1, -1, 0}; //x and y coordinates
+            while (!ptCurrentTile.equals(ptEndPoint)) {
 
-                intCell_x = ptCurrentTile.getPosition_x() + intCoordinatesAroundAgent[i];
-                intCell_y = ptCurrentTile.getPosition_y() + intCoordinatesAroundAgent[i + 1];
+                ptCurrentTile = (PathTile) vecClosedPath.lastElement();
+                intG++;
+                //Create pathtiles around the agent and if unblocked then add them to openpath vector.
+                for (int i = 0; i < 8; i = i + 2) {
+                    //0,-1 = cell below
+                    //1,0 = cell to the right
+                    //0,1 = cell above
+                    //-1,0 = cell to the left
 
-                if (intCell_x > 0 && intCell_y > 0) {
-                    int intMapValue = tlMap.getCell(intCell_x, intCell_y);
-                    if (intMapValue == tileUnblocked) { //the tile is open, not a wall
-                        PathTile ptOpen = new PathTile(intCell_x, intCell_y);
-                        ptOpen.setIntGValue(intG);
-                        ptOpen.setIntHValue(Math.abs(intTargetCell_x - intCell_x) + Math.abs(intTargetCell_y - intCell_y));
-                        if (!checkClosedPathTiles(vecClosedPath, ptOpen)) { //check if it exists in the closed vector
-                            vecOpenPath.addElement(ptOpen);
-                        };
+                    int intCoordinatesAroundAgent[] = {0, -1, 1, 0, 0, 1, -1, 0}; //x and y coordinates
+
+                    intCell_x = ptCurrentTile.getPosition_x() + intCoordinatesAroundAgent[i];
+                    intCell_y = ptCurrentTile.getPosition_y() + intCoordinatesAroundAgent[i + 1];
+
+                    if (intCell_x > 0 && intCell_y > 0) {
+                        int intMapValue = tlMap.getCell(intCell_x, intCell_y);
+                        if (intMapValue == tileUnblocked) { //the tile is open, not a wall
+                            PathTile ptOpen = new PathTile(intCell_x, intCell_y);
+                            ptOpen.setIntGValue(intG);
+                            ptOpen.setIntHValue(Math.abs(intTargetCell_x - intCell_x) + Math.abs(intTargetCell_y - intCell_y));
+
+                            if (!checkClosedPathTiles(vecClosedPath, ptOpen)) { //check if it exists in the closed vector
+                                vecOpenPath.addElement(ptOpen);
+                            }
+                        }
                     }
                 }
-            }
-            System.out.println("Number of open elements: "+ vecOpenPath.size());
-            Enumeration enumOpenPath = vecOpenPath.elements();
-            while(enumOpenPath.hasMoreElements()){
-                System.out.println(((PathTile)enumOpenPath.nextElement()).toString());
-            }
-
-        //iterate through the OPEN Vector and determine the Pathtile with the lowest F value which will become 
-        // the new addition to the CLOSED Vector and newest step in the path.
-//            Enumeration enumOpenPathTiles = vecOpenPath.elements();
-//            PathTile objNewClosePT = null;
-//
-//            while (enumOpenPathTiles.hasMoreElements()) {
-//
-//                PathTile objOpenPT = (PathTile) enumOpenPathTiles.nextElement();
-//                
-//                if (objNewClosePT == null) {
-//                    objNewClosePT = objOpenPT;
-//                } else if (objOpenPT.getIntFValue() < objNewClosePT.getIntFValue()) {
-//                    objNewClosePT = objOpenPT;
-//
-//                }
-//
+//            Enumeration enumOpenPath = vecOpenPath.elements();
+//            while(enumOpenPath.hasMoreElements()){
+//                System.out.println(((PathTile)enumOpenPath.nextElement()).toString());
 //            }
-            
-            vecOpenPath = sortPathTiles(vecOpenPath);
-            
-            //place the objClosePT in the Closed Vector
-            vecClosedPath.addElement(vecOpenPath.firstElement());
-            
-            //System.out.println(objNewClosePT.toString());
-            vecOpenPath.removeAllElements();//remove the elements to prepare for the next pathtile.
 
-        }//do it again with the new closed pathtile but add one to G
+                // Sort the OPEN Vector and determine the Pathtile with the lowest F value  
+                // The lowest will be the new addition to the CLOSED Vector and newest 
+                // step in the path for the agent.
+                if (!vecOpenPath.isEmpty()) {
+                    vecOpenPath = sortPathTiles(vecOpenPath);
 
-        //
+                //place the objClosePT in the Closed Vector
+                    vecClosedPath.addElement(vecOpenPath.firstElement());
+                }else{
+                    return vecClosedPath;
+                }
+                vecOpenPath.removeAllElements();//remove the elements to prepare for the next pathtile.
+
+            }//do it again with the new closed pathtile but add one to G
+        } catch (Exception ex) {
+            System.out.println(ex.toString());
+            System.out.println("intCell_x: " + intCell_x);
+            System.out.println("intCell_y: " + intCell_y);
+            System.out.println("intTargetCell_x: " + intTargetCell_x);
+            System.out.println("intTargetCell_y: " + intTargetCell_y);
+            System.out.println("intG: " + intG);
+            ex.printStackTrace();
+
+        }
         return vecClosedPath;
     }
 
     private boolean checkClosedPathTiles(Vector vecClosedPath, PathTile ptOpen) {
         //Checks if the pathtile is in the closed vector. 
-        
+
         Enumeration enumClosedPathTiles = vecClosedPath.elements();
         while (enumClosedPathTiles.hasMoreElements()) {
             PathTile ptClosed = (PathTile) enumClosedPathTiles.nextElement();
@@ -196,19 +198,18 @@ public class AgentSprite extends Sprite {
         }
         return false;
     }
-    
+
     private Vector sortPathTiles(Vector sort) {
-        
+
         //http://stackoverflow.com/questions/6569414/how-to-sort-a-vector-of-string-in-java-me
-        
+        //Since Java 1.3 doesn't have any sorting abilities had to create one
+        //for pathtiles specificly.
         Vector v = new Vector();
-        for(int count = 0; count < sort.size(); count++) {
-            String s = String.valueOf(((PathTile)sort.elementAt(count)).getIntFValue());
-            System.out.println("S: "+s);
+        for (int count = 0; count < sort.size(); count++) {
+            String s = String.valueOf(((PathTile) sort.elementAt(count)).getIntFValue());
             int i = 0;
             for (i = 0; i < v.size(); i++) {
                 PathTile pt = (PathTile) v.elementAt(i);
-                System.out.println("pt: "+pt.getIntFValue());
                 int c = s.compareTo(String.valueOf(pt.getIntFValue()));
                 if (c < 0) {
                     v.insertElementAt(sort.elementAt(count), i);
@@ -218,7 +219,7 @@ public class AgentSprite extends Sprite {
                 }
             }
             if (i >= v.size()) {
-                v.addElement(s);
+                v.addElement(sort.elementAt(count));
             }
         }
         return v;

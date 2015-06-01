@@ -96,7 +96,10 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     //Threat Level for the game
     static final int GAME_OVER_THREAT_LEVEL = 3;
-    int current_threat_level = 2;
+    int current_threat_level = 0;
+
+    //timer to slow down the agents
+    long timer = 0;
 
     public BluehatCanvas(String strTitle) {
         super(true);
@@ -141,25 +144,26 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         createNDIAgents();
 
         for (int i = 0; i < ndiSprites.length; i++) {
-              boolean flag = true;
 
-                while (flag) {
-                    int random_x = rdmNumber.nextInt(14);
-                    int random_y = rdmNumber.nextInt(11);
+            randomAgentPlacement(ndiSprites[i]);
 
-                    //Place the server sprite on a Floor tile and 6 or more rows below the player.
-                    if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE && random_y >= 6) {
-                        
-                        //ndiSprites[i].setPosition(random_x * TILE_HEIGHT_WIDTH-TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH-TILE_HEIGHT_WIDTH);
-                        ndiSprites[i].setPosition(5*TILE_HEIGHT_WIDTH, 10*TILE_HEIGHT_WIDTH);
-                        flag = false;
-                    }
-                }
         }
 
-        if (intMapLevel < 6) {
-            firewallSprite.setPosition(80, 208);
-            firewallSprite.setVisible(true);
+        if (intMapLevel < 6) { //insert a firewall
+
+            boolean flag = true;
+            while (flag) {
+                int random_x = rdmNumber.nextInt(14);
+                int random_y = rdmNumber.nextInt(15 - 9) + 9;
+
+                //Place the ndi sprite on a Floor tile and 6 or more rows below the player.
+                if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE) {
+
+                    firewallSprite.setPosition(random_x * TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH);
+                    firewallSprite.setVisible(true);
+                    flag = false;
+                }
+            }
         }
         animationFrameRate = 0;
         playBackgroundMusic("toner_2.mp3", "audio/mpeg");
@@ -229,15 +233,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //Moves the agent and reduces the framerate of the animation
             moveAgent(animationFrameRate);
-            
-            //Testing the pathfinding method
-            
-            while(flag){
-            Vector vecPath = ndiSprites[1].findPath(ndiSprites[1].getX(),ndiSprites[1].getY() ,16 ,16 ,0 , blueHatBackground);
-            printPath(vecPath);
-            flag = false;
-            }
-            
+
             //control the framerate of the animations of the sprites, this
             // reduces it by a factor of 100.
             if (animationFrameRate / 100 == 1) {
@@ -426,11 +422,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     private void createNDIAgents() {
         try {
+
             //Create the network intrution detection agents.
             ndiSpritePage = Image.createImage("AgentSmith.png");
-//            ndiSprite = new AgentSprite(ndiSpritePage, 16, 16);
             int[] ndiFrameSeq = {0, 1, 2};
-//            ndiSprite.setFrameSequence(ndiFrameSeq);
+
             //Create an array of NDISprites
             switch (intMapLevel) {
                 case 1:
@@ -532,55 +528,148 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     }
 
     private void moveAgent(int animationFrameRate) {
-        /*
-         Name: moveAgent
-         Description:
-         Only get the array after 16 loops of the run to match the tile size.
-         move 16 pixels and then determine the next tile to move toward.
-         Inputs: integer
-         Output: void
-         Called by Whom: run()
-         Calls: nothing
-         */
-        for (int i = 0; i < ndiSprites.length; i++) {
-            ndiSprites[i].setChange_direction(ndiSprites[i].getChange_direction() + 1);
-            if (ndiSprites[i].getChange_direction() >= TILE_HEIGHT_WIDTH) { //check if the sprite has moved a tile before changing the direction.
-                //pass the agents current position and the current direction.
-
-                //System.out.println("Sprite:" + i + " X:" + ndiSprites[i].getX());
-                //System.out.println("Sprite:" + i + " Y:" + ndiSprites[i].getY());
-                ndiSprites[i].setDirection(randomAgentMovement(ndiSprites[i].getX(), ndiSprites[i].getY(), ndiSprites[i].getDirection()));
-                ndiSprites[i].setPosition(ndiSprites[i].getX() + ndiSprites[i].getDirection().getX_pos(), ndiSprites[i].getY() + ndiSprites[i].getDirection().getY_pos());
-                if (detectWallTileCollision(ndiSprites[i])) {
-//                    System.out.println("X:"+ndiSprites[i].getX());
-//                    System.out.println("Y:"+ndiSprites[i].getY());
-//                    System.out.println("Last X:"+ndiSprites[i].getNdi_x_pos_last());
-//                    System.out.println("Last Y:"+ndiSprites[i].getNdi_y_pos_last());
-                    ndiSprites[i].setPosition(ndiSprites[i].getNdi_x_pos_last() + ndiSprites[i].getDirection().getX_pos(), ndiSprites[i].getNdi_y_pos_last() + ndiSprites[i].getDirection().getY_pos());
-                }
-                ndiSprites[i].setChange_direction(0);
-            }
-            
-        }
-        //Collection set movement
-        for (int j = 0; j < ndiSprites.length; j++) {
-            ndiSprites[j].setPosition(ndiSprites[j].getX() + ndiSprites[j].getDirection().getX_pos(), ndiSprites[j].getY() + ndiSprites[j].getDirection().getY_pos());
-        }
-        
-        
-
-        if (animationFrameRate / 10 == 1) {
-//            ndiSprite.nextFrame();
+        try {
+            //if (animationFrameRate / 10 == 1 || animationFrameRate / 5 == 2) {
             for (int i = 0; i < ndiSprites.length; i++) {
-                ndiSprites[i].nextFrame();
-            }
-        }
-//        ndiSprite.paint(graphics);
+                try {
+                    Vector vecPathTile;
+                    if (ndiSprites[i].getVecAgentPath() != null) {
+                        vecPathTile = ndiSprites[i].getVecAgentPath();
+                    } else {
+                        //if the ndi sprite doesn't have a path then genrate one based on the last position of the player sprite.
+                        ndiSprites[i].setVecAgentPath(ndiSprites[i].findPath(ndiSprites[i].getX(), ndiSprites[i].getY(), playerSprite.getX(), playerSprite.getY(), FLOOR_TILE, blueHatBackground));
+                        vecPathTile = ndiSprites[i].getVecAgentPath();
+                    }
 
-        for (int i = 0; i < ndiSprites.length; i++) {
-            ndiSprites[i].paint(graphics);
+                    //Iterate through the PathTile vector to find the PathTile the ndiAgent is located
+                    for (int j = 0; j < vecPathTile.size(); j++) {
+                        PathTile pt = (PathTile) vecPathTile.elementAt(j);
+                        int intSprite_x = (int) Math.floor(ndiSprites[i].getX() / TILE_HEIGHT_WIDTH);
+                        int intSprite_y = (int) Math.floor(ndiSprites[i].getY() / TILE_HEIGHT_WIDTH);
+                        int intPathTile_x = pt.getPosition_x() * TILE_HEIGHT_WIDTH;
+                        int intPathTile_y = pt.getPosition_y() * TILE_HEIGHT_WIDTH;
+
+                        //check if the sprite is in the PathTile an needs to move within the pathtile
+                        if (intSprite_x == pt.getPosition_x() && intSprite_y == pt.getPosition_y()) {
+                            if (pt.getIntHValue() == 0) {
+                                //reached the end point time to recalculate a path based on current position and the new player location.
+                                ndiSprites[i].setVecAgentPath(ndiSprites[i].findPath(ndiSprites[i].getX(), ndiSprites[i].getY(), playerSprite.getX(), playerSprite.getY(), FLOOR_TILE, blueHatBackground));
+                            } else {
+                                System.out.println("j: " + j);
+                                System.out.println("Size: " + vecPathTile.size());
+                                System.out.println("H Value: " + pt.getIntHValue());
+                                if (j == vecPathTile.size()) {
+                                    ndiSprites[i].setVecAgentPath(ndiSprites[i].findPath(ndiSprites[i].getX(), ndiSprites[i].getY(), playerSprite.getX(), playerSprite.getY(), FLOOR_TILE, blueHatBackground));
+                                } else {
+                                    AgentMovement agentMove = getDirection(pt, (PathTile) vecPathTile.elementAt(j + 1));
+                                    ndiSprites[i].setPosition(ndiSprites[i].getX() + agentMove.getX_pos(), ndiSprites[i].getY() + agentMove.getY_pos());
+                                    if (ndiSprites[i].collidesWith(blueHatBackground, true)) {
+                                        PathTile ptNext = (PathTile) vecPathTile.elementAt(j + 1);
+                                        ndiSprites[i].setPosition(ptNext.getPosition_x() * TILE_HEIGHT_WIDTH, ptNext.getPosition_y() * TILE_HEIGHT_WIDTH);
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                } catch (Exception ex) {
+
+                    ex.printStackTrace();
+                    System.out.println("Number of ndiSprites: " + ndiSprites.length);
+                    System.out.println("ndiSprites[i]: " + i);
+                }
+
+            }
+            //}
+
+            if (animationFrameRate / 10 == 1) {
+
+                for (int i = 0; i < ndiSprites.length; i++) {
+                    ndiSprites[i].nextFrame();
+                }
+            }
+
+            for (int i = 0; i < ndiSprites.length; i++) {
+                ndiSprites[i].paint(graphics);
+            }
+        } catch (Exception ex) {
+            System.out.println(ex.toString());
+
         }
+
     }
+
+    private AgentMovement getDirection(PathTile currentPT, PathTile nextPT) {
+        AgentMovement agentdirection = new AgentMovement(0, 0);
+        //going left
+        if (currentPT.getPosition_x() > nextPT.getPosition_x()) {
+            agentdirection = new AgentMovement(-1, 0);
+        }
+        //going right
+        if (currentPT.getPosition_x() < nextPT.getPosition_x()) {
+            agentdirection = new AgentMovement(1, 0);
+        }
+        //going up
+        if (currentPT.getPosition_y() > nextPT.getPosition_y()) {
+            agentdirection = new AgentMovement(0, -1);
+        }
+        //going down
+        if (currentPT.getPosition_y() < nextPT.getPosition_y()) {
+            agentdirection = new AgentMovement(0, 1);
+        }
+
+        return agentdirection;
+    }
+//    private void moveAgent(int animationFrameRate) {
+//        /*
+//         Name: moveAgent
+//         Description:
+//         Only get the array after 16 loops of the run to match the tile size.
+//         move 16 pixels and then determine the next tile to move toward.
+//         Inputs: integer
+//         Output: void
+//         Called by Whom: run()
+//         Calls: nothing
+//         */
+//        for (int i = 0; i < ndiSprites.length; i++) {
+//            ndiSprites[i].setChange_direction(ndiSprites[i].getChange_direction() + 1);
+//            if (ndiSprites[i].getChange_direction() >= TILE_HEIGHT_WIDTH) { //check if the sprite has moved a tile before changing the direction.
+//                //pass the agents current position and the current direction.
+//
+//                //System.out.println("Sprite:" + i + " X:" + ndiSprites[i].getX());
+//                //System.out.println("Sprite:" + i + " Y:" + ndiSprites[i].getY());
+//                ndiSprites[i].setDirection(randomAgentMovement(ndiSprites[i].getX(), ndiSprites[i].getY(), ndiSprites[i].getDirection()));
+//                ndiSprites[i].setPosition(ndiSprites[i].getX() + ndiSprites[i].getDirection().getX_pos(), ndiSprites[i].getY() + ndiSprites[i].getDirection().getY_pos());
+//                if (detectWallTileCollision(ndiSprites[i])) {
+////                    System.out.println("X:"+ndiSprites[i].getX());
+////                    System.out.println("Y:"+ndiSprites[i].getY());
+////                    System.out.println("Last X:"+ndiSprites[i].getNdi_x_pos_last());
+////                    System.out.println("Last Y:"+ndiSprites[i].getNdi_y_pos_last());
+//                    ndiSprites[i].setPosition(ndiSprites[i].getNdi_x_pos_last() + ndiSprites[i].getDirection().getX_pos(), ndiSprites[i].getNdi_y_pos_last() + ndiSprites[i].getDirection().getY_pos());
+//                }
+//                ndiSprites[i].setChange_direction(0);
+//            }
+//            
+//        }
+//        //Collection set movement
+//        for (int j = 0; j < ndiSprites.length; j++) {
+//            ndiSprites[j].setPosition(ndiSprites[j].getX() + ndiSprites[j].getDirection().getX_pos(), ndiSprites[j].getY() + ndiSprites[j].getDirection().getY_pos());
+//        }
+//        
+//        
+//
+//        if (animationFrameRate / 10 == 1) {
+////            ndiSprite.nextFrame();
+//            for (int i = 0; i < ndiSprites.length; i++) {
+//                ndiSprites[i].nextFrame();
+//            }
+//        }
+////        ndiSprite.paint(graphics);
+//
+//        for (int i = 0; i < ndiSprites.length; i++) {
+//            ndiSprites[i].paint(graphics);
+//        }
+//    }
 
     private void paintServer(int animationFrameRate) {
         /*
@@ -719,17 +808,17 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         BluehatUtil.drawMultilineString(graphics, fontSplash, strContract, 5,
                 getHeight() / 8, 0, 225);
-        
+
         int intNewLine = 150;
         graphics.drawString("Hacker Skills - " + pc.getName(), 10, intNewLine, 0);
-        intNewLine +=20;
+        intNewLine += 20;
         graphics.drawString(pc.getBackground(), 10, intNewLine, 0);
-        System.out.println("Number of Skills: "+pc.getVectorHackingSkill().size());
-        for(int i=0;i<pc.getVectorHackingSkill().size();i++){
-           intNewLine = intNewLine+15;
-           graphics.drawString( pc.getVectorHackingSkill().elementAt(i).toString(), 20, intNewLine, 0);  
+        System.out.println("Number of Skills: " + pc.getVectorHackingSkill().size());
+        for (int i = 0; i < pc.getVectorHackingSkill().size(); i++) {
+            intNewLine = intNewLine + 15;
+            graphics.drawString(pc.getVectorHackingSkill().elementAt(i).toString(), 20, intNewLine, 0);
         }
-        
+
         //create a command button for the contract screen.
         cmdStartHack = new Command("Start", Command.OK, 1);
         this.addCommand(cmdStartHack);
@@ -1002,9 +1091,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         for (int i = 0; i < ndiSprites.length; i++) {
             if (playerSprite.collidesWith(ndiSprites[i], true)) {
                 playSoundEffect("Explosion.wav");
-                playBackgroundMusic("ThisGameIsOver.wav", "audio/X-wav");
-                ndiSprites[i].setPosition(33, 16);
+                //playBackgroundMusic("ThisGameIsOver.wav", "audio/X-wav");
+                randomAgentPlacement(ndiSprites[i]);
                 ndiSprites[i].setDirection(new AgentMovement(0, 0));
+                ndiSprites[i].setVecAgentPath(null);
+
                 return true;
             }
         }
@@ -1075,13 +1166,12 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         if (blueHatBackground.isVisible()) {
             //Discover what is around the agent sprite on the tile layaer
             java.util.Vector viableDirection = new java.util.Vector();
-            
 
             for (int i = 0; i < 8; i = i + 2) {
                 int intCoordinatesAroundAgent[] = {0, -1, 1, 0, 0, 1, -1, 0}; //x and y coordinates
                 int tile_x = current_x / TILE_HEIGHT_WIDTH + intCoordinatesAroundAgent[i];
                 int tile_y = current_y / TILE_HEIGHT_WIDTH + intCoordinatesAroundAgent[i + 1];
-                
+
 //                System.out.println("tile_x:" + tile_x);
 //                System.out.println("tile_y:" + tile_y);
                 if (tile_x > 0 && tile_y > 0 && tile_x < 15 && tile_y < 18) {
@@ -1276,15 +1366,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
                 //generate a random roll between 1 and 6
                 Random r = new Random();
-                int intHackAttackRoll = r.nextInt(5)+1;
-                
-                int intLuckChanceRoll = r.nextInt(100);
-                
-                //int intHackAttackRoll = 6;
+                int intHackAttackRoll = r.nextInt(5) + 1;
 
+                int intLuckChanceRoll = r.nextInt(100);
+
+                //int intHackAttackRoll = 6;
                 int intHackerSkill = 0;
                 int intHackerAttackValue = 0;
-                int intLuckValue =0;
+                int intLuckValue = 0;
                 //Add Skill and Luck level to the random roll.
                 Enumeration playSkills = pc.getVectorHackingSkill().elements();
                 while (playSkills.hasMoreElements()) {
@@ -1319,13 +1408,13 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
                     }
                 }
-                
+
                 intHackerAttackValue = intHackAttackRoll + intHackerSkill + intLuckValue;
 
                 //Determine failure
                 if (intHackerAttackValue >= objNPC.getSecurity_defense_level()) {
                     //Sucessful hack and back to the network maze.
-                    graphics.drawString(String.valueOf(intHackerSkill) + " Skill + " + String.valueOf(intHackAttackRoll) + " Roll + "+ String.valueOf(intLuckValue) +" Luck = "+ String.valueOf(intHackerAttackValue), getWidth() / 2, 250, TOP | HCENTER);
+                    graphics.drawString(String.valueOf(intHackerSkill) + " Skill + " + String.valueOf(intHackAttackRoll) + " Roll + " + String.valueOf(intLuckValue) + " Luck = " + String.valueOf(intHackerAttackValue), getWidth() / 2, 250, TOP | HCENTER);
                     graphics.drawString("CRACKED!!!!", getWidth() / 2, 270, TOP | HCENTER);
 
                     display.removeCommand(cmdHack);
@@ -1342,7 +1431,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
                 } else {
                     //Threat Level increase by 1 and attempt again.
-                    graphics.drawString(String.valueOf(intHackerSkill) + " Skill + " + String.valueOf(intHackAttackRoll) + " Roll + "+ String.valueOf(intLuckValue) +" Luck = "+ String.valueOf(intHackerAttackValue), getWidth() / 2, 250, TOP | HCENTER);
+                    graphics.drawString(String.valueOf(intHackerSkill) + " Skill + " + String.valueOf(intHackAttackRoll) + " Roll + " + String.valueOf(intLuckValue) + " Luck = " + String.valueOf(intHackerAttackValue), getWidth() / 2, 250, TOP | HCENTER);
                     graphics.drawString("FAILED, The Threat Level has increased!!!!", getWidth() / 2, 270, TOP | HCENTER);
                     current_threat_level += 1;
 
@@ -1389,9 +1478,26 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     private void printPath(Vector vecPath) {
         Enumeration enumPath = vecPath.elements();
-        while(enumPath.hasMoreElements()){
-            PathTile pt = (PathTile)enumPath.nextElement();
+        while (enumPath.hasMoreElements()) {
+            PathTile pt = (PathTile) enumPath.nextElement();
             System.out.println(pt.toString());
+        }
+    }
+
+    private void randomAgentPlacement(AgentSprite ndiSprite) {
+        boolean flag = true;
+
+        while (flag) {
+            int random_x = rdmNumber.nextInt(14);
+            int random_y = rdmNumber.nextInt(15 - 9) + 9;
+
+            //Place the ndi sprite on a Floor tile and 6 or more rows below the player.
+            if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE) {
+
+                ndiSprite.setPosition(random_x * TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH);
+                //ndiSprites[i].setPosition(5 * TILE_HEIGHT_WIDTH, 10 * TILE_HEIGHT_WIDTH);
+                flag = false;
+            }
         }
     }
 

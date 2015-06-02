@@ -449,60 +449,60 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             //Create an array of NDISprites
             switch (intMapLevel) {
                 case 1:
-                    ndiSprites = new AgentSprite[2];
+                    ndiSprites = new AgentSprite[1];
                     ndiSprites[0] = new AgentSprite(ndiSpritePage, 16, 16);
-                    ndiSprites[1] = new AgentSprite(ndiSpritePage, 16, 16);
+                    //ndiSprites[1] = new AgentSprite(ndiSpritePage, 16, 16);
                     ndiSprites[0].setFrameSequence(ndiFrameSeq);
-                    ndiSprites[1].setFrameSequence(ndiFrameSeq);
+                    //ndiSprites[1].setFrameSequence(ndiFrameSeq);
 
                     break;
                 case 2:
-                    ndiSprites = new AgentSprite[2];
+                    ndiSprites = new AgentSprite[1];
                     ndiSprites[0] = new AgentSprite(ndiSpritePage, 16, 16);
-                    ndiSprites[1] = new AgentSprite(ndiSpritePage, 16, 16);
+                    //ndiSprites[1] = new AgentSprite(ndiSpritePage, 16, 16);
                     ndiSprites[0].setFrameSequence(ndiFrameSeq);
-                    ndiSprites[1].setFrameSequence(ndiFrameSeq);
+                    //ndiSprites[1].setFrameSequence(ndiFrameSeq);
 
                     break;
                 case 3:
-                    ndiSprites = new AgentSprite[3];
+                    ndiSprites = new AgentSprite[2];
                     ndiSprites[0] = new AgentSprite(ndiSpritePage, 16, 16);
                     ndiSprites[1] = new AgentSprite(ndiSpritePage, 16, 16);
-                    ndiSprites[2] = new AgentSprite(ndiSpritePage, 16, 16);
+                    //ndiSprites[2] = new AgentSprite(ndiSpritePage, 16, 16);
                     ndiSprites[0].setFrameSequence(ndiFrameSeq);
                     ndiSprites[1].setFrameSequence(ndiFrameSeq);
-                    ndiSprites[2].setFrameSequence(ndiFrameSeq);
+                    //ndiSprites[2].setFrameSequence(ndiFrameSeq);
                     break;
                 case 4:
+                    ndiSprites = new AgentSprite[2];
+                    ndiSprites[0] = new AgentSprite(ndiSpritePage, 16, 16);
+                    ndiSprites[1] = new AgentSprite(ndiSpritePage, 16, 16);
+                    //ndiSprites[2] = new AgentSprite(ndiSpritePage, 16, 16);
+                    ndiSprites[0].setFrameSequence(ndiFrameSeq);
+                    ndiSprites[1].setFrameSequence(ndiFrameSeq);
+                    //ndiSprites[2].setFrameSequence(ndiFrameSeq);
+                    break;
+                case 5:
+                    ndiSprites = new AgentSprite[2];
+                    ndiSprites[0] = new AgentSprite(ndiSpritePage, 16, 16);
+                    ndiSprites[1] = new AgentSprite(ndiSpritePage, 16, 16);
+                    //ndiSprites[2] = new AgentSprite(ndiSpritePage, 16, 16);
+                    //ndiSprites[3] = new AgentSprite(ndiSpritePage, 16, 16);
+                    ndiSprites[0].setFrameSequence(ndiFrameSeq);
+                    ndiSprites[1].setFrameSequence(ndiFrameSeq);
+                    //ndiSprites[2].setFrameSequence(ndiFrameSeq);
+                    //ndiSprites[3].setFrameSequence(ndiFrameSeq);
+                    break;
+                case 6:
                     ndiSprites = new AgentSprite[3];
                     ndiSprites[0] = new AgentSprite(ndiSpritePage, 16, 16);
                     ndiSprites[1] = new AgentSprite(ndiSpritePage, 16, 16);
                     ndiSprites[2] = new AgentSprite(ndiSpritePage, 16, 16);
+                    //ndiSprites[3] = new AgentSprite(ndiSpritePage, 16, 16);
                     ndiSprites[0].setFrameSequence(ndiFrameSeq);
                     ndiSprites[1].setFrameSequence(ndiFrameSeq);
                     ndiSprites[2].setFrameSequence(ndiFrameSeq);
-                    break;
-                case 5:
-                    ndiSprites = new AgentSprite[4];
-                    ndiSprites[0] = new AgentSprite(ndiSpritePage, 16, 16);
-                    ndiSprites[1] = new AgentSprite(ndiSpritePage, 16, 16);
-                    ndiSprites[2] = new AgentSprite(ndiSpritePage, 16, 16);
-                    ndiSprites[3] = new AgentSprite(ndiSpritePage, 16, 16);
-                    ndiSprites[0].setFrameSequence(ndiFrameSeq);
-                    ndiSprites[1].setFrameSequence(ndiFrameSeq);
-                    ndiSprites[2].setFrameSequence(ndiFrameSeq);
-                    ndiSprites[3].setFrameSequence(ndiFrameSeq);
-                    break;
-                case 6:
-                    ndiSprites = new AgentSprite[4];
-                    ndiSprites[0] = new AgentSprite(ndiSpritePage, 16, 16);
-                    ndiSprites[1] = new AgentSprite(ndiSpritePage, 16, 16);
-                    ndiSprites[2] = new AgentSprite(ndiSpritePage, 16, 16);
-                    ndiSprites[3] = new AgentSprite(ndiSpritePage, 16, 16);
-                    ndiSprites[0].setFrameSequence(ndiFrameSeq);
-                    ndiSprites[1].setFrameSequence(ndiFrameSeq);
-                    ndiSprites[2].setFrameSequence(ndiFrameSeq);
-                    ndiSprites[3].setFrameSequence(ndiFrameSeq);
+                    //ndiSprites[3].setFrameSequence(ndiFrameSeq);
                     break;
             }
         } catch (IOException ioe) {
@@ -563,7 +563,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 try {
                     Vector vecPathTile;
 
-                    //ndiSprites[i].setDirection(agentMove);
                     if (ndiSprites[i].getVecAgentPath() != null) {
                         vecPathTile = ndiSprites[i].getVecAgentPath();
                     } else {
@@ -596,10 +595,15 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                          System.out.println("PT_getPosition_y: " + pt.getPosition_y());
                          */
                         if (intSprite_x == pt.getPosition_x() && intSprite_y == pt.getPosition_y() && intSprite_x_bottom_right == pt.getPosition_x() && intSprite_y_bottom_right == pt.getPosition_y()) {
-
-                            //need to check the current x or y, need to reach max tilewidth before moving to the next pathtile
-                            agentMove = getDirection(pt, (PathTile) vecPathTile.elementAt(j + 1));
-                            ndiSprites[i].setDirection(agentMove);
+                            if (!(pt.getIntHValue() == 0)) {
+                                //need to check the current x or y, need to reach max tilewidth before moving to the next pathtile
+                                agentMove = getDirection(pt, (PathTile) vecPathTile.elementAt(j + 1));
+                                ndiSprites[i].setDirection(agentMove);
+                            } else {
+                                //reset the direction vector of the agent
+                                ndiSprites[i].setVecAgentPath(null);
+                                ndiSprites[i].setDirection(new AgentMovement(0, 0));
+                            }
                         }
 
                     }
@@ -607,11 +611,15 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                     //System.out.println("Direction" +ndiSprites[i].getDirection().getX_pos()+","+ ndiSprites[i].getDirection().getY_pos());
                     ndiSprites[i].setPosition(ndiSprites[i].getX() + ndiSprites[i].getDirection().getX_pos(), ndiSprites[i].getY() + ndiSprites[i].getDirection().getY_pos());
 
+                } catch (ArrayIndexOutOfBoundsException aioobe) {
+                    aioobe.printStackTrace();
+                    ndiSprites[i].setVecAgentPath(null);
+                    ndiSprites[i].setDirection(new AgentMovement(0, 0));
+
                 } catch (Exception ex) {
 
                     ex.printStackTrace();
-                    System.out.println("Number of ndiSprites: " + ndiSprites.length);
-                    System.out.println("ndiSprites[i]: " + i);
+
                 }
 
             }
@@ -628,7 +636,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 ndiSprites[i].paint(graphics);
             }
         } catch (Exception ex) {
-            System.out.println(ex.toString());
 
         }
 
@@ -1173,8 +1180,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         NetworkWall_NotAnimated = new TiledLayer(cols, rows, background,
                 TILE_HEIGHT_WIDTH, TILE_HEIGHT_WIDTH);
 
-        //int[][] tiles = generateMaps();
         int[][] tiles = new RMS_MazeMap().readMazeMapData(intMapLevel);
+
         // Set all the cells in the tiled layer
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
@@ -1186,133 +1193,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         return NetworkWall_NotAnimated;
     }
 
-    private AgentMovement randomAgentMovement(int current_x, int current_y, AgentMovement currentDirection) {
-        /*
-         Name: randomAgentMovement
-         Description: The random agent movement method will randomly determine the direction of the 
-         agent every 16 pixels traveled. To stop the agent from moving back and 
-         forth in the same area I added multiple of the same direction into the 
-         vector. Then the application generates a random number to choose from
-         the vector and that determines the next direction that the agent moves.
-         Inputs: int, int, AgentMovement
-         Output: int array
-         Called by Whom: moveAgent
-         Calls: AgentMovement
-         */
-
-        int intAgentPosition[] = {0, 0};
-
-        if (blueHatBackground.isVisible()) {
-            //Discover what is around the agent sprite on the tile layaer
-            java.util.Vector viableDirection = new java.util.Vector();
-
-            for (int i = 0; i < 8; i = i + 2) {
-                int intCoordinatesAroundAgent[] = {0, -1, 1, 0, 0, 1, -1, 0}; //x and y coordinates
-                int tile_x = current_x / TILE_HEIGHT_WIDTH + intCoordinatesAroundAgent[i];
-                int tile_y = current_y / TILE_HEIGHT_WIDTH + intCoordinatesAroundAgent[i + 1];
-
-//                System.out.println("tile_x:" + tile_x);
-//                System.out.println("tile_y:" + tile_y);
-                if (tile_x > 0 && tile_y > 0 && tile_x < 15 && tile_y < 18) {
-                    if (blueHatBackground.getCell(tile_x, tile_y) == FLOOR_TILE && tile_x != 0) {
-                        AgentMovement agentMovement = new AgentMovement(intCoordinatesAroundAgent[i],
-                                intCoordinatesAroundAgent[i + 1]);
-                        viableDirection.addElement(agentMovement);
-                    }
-                }
-            }
-            //Add the current direction if its a FLOOR_TILE
-            int tile_x = current_x / TILE_HEIGHT_WIDTH + currentDirection.getX_pos();
-            int tile_y = current_y / TILE_HEIGHT_WIDTH + currentDirection.getY_pos();
-
-            if (blueHatBackground.getCell(tile_x, tile_y) == FLOOR_TILE && tile_x != 0) {
-
-                viableDirection.addElement(currentDirection);
-                viableDirection.addElement(currentDirection);
-                viableDirection.addElement(currentDirection);
-                viableDirection.addElement(currentDirection);
-                viableDirection.addElement(currentDirection);
-            }
-
-            //determine the viable direction UP,DOWN,LEFT,RIGHT with the random
-            //selection of a vector element.
-            int direction_size = viableDirection.size();
-            int intRandomDirection = rdmNumber.nextInt(direction_size);
-            AgentMovement direction = (AgentMovement) viableDirection.elementAt(intRandomDirection);
-
-            intAgentPosition[0] = direction.getX_pos();
-            intAgentPosition[1] = direction.getY_pos();
-
-        }
-
-        return new AgentMovement(intAgentPosition[0], intAgentPosition[1]);
-    }
-
-    private int[][] generateMaps() {
-        /*
-         Name: generateMaps
-         Description: Store all the mazes in a 2 dimenstional array calles maps.
-         The array will hold multiple maps and then method will randomally
-         select a map. Each map is 18 rows.
-         Inputs: void
-         Output: int array
-         Called by Whom: getNetworkWall_NotAnimated
-         Calls: nothing
-         */
-
-        int[][] returningMap = new int[18][15];
-
-        // Map arrays
-        int[][] maps = {
-            {23, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 28},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
-            {23, 10, 10, 0, 10, 10, 18, 0, 18, 10, 10, 10, 0, 10, 2},
-            {2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2},
-            {2, 0, 10, 10, 0, 10, 38, 0, 33, 10, 0, 10, 10, 10, 2},
-            {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
-            {2, 0, 23, 10, 10, 10, 10, 0, 10, 10, 10, 10, 10, 0, 2},
-            {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
-            {2, 0, 2, 0, 23, 10, 10, 10, 10, 0, 23, 0, 28, 0, 2},
-            {2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2},
-            {2, 0, 2, 0, 0, 0, 23, 10, 10, 0, 2, 0, 2, 0, 2},
-            {2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 38, 0, 2, 0, 2},
-            {2, 0, 2, 0, 2, 0, 2, 0, 23, 0, 0, 0, 2, 0, 2},
-            {2, 0, 2, 0, 2, 0, 0, 0, 33, 10, 10, 10, 38, 0, 2},
-            {2, 0, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2},
-            {2, 0, 0, 0, 2, 0, 33, 10, 10, 10, 10, 0, 10, 10, 2},
-            {2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
-            {33, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 38},
-            //add the second map
-            {23, 10, 10, 10, 10, 10, 10, 10, 10, 18, 10, 10, 10, 10, 28},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2},
-            {2, 0, 10, 10, 28, 0, 2, 2, 0, 2, 0, 10, 29, 0, 2},
-            {2, 0, 0, 0, 2, 0, 2, 2, 0, 2, 0, 0, 2, 0, 2},
-            {2, 0, 23, 0, 2, 0, 2, 2, 0, 33, 10, 10, 38, 0, 2},
-            {2, 0, 33, 0, 2, 0, 2, 2, 0, 0, 0, 0, 0, 0, 2},
-            {2, 0, 0, 0, 2, 0, 0, 0, 0, 23, 10, 10, 0, 10, 2},
-            {2, 0, 10, 10, 38, 0, 2, 2, 0, 4, 0, 0, 0, 0, 2},
-            {2, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 2, 0, 0, 2},
-            {2, 0, 0, 10, 10, 10, 18, 10, 10, 39, 0, 2, 0, 10, 2},
-            {2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 2},
-            {2, 10, 10, 10, 30, 0, 2, 0, 10, 10, 10, 39, 0, 0, 2},
-            {2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2},
-            {2, 0, 2, 0, 2, 0, 0, 0, 10, 10, 10, 10, 30, 0, 2},
-            {2, 0, 33, 10, 38, 0, 2, 0, 0, 0, 0, 0, 2, 0, 2},
-            {2, 0, 0, 0, 0, 0, 2, 0, 10, 10, 28, 0, 42, 0, 2},
-            {2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 2},
-            {33, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 38}
-        };
-
-        int numberOfMaps = maps.length / 18; //count the rows and divide by 18
-        int startingMapRow = rdmNumber.nextInt(numberOfMaps) * 18;
-
-        for (int i = startingMapRow; i < startingMapRow + 18; i++) {
-            System.arraycopy(maps[i], 0, returningMap[i - startingMapRow], 0, 15);
-        }
-
-        return returningMap;
-    }
-
+    
     private void playBackgroundMusic(String strMusic, String strFileType) {
         /*
          Name: playBackgroundMusic
@@ -1539,14 +1420,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         blueHatBackground.setVisible(true);
     }
 
-    private void printPath(Vector vecPath) {
-        Enumeration enumPath = vecPath.elements();
-        while (enumPath.hasMoreElements()) {
-            PathTile pt = (PathTile) enumPath.nextElement();
-            System.out.println(pt.toString());
-        }
-    }
-
     private void randomAgentPlacement(AgentSprite ndiSprite) {
         /*
          Name:randomagentPlacement
@@ -1567,7 +1440,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE) {
 
                 ndiSprite.setPosition(random_x * TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH);
-                //ndiSprites[i].setPosition(5 * TILE_HEIGHT_WIDTH, 10 * TILE_HEIGHT_WIDTH);
+                
                 flag = false;
             }
         }

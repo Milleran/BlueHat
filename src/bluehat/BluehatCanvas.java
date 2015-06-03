@@ -1,5 +1,5 @@
 /**
- * Assignment: TME1 Assignment Name: Blue Hat Assignment Date: March 25th, 2015
+ * Assignment: TME3 Assignment Name: Blue Hat Assignment Date: June 1st, 2015
  *
  * @ author: Andrew Miller Student ID: 2433560 Course: COMP 486
  *
@@ -8,6 +8,7 @@
  * basic game functionality. The class also implements the runnable interface to
  * run the game loop The class also implements the CommandListner to provide a
  * user interface to exit or play again.
+ * 
  */
 package bluehat;
 

@@ -10,6 +10,7 @@
  This is a utility class for the BlueHat game.
  The following code was found on developer.nokia.com.
 
+
  */
 package bluehat;
 

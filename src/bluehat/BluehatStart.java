@@ -13,6 +13,7 @@
 
  When the Start button is clicked by the user the BluehatCanvas class will start
  running.
+
  */
 package bluehat;
 

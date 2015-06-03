@@ -6,6 +6,7 @@
  * The primary purpose of the PathTile class is to create a path for the NDI Agents
  * using the A* algorithm. Holds the x and y maze tiles and calculates the F, G, H
  * values required to execute the A* algorithm.
+ * 
  */
 package bluehat;
 

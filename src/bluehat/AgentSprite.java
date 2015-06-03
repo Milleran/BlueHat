@@ -5,6 +5,7 @@
  *
  * The primary purpose of the AgentSprite class is to create a extended sprite
  * object that would find and retain its own path and movement direction
+ * 
  */
 package bluehat;
 

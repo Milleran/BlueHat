@@ -8,7 +8,7 @@
  * basic game functionality. The class also implements the runnable interface to
  * run the game loop The class also implements the CommandListner to provide a
  * user interface to exit or play again.
- * 
+ *
  */
 package bluehat;
 
@@ -76,8 +76,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private boolean firewall_hacked = false;
 
     static int TILE_HEIGHT_WIDTH = 16;
-    static int WALL_IMPACT = 1;
-    static int WALL_TILE = 378;
     static int FLOOR_TILE = 0;
 
     static final int HCENTER = 1;
@@ -282,8 +280,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //If the player character touches the agent then the game is over
             if (detectAgentCollision()) {
-                //run_game = !detectAgentCollision();
-                //showFailureScreen();
+
                 switch (intMapLevel) {
                     case 1:
                         showHackScreen("NDI Level 1");
@@ -1086,13 +1083,20 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         }
         if (cmd == cmdReHack) {
             //remove any existing string text in the results area
+            try{
             graphics.setColor(0xFFFFFF);
             graphics.fillRect(0, 250, getWidth(), 270);
 
             conductHackAttack(display);
 
             display.removeCommand(cmdReHack);
+            
             this.repaint();
+            }catch(Exception ex){
+                System.out.println("ReHack");
+                ex.printStackTrace();
+            }
+            
         }
         if (cmd == cmdHack) {
 
@@ -1194,7 +1198,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         return NetworkWall_NotAnimated;
     }
 
-    
     private void playBackgroundMusic(String strMusic, String strFileType) {
         /*
          Name: playBackgroundMusic
@@ -1277,7 +1280,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         }
     }
 
-    private boolean conductHackAttack(Displayable display) {
+    private void conductHackAttack(Displayable display) {
         /*
          Name:conductHackAttack
          Description: This method determines the success or failure of the 
@@ -1289,7 +1292,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
          */
         graphics = getGraphics();
 
-        boolean attackResult = false;
+//        boolean attackResult = false;
 
         if (pc != null && objNPC != null) {
             try {
@@ -1352,7 +1355,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                     cmdResume = new Command("Resume", Command.OK, 1);
                     display.addCommand(cmdResume);
                     this.setCommandListener(this);
-                    attackResult = true;
+//                    attackResult = true;
 
                     //Check if the hack was against a firewall to get to the next level.
                     if (objNPC.getName().startsWith("Firewall")) {
@@ -1367,19 +1370,25 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
                     display.removeCommand(cmdHack);
                     display.removeCommand(cmdReHack);
-
-                    cmdReHack = new Command("Rehack?", Command.OK, 1);
-                    display.addCommand(cmdReHack);
-                    attackResult = false;
+                    
+                    if (current_threat_level <= GAME_OVER_THREAT_LEVEL) {
+                        cmdReHack = new Command("Rehack?", Command.OK, 1);
+                        display.addCommand(cmdReHack);
+//                        attackResult = false;
+                    } else {
+                        //Game Over
+                        showFailureScreen();
+                        run_game = false;
+                    }
 
                 }
 
             } catch (Exception e) {
-
+                e.printStackTrace();
             }
         }
 
-        return attackResult;
+//        return attackResult;
     }
 
     private void resumeGame() {
@@ -1441,7 +1450,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE) {
 
                 ndiSprite.setPosition(random_x * TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH);
-                
+
                 flag = false;
             }
         }

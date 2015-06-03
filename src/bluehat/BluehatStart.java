@@ -428,8 +428,6 @@ public class BluehatStart extends MIDlet implements CommandListener {
             }
 
         });
-        
-       
 
         return formCharacterList;
     }

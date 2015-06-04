@@ -428,7 +428,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         }
     }
 
-    private void createNDIAgents() {
+  private void createNDIAgents() {
         /*
          Name:createNDIAgents
          Description: creates the ndi agent game sprites that will be used in the game.

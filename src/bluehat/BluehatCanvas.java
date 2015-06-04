@@ -834,7 +834,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         }
 
         graphics.drawString("Hack Attack Results: ", 10, 230, BOTTOM | LEFT);
-        graphics.drawString(strStatus + String.valueOf(current_threat_level), getWidth()/2, 268, TOP|HCENTER);
+        graphics.drawString(strStatus + String.valueOf(current_threat_level), getWidth()/2, 280, TOP|HCENTER);
 
     }
 
@@ -1085,7 +1085,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             //remove any existing string text in the results area
             try{
             graphics.setColor(0xFFFFFF);
-            graphics.fillRect(0, 250, getWidth(), 270);
+            graphics.fillRect(0, 230, getWidth(), 250);
 
             conductHackAttack(display);
 
@@ -1190,7 +1190,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         // Set all the cells in the tiled layer
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
+                System.out.println("Col, Row:" + col +","+row);
                 NetworkWall_NotAnimated.setCell(col, row, tiles[row][col]);
+                
             }
         }
 
@@ -1364,8 +1366,10 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
                 } else {
                     //Threat Level increase by 1 and attempt again.
-                    graphics.drawString(String.valueOf(intHackerSkill) + " Skill + " + String.valueOf(intHackAttackRoll) + " Roll + " + String.valueOf(intLuckValue) + " Luck = " + String.valueOf(intHackerAttackValue), getWidth() / 2, 250, TOP | HCENTER);
-                    graphics.drawString("FAILED, The Threat Level has increased!!!!", getWidth() / 2, 270, TOP | HCENTER);
+                    graphics.drawString(String.valueOf(intHackerSkill) + " Skill + " + String.valueOf(intHackAttackRoll) + " Roll + " + String.valueOf(intLuckValue) + " Luck = " + String.valueOf(intHackerAttackValue), getWidth() / 2, 230, TOP | HCENTER);
+                    graphics.drawString("FAILED", getWidth() / 2, 250, TOP | HCENTER);
+                    graphics.drawString("The Threat Level has increased", getWidth() / 2, 265, TOP | HCENTER);
+
                     current_threat_level += 1;
 
                     display.removeCommand(cmdHack);
@@ -1410,7 +1414,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
     }
 
-    private void drawMap() throws IOException {
+    private void drawMap() {
         /*
          Name:drawMap
          Description: This method sets the map tiles for the game.
@@ -1420,14 +1424,22 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
          Calls: getNetworkWall_NotAnimated
          */
         //Create the background with a tiledlayer
+        try{
         Image background = Image.createImage("/networkWall.png");
 
-        int cols = getWidth() / TILE_HEIGHT_WIDTH;
-        int rows = getHeight() / TILE_HEIGHT_WIDTH;
-
+        //int cols = getWidth() / TILE_HEIGHT_WIDTH ;
+        //int rows = getHeight() / TILE_HEIGHT_WIDTH ;
+        int cols = 15 ;
+        int rows = 18 ;
+        
+        System.out.println("Col, Row:" + cols +","+rows);
+        
         blueHatBackground = getNetworkWall_NotAnimated(rows, cols, background);
 
         blueHatBackground.setVisible(true);
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
     }
 
     private void randomAgentPlacement(AgentSprite ndiSprite) {

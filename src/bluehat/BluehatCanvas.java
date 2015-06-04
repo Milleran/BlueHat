@@ -59,14 +59,13 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private TiledLayer NetworkWall_NotAnimated;
 
     private Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD,
-            Font.SIZE_LARGE);
+            Font.SIZE_MEDIUM);
     private String strStatus;
 
     private int player_x_pos = 16;
     private int player_y_pos = 16;
     private int player_x_pos_last = 16;
     private int player_y_pos_last = 16;
-    private int agent_change_direction;
     private int animationFrameRate;
 
     private boolean player_has_objective = false;
@@ -223,7 +222,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             //Display the game status.
             graphics.setColor(0);
             graphics.setFont(gameFont);
-            graphics.drawString(strStatus + String.valueOf(current_threat_level), 0, 288, 0);
+            graphics.drawString(strStatus + String.valueOf(current_threat_level), getWidth()/2, 288, TOP | HCENTER);
             //repaint the background
             blueHatBackground.paint(graphics);
 
@@ -794,24 +793,24 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         graphics = getGraphics();
 
         Font fontSplash = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD,
-                Font.SIZE_LARGE);
+                Font.SIZE_SMALL);
         graphics.setFont(fontSplash);
 
         graphics.drawString("Cracking - " + objNPC.getName(), getWidth() / 2, 0, TOP | HCENTER);
 
         graphics.drawImage(this.createImage(objNPC.getImage_name()), getWidth() / 2, 20, TOP | HCENTER);
 
-        graphics.drawLine(0, 140, getWidth(), 140);
-        graphics.drawString("Security Defense: " + String.valueOf(objNPC.getSecurity_defense_level()), getWidth() / 2, 150, TOP | HCENTER);
-        graphics.drawLine(0, 165, getWidth(), 165);
+        graphics.drawLine(0, 120, getWidth(), 120);
+        graphics.drawString("Security Defense: " + String.valueOf(objNPC.getSecurity_defense_level()), getWidth() / 2, 130, TOP | HCENTER);
+        graphics.drawLine(0, 145, getWidth(), 145);
 
-        graphics.drawString("Hacker Skill", 10, 190, BOTTOM | LEFT);
+        graphics.drawString("Hacker Skill", 10, 170, BOTTOM | LEFT);
 
         //create a string that represents the hackers skills with the objects hacker vulnerability
         try {
 
             Enumeration playSkills = pc.getVectorHackingSkill().elements();
-            int skill_pos = 205;
+            int skill_pos = 185;
             boolean show_no_skill = true;
             while (playSkills.hasMoreElements()) {
                 HackSkill hs = (HackSkill) playSkills.nextElement();
@@ -831,11 +830,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             this.setCommandListener(this);
 
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
 
-        graphics.drawString("Hack Attack Results: ", 10, 250, BOTTOM | LEFT);
-        graphics.drawString(strStatus + String.valueOf(current_threat_level), 0, 288, 0);
+        graphics.drawString("Hack Attack Results: ", 10, 230, BOTTOM | LEFT);
+        graphics.drawString(strStatus + String.valueOf(current_threat_level), getWidth()/2, 268, TOP|HCENTER);
 
     }
 
@@ -867,10 +866,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         BluehatUtil.drawMultilineString(graphics, fontSplash, strContract, 5,
                 getHeight() / 8, 0, 225);
 
+        graphics.drawLine(0, 185, getWidth(), 185);
         int intNewLine = 190;
         graphics.drawString("Hacker Skills - " + pc.getName(), 10, intNewLine, 0);
-        intNewLine += 20;
-        graphics.drawString(pc.getBackground(), 10, intNewLine, 0);
+        intNewLine += 5;
+        //graphics.drawString(pc.getBackground(), 10, intNewLine, 0);
         
         for (int i = 0; i < pc.getVectorHackingSkill().size(); i++) {
             intNewLine = intNewLine + 15;
@@ -1347,8 +1347,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 //Determine failure
                 if (intHackerAttackValue >= objNPC.getSecurity_defense_level()) {
                     //Sucessful hack and back to the network maze.
-                    graphics.drawString(String.valueOf(intHackerSkill) + " Skill + " + String.valueOf(intHackAttackRoll) + " Roll + " + String.valueOf(intLuckValue) + " Luck = " + String.valueOf(intHackerAttackValue), getWidth() / 2, 250, TOP | HCENTER);
-                    graphics.drawString("CRACKED!!!!", getWidth() / 2, 270, TOP | HCENTER);
+                    graphics.drawString(String.valueOf(intHackerSkill) + " Skill + " + String.valueOf(intHackAttackRoll) + " Roll + " + String.valueOf(intLuckValue) + " Luck = " + String.valueOf(intHackerAttackValue), getWidth() / 2, 230, TOP | HCENTER);
+                    graphics.drawString("CRACKED!!!!", getWidth() / 2, 250, TOP | HCENTER);
 
                     display.removeCommand(cmdHack);
 

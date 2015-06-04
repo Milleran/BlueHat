@@ -853,7 +853,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         //Setup the screen with the correct font type.
         graphics = getGraphics();
         Font fontSplash = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD,
-                Font.SIZE_LARGE);
+                Font.SIZE_MEDIUM);
         graphics.setFont(fontSplash);
 
         graphics.drawString("Contract", 0, 0, 0);
@@ -867,11 +867,11 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         BluehatUtil.drawMultilineString(graphics, fontSplash, strContract, 5,
                 getHeight() / 8, 0, 225);
 
-        int intNewLine = 150;
+        int intNewLine = 190;
         graphics.drawString("Hacker Skills - " + pc.getName(), 10, intNewLine, 0);
         intNewLine += 20;
         graphics.drawString(pc.getBackground(), 10, intNewLine, 0);
-        System.out.println("Number of Skills: " + pc.getVectorHackingSkill().size());
+        
         for (int i = 0; i < pc.getVectorHackingSkill().size(); i++) {
             intNewLine = intNewLine + 15;
             graphics.drawString(pc.getVectorHackingSkill().elementAt(i).toString(), 20, intNewLine, 0);

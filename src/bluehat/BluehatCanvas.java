@@ -222,7 +222,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             //Display the game status.
             graphics.setColor(0);
             graphics.setFont(gameFont);
-            graphics.drawString(strStatus + String.valueOf(current_threat_level), getWidth()/2, 288, TOP | HCENTER);
+            graphics.drawString(strStatus + String.valueOf(current_threat_level), getWidth() / 2, 288, TOP | HCENTER);
             //repaint the background
             blueHatBackground.paint(graphics);
 
@@ -427,7 +427,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         }
     }
 
-  private void createNDIAgents() {
+    private void createNDIAgents() {
         /*
          Name:createNDIAgents
          Description: creates the ndi agent game sprites that will be used in the game.
@@ -834,7 +834,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         }
 
         graphics.drawString("Hack Attack Results: ", 10, 230, BOTTOM | LEFT);
-        graphics.drawString(strStatus + String.valueOf(current_threat_level), getWidth()/2, 280, TOP|HCENTER);
+        graphics.drawString(strStatus + String.valueOf(current_threat_level), getWidth() / 2, 280, TOP | HCENTER);
 
     }
 
@@ -871,7 +871,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         graphics.drawString("Hacker Skills - " + pc.getName(), 10, intNewLine, 0);
         intNewLine += 5;
         //graphics.drawString(pc.getBackground(), 10, intNewLine, 0);
-        
+
         for (int i = 0; i < pc.getVectorHackingSkill().size(); i++) {
             intNewLine = intNewLine + 15;
             graphics.drawString(pc.getVectorHackingSkill().elementAt(i).toString(), 20, intNewLine, 0);
@@ -1083,20 +1083,20 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         }
         if (cmd == cmdReHack) {
             //remove any existing string text in the results area
-            try{
-            graphics.setColor(0xFFFFFF);
-            graphics.fillRect(0, 230, getWidth(), 250);
+            try {
+                graphics.setColor(0xFFFFFF);
+                graphics.fillRect(0, 230, getWidth(), 250);
 
-            conductHackAttack(display);
+                conductHackAttack(display);
 
-            display.removeCommand(cmdReHack);
-            
-            this.repaint();
-            }catch(Exception ex){
+                display.removeCommand(cmdReHack);
+
+                this.repaint();
+            } catch (Exception ex) {
                 System.out.println("ReHack");
                 ex.printStackTrace();
             }
-            
+
         }
         if (cmd == cmdHack) {
 
@@ -1190,9 +1190,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         // Set all the cells in the tiled layer
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
-                System.out.println("Col, Row:" + col +","+row);
                 NetworkWall_NotAnimated.setCell(col, row, tiles[row][col]);
-                
             }
         }
 
@@ -1295,7 +1293,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         graphics = getGraphics();
 
 //        boolean attackResult = false;
-
         if (pc != null && objNPC != null) {
             try {
 
@@ -1321,7 +1318,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                         intLuckValue = hs.getSkillLevel();
                         switch (intLuckValue) {
                             case 1:
-                                if (intLuckChanceRoll < 10) {
+                                if (intLuckChanceRoll <= 10) {
                                     intLuckValue = 1;
                                 }
                                 break;
@@ -1374,11 +1371,10 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
                     display.removeCommand(cmdHack);
                     display.removeCommand(cmdReHack);
-                    
+
                     if (current_threat_level <= GAME_OVER_THREAT_LEVEL) {
-                        cmdReHack = new Command("Rehack?", Command.OK, 1);
+                        cmdReHack = new Command("Rehack", Command.OK, 1);
                         display.addCommand(cmdReHack);
-//                        attackResult = false;
                     } else {
                         //Game Over
                         showFailureScreen();
@@ -1386,7 +1382,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                     }
 
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -1424,20 +1419,18 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
          Calls: getNetworkWall_NotAnimated
          */
         //Create the background with a tiledlayer
-        try{
-        Image background = Image.createImage("/networkWall.png");
+        try {
+            Image background = Image.createImage("/networkWall.png");
 
-        //int cols = getWidth() / TILE_HEIGHT_WIDTH ;
-        //int rows = getHeight() / TILE_HEIGHT_WIDTH ;
-        int cols = 15 ;
-        int rows = 18 ;
-        
-        System.out.println("Col, Row:" + cols +","+rows);
-        
-        blueHatBackground = getNetworkWall_NotAnimated(rows, cols, background);
+            //int cols = getWidth() / TILE_HEIGHT_WIDTH ;
+            //int rows = getHeight() / TILE_HEIGHT_WIDTH ;
+            int cols = 15;
+            int rows = 18;
 
-        blueHatBackground.setVisible(true);
-        }catch(Exception ex){
+            blueHatBackground = getNetworkWall_NotAnimated(rows, cols, background);
+
+            blueHatBackground.setVisible(true);
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }

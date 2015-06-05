@@ -27,7 +27,7 @@ import javax.microedition.rms.RecordStore;
 public class BluehatStart extends MIDlet implements CommandListener {
 
     private BluehatCanvas bluehatCanvas;
-    
+
     private Display display;
     Form form;
     Form frmPC;
@@ -46,6 +46,8 @@ public class BluehatStart extends MIDlet implements CommandListener {
     Command cmdChooseCharacter;
     Command cmdExitChooseCharacter;
     Command cmdCreateCharacter;
+    Command cmdAddLevel;
+    Command cmdSubLevel;
     int characterChoiceGroupIndex;
 
     //Create Character Form
@@ -360,8 +362,17 @@ public class BluehatStart extends MIDlet implements CommandListener {
             pc.setVectorHackingSkill(vecHS);
 
             rmsCharacter.writePlayerCharacterData(pc);
-
+            formCreateCharacter = null;
+            
             reset();
+
+        }
+
+        if (cmd == cmdAddLevel) {
+
+        }
+
+        if (cmd == cmdSubLevel) {
 
         }
     }
@@ -383,7 +394,7 @@ public class BluehatStart extends MIDlet implements CommandListener {
         Vector vecPlayerAvatar = rmsCharacter.readAllPlayerCharacterData();
 
         //Add the values to the characterChoiceGroup.
-        int intCountElements =0;
+        int intCountElements = 0;
         Enumeration enumPC = vecPlayerAvatar.elements();
         while (enumPC.hasMoreElements()) {
             PlayerAvatar pa = (PlayerAvatar) enumPC.nextElement();
@@ -391,18 +402,17 @@ public class BluehatStart extends MIDlet implements CommandListener {
             intCountElements++;
         }
         boolean[] showElements = new boolean[intCountElements];
-        for(int i=0;i<intCountElements;i++){
-            showElements[i]=false;
+        for (int i = 0; i < intCountElements; i++) {
+            showElements[i] = false;
         }
-        
+
         characterChoiceGroup.setSelectedFlags(showElements);
-        
-        
+
         cmdExitChooseCharacter = new Command("Exit Game", Command.EXIT, 2);
         cmdCreateCharacter = new Command("Create New Character", Command.SCREEN, 3);
 
         characterChoiceGroupIndex = formCharacterList.append(characterChoiceGroup);
-                        
+
         //formCharacterList.addCommand(cmdChooseCharacter);
         formCharacterList.addCommand(cmdExitChooseCharacter);
         formCharacterList.addCommand(cmdCreateCharacter);
@@ -449,22 +459,22 @@ public class BluehatStart extends MIDlet implements CommandListener {
         formCreateCharacter.setItemStateListener(new ItemStateListener() {
 
             public void itemStateChanged(Item item) {
-                if (item == cgHackingSkills) {
-                    //need to read the skill and add one to the level and remove one from the txtSkillPoints
-                    if (Integer.parseInt(txtSkillPoints.getString()) > 0) {
-                        int skillpoints = Integer.parseInt(txtSkillPoints.getString()) - 1;
-                        txtSkillPoints.setString(String.valueOf(skillpoints));
-
-                        ChoiceGroup cg = (ChoiceGroup) item;
-
-                        String strNewLevel = cg.getString(cg.getSelectedIndex()).substring(cg.getString(cg.getSelectedIndex()).trim().length() - 1);
-
-                        int intNewLabel = Integer.parseInt(strNewLevel) + 1;
-                        String strNewLabel;
-                        strNewLabel = cg.getString(cg.getSelectedIndex()).trim().substring(0, cg.getString(cg.getSelectedIndex()).length() - 1) + intNewLabel;
-                        cg.set(cg.getSelectedIndex(), strNewLabel, null);
-                    }
-                }
+//                if (item == cgHackingSkills) {
+//                    //need to read the skill and add one to the level and remove one from the txtSkillPoints
+//                    if (Integer.parseInt(txtSkillPoints.getString()) > 0) {
+//                        int skillpoints = Integer.parseInt(txtSkillPoints.getString()) - 1;
+//                        txtSkillPoints.setString(String.valueOf(skillpoints));
+//
+//                        ChoiceGroup cg = (ChoiceGroup) item;
+//
+//                        String strNewLevel = cg.getString(cg.getSelectedIndex()).substring(cg.getString(cg.getSelectedIndex()).trim().length() - 1);
+//
+//                        int intNewLabel = Integer.parseInt(strNewLevel) + 1;
+//                        String strNewLabel;
+//                        strNewLabel = cg.getString(cg.getSelectedIndex()).trim().substring(0, cg.getString(cg.getSelectedIndex()).length() - 1) + intNewLabel;
+//                        cg.set(cg.getSelectedIndex(), strNewLabel, null);
+//                    }
+//                }
             }
 
         });
@@ -474,8 +484,53 @@ public class BluehatStart extends MIDlet implements CommandListener {
         formCreateCharacter.append(txtSkillPoints);
         formCreateCharacter.append(cgHackingSkills);
 
-        cmdSaveCharacter = new Command("Save", Command.OK, 1);
-        cmdExitCreateCharacter = new Command("Exit", Command.BACK, 2);
+        cmdSaveCharacter = new Command("Save", Command.SCREEN, 1);
+        cmdExitCreateCharacter = new Command("Exit", Command.EXIT, 1);
+
+        cmdAddLevel = new Command("Add Level", Command.ITEM, 3);
+        cmdSubLevel = new Command("Sub Level", Command.ITEM, 3);
+
+        StringItem siPlus = new StringItem("", "  +  ", Item.BUTTON);
+        StringItem siMinus = new StringItem("", "  -  ", Item.BUTTON);
+
+        siPlus.setDefaultCommand(cmdAddLevel);
+        siMinus.setDefaultCommand(cmdSubLevel);
+        siPlus.setItemCommandListener(new ItemCommandListener() {
+
+            public void commandAction(Command c, Item item) {
+                if (Integer.parseInt(txtSkillPoints.getString()) > 0) {
+                    int skillpoints = Integer.parseInt(txtSkillPoints.getString()) - 1;
+                    txtSkillPoints.setString(String.valueOf(skillpoints));
+
+                    String strNewLevel = cgHackingSkills.getString(cgHackingSkills.getSelectedIndex()).substring(cgHackingSkills.getString(cgHackingSkills.getSelectedIndex()).trim().length() - 1);
+
+                    int intNewLabel = Integer.parseInt(strNewLevel) + 1;
+                    String strNewLabel;
+                    strNewLabel = cgHackingSkills.getString(cgHackingSkills.getSelectedIndex()).trim().substring(0, cgHackingSkills.getString(cgHackingSkills.getSelectedIndex()).length() - 1) + intNewLabel;
+                    cgHackingSkills.set(cgHackingSkills.getSelectedIndex(), strNewLabel, null);
+                }
+            }
+        });
+
+        siMinus.setItemCommandListener(new ItemCommandListener() {
+
+            public void commandAction(Command c, Item item) {
+                if (Integer.parseInt(txtSkillPoints.getString()) < 3) {
+                    int skillpoints = Integer.parseInt(txtSkillPoints.getString()) + 1;
+                    txtSkillPoints.setString(String.valueOf(skillpoints));
+
+                    String strNewLevel = cgHackingSkills.getString(cgHackingSkills.getSelectedIndex()).substring(cgHackingSkills.getString(cgHackingSkills.getSelectedIndex()).trim().length() - 1);
+
+                    int intNewLabel = Integer.parseInt(strNewLevel) - 1;
+                    String strNewLabel;
+                    strNewLabel = cgHackingSkills.getString(cgHackingSkills.getSelectedIndex()).trim().substring(0, cgHackingSkills.getString(cgHackingSkills.getSelectedIndex()).length() - 1) + intNewLabel;
+                    cgHackingSkills.set(cgHackingSkills.getSelectedIndex(), strNewLabel, null);
+                }
+            }
+        });
+
+        formCreateCharacter.append(siPlus);
+        formCreateCharacter.append(siMinus);
 
         formCreateCharacter.addCommand(cmdSaveCharacter);
         formCreateCharacter.addCommand(cmdExitCreateCharacter);

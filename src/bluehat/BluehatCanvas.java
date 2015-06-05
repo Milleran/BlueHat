@@ -147,14 +147,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         gamemazeScreen();
         playerSprite.defineReferencePixel(player_x_pos, player_y_pos);
 
-        createNDIAgents();
-
-        for (int i = 0; i < ndiSprites.length; i++) {
-
-            randomAgentPlacement(ndiSprites[i]);
-
-        }
-
         if (intMapLevel < 6) { //insert a firewall
 
             boolean flag = true;
@@ -171,6 +163,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 }
             }
         }
+        createNDIAgents();
+
+        for (int i = 0; i < ndiSprites.length; i++) {
+
+            randomAgentPlacement(ndiSprites[i]);
+
+        }
+
         animationFrameRate = 0;
         playBackgroundMusic("toner_2.mp3", "audio/mpeg");
 
@@ -503,7 +503,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                     break;
             }
         } catch (IOException ioe) {
-
+            ioe.printStackTrace();
         }
     }
 
@@ -525,9 +525,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             playBackgroundMusic("Grey Sector v0_85.mp3", "audio/mpeg");
             //run_game = false;
             level_complete = true;
-
-            //reset the player objective.
-            player_has_objective = false;
         }
 //            } else {
 //                Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_LARGE);
@@ -633,7 +630,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 ndiSprites[i].paint(graphics);
             }
         } catch (Exception ex) {
-
+            ex.printStackTrace();
         }
 
     }
@@ -900,10 +897,10 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
         //Setup the screen with the correct font type.
         graphics = getGraphics();
-        Font fontSplash = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_LARGE);
+        Font fontSplash = Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_MEDIUM);
         graphics.setFont(fontSplash);
 
-        graphics.drawString("Success!!!!", 0, 0, 0);
+        graphics.drawString("Success!!!!", getWidth() / 2, 0, TOP | HCENTER);
 
         String strSuccess = "Your hack was able to retrieve the specifications document! "
                 + "Our IT security group will have to go through the data and "
@@ -913,17 +910,14 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 getHeight() / 8, 0, 225);
 
         //Add a exit game command
-        if (cmdEndHack == null) {
-            cmdEndHack = new Command("Exit", Command.OK, 1);
-            this.addCommand(cmdEndHack);
-            this.setCommandListener(this);
-        }
+        cmdEndHack = new Command("Exit", Command.OK, 1);
+        this.addCommand(cmdEndHack);
+        this.setCommandListener(this);
 
-        if (cmdPlayAgain == null) {
-            cmdPlayAgain = new Command("Play Again", Command.OK, 1);
-            this.addCommand(cmdPlayAgain);
-            this.setCommandListener(this);
-        }
+        cmdPlayAgain = new Command("Play Again", Command.OK, 1);
+        this.addCommand(cmdPlayAgain);
+        this.setCommandListener(this);
+
     }
 
     private void showFailureScreen() {
@@ -946,7 +940,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 Font.SIZE_LARGE);
         graphics.setFont(fontSplash);
 
-        graphics.drawString("Failure!!!!", 0, 0, 0);
+        graphics.drawString("Failure!!!!", 0, getWidth() / 2, TOP | HCENTER);
 
         String strSuccess = "Your hack has failed to retrieve the document.";
 
@@ -958,7 +952,19 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             cmdEndHack = new Command("Exit", Command.OK, 1);
             this.addCommand(cmdEndHack);
             this.setCommandListener(this);
+        } else {
+            this.addCommand(cmdEndHack);
+            this.setCommandListener(this);
         }
+        if (cmdPlayAgain == null) {
+            cmdPlayAgain = new Command("Play Again", Command.OK, 1);
+            this.addCommand(cmdPlayAgain);
+            this.setCommandListener(this);
+        } else {
+            this.addCommand(cmdPlayAgain);
+            this.setCommandListener(this);
+        }
+
     }
 
     private void gamemazeScreen() {

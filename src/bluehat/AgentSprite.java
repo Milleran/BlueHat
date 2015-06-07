@@ -79,11 +79,11 @@ public class AgentSprite extends Sprite {
         this.ndi_level = ndi_level;
     }
 
-    public int getChange_direction() {
+    public int getChangePath() {
         return change_direction;
     }
 
-    public void setChange_direction(int change_direction) {
+    public void setChangePath(int change_direction) {
         this.change_direction = change_direction;
     }
 

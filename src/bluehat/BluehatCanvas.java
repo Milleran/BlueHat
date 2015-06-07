@@ -61,6 +61,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD,
             Font.SIZE_MEDIUM);
     private String strStatus;
+    private String strMapNumber;
 
     private int player_x_pos = 16;
     private int player_y_pos = 16;
@@ -112,7 +113,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         displaystart = start;
         startgameMIDlet = startMIDlet;
         pc = objPlayerAvatar;
-        strStatus = "Current System Threat Level: ";
+        strStatus = "C.S.T.L: ";
+        strMapNumber = "Map: ";
 
         //Create the contract screen/game objection screen.
         showContractScreen();
@@ -137,43 +139,22 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         player_has_objective = false;
         run_game = true;
         level_complete = false;
-        serverSprite.setVisible(true);
+
         player_x_pos = 16;
         player_y_pos = 16;
         player_x_pos_last = 16;
         player_y_pos_last = 16;
 
-        strStatus = "Current System Threat Level: ";
-        gamemazeScreen();
+        strStatus = "C.S.T.L: ";
+        strMapNumber = "Map: ";
+
         playerSprite.defineReferencePixel(player_x_pos, player_y_pos);
-
-        if (intMapLevel < 6) { //insert a firewall
-
-            boolean flag = true;
-            while (flag) {
-                int random_x = rdmNumber.nextInt(14);
-                int random_y = rdmNumber.nextInt(15 - 9) + 9;
-
-                //Place the ndi sprite on a Floor tile and 6 or more rows below the player.
-                if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE) {
-
-                    firewallSprite.setPosition(random_x * TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH);
-                    firewallSprite.setVisible(true);
-                    flag = false;
-                }
-            }
-        }
-        createNDIAgents();
-
-        for (int i = 0; i < ndiSprites.length; i++) {
-
-            randomAgentPlacement(ndiSprites[i]);
-
-        }
 
         animationFrameRate = 0;
         playBackgroundMusic("toner_2.mp3", "audio/mpeg");
 
+        //create the game board
+        gamemazeScreen();
     }
 
     public void run() {
@@ -191,7 +172,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
          */
 
         //Run through the endless loop taking in the users input from the phone.
-        boolean flag = true;
         while (run_game) {
             //System.out.println("The game thread is still running!!!$$%%##");
             int keyState = this.getKeyStates();
@@ -222,7 +202,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             //Display the game status.
             graphics.setColor(0);
             graphics.setFont(gameFont);
-            graphics.drawString(strStatus + String.valueOf(current_threat_level), getWidth() / 2, 288, TOP | HCENTER);
+            graphics.drawString(strStatus + String.valueOf(current_threat_level) + "     " + strMapNumber + String.valueOf(intMapLevel), getWidth() / 2, 288, TOP | HCENTER);
             //repaint the background
             blueHatBackground.paint(graphics);
 
@@ -231,14 +211,15 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
             //set the player at the new location on the screen
             movePlayer();
+
+            //
             if (intMapLevel == 6) {
                 //paint the server at a reduced FrameRate
                 paintServer(animationFrameRate);
+            } else {
+                //paint the firewall at the reduced framerate
+                paintFireWall(animationFrameRate);
             }
-
-            //paint the firewall at the reduced framerate
-            paintFireWall(animationFrameRate);
-
             //Moves the agent and reduces the framerate of the animation
             moveAgent(animationFrameRate);
 
@@ -273,11 +254,10 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
                 }
                 player_has_objective = true;
-
-                //strStatus = "You have it! Get to the exit.";
             }
 
             //If the player character touches the agent then the game is over
+            //This code determines the difficulty of the agent.
             if (detectAgentCollision()) {
 
                 switch (intMapLevel) {
@@ -359,16 +339,15 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 //the next level.
                 if (firewall_hacked) {
                     intMapLevel++;
-
                     initializeGame();
+                } else {
+                    resumeGame();
                 }
-                resumeGame();
-
                 flushGraphics();
 
             }
 
-            //check if the player has retrived the document and can exit the maze.
+            //check if the player has retrived the document and can exit the network.
             determineSuccess();
 
             //determine if the system threat level has reached the threshold.
@@ -526,17 +505,6 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             //run_game = false;
             level_complete = true;
         }
-//            } else {
-//                Font gameFont = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_LARGE);
-//
-//                graphics.setColor(0);
-//                graphics.setFont(gameFont);
-//                graphics.drawString("You must retrieve the secret document!", 0, 288, 0);
-//
-//                player_x_pos = player_x_pos_last;
-//                player_y_pos = player_y_pos_last;
-//                playerSprite.paint(graphics);
-//            }
 
     }
 
@@ -568,41 +536,36 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                     //setup the initial direction for the agents to start walking.
                     //ndiSprites[i].setDirection(getDirection((PathTile)vecPathTile.firstElement(), (PathTile) vecPathTile.elementAt(1)));
                     //Iterate through the PathTile vector to find the PathTile the ndiAgent is located
-                    for (int j = 0; j < vecPathTile.size(); j++) {
+                    for (int j = 0; j < vecPathTile.size() - 1; j++) {
                         PathTile pt = (PathTile) vecPathTile.elementAt(j);
+
                         int intSprite_x = (int) Math.floor(ndiSprites[i].getX() / TILE_HEIGHT_WIDTH);
                         int intSprite_y = (int) Math.floor(ndiSprites[i].getY() / TILE_HEIGHT_WIDTH);
 
                         int intSprite_x_bottom_right = (ndiSprites[i].getX() + (TILE_HEIGHT_WIDTH - 1)) / TILE_HEIGHT_WIDTH;
                         int intSprite_y_bottom_right = (ndiSprites[i].getY() + (TILE_HEIGHT_WIDTH - 1)) / TILE_HEIGHT_WIDTH;
 
-                        /*check if the sprite is in the PathTile an needs to move within the pathtile                                
-                         System.out.println("j: " + j);
-                         System.out.println("Size: " + vecPathTile.size());
-                         System.out.println("H Value: " + pt.getIntHValue());
-                         
-                         System.out.println("intSprite_x: " + intSprite_x);
-                         System.out.println("intSprite_y: " + intSprite_y);
-                         System.out.println("intSprite_x_bottom_right: " + intSprite_x_bottom_right);
-                         System.out.println("intSprite_y_bottom_right: " + intSprite_y_bottom_right);
-                         System.out.println("PT_getPosition_x: " + pt.getPosition_x());
-                         System.out.println("PT_getPosition_y: " + pt.getPosition_y());
-                         */
+                        //need to check the current x or y, need to reach max tilewidth before moving to the next pathtile
                         if (intSprite_x == pt.getPosition_x() && intSprite_y == pt.getPosition_y() && intSprite_x_bottom_right == pt.getPosition_x() && intSprite_y_bottom_right == pt.getPosition_y()) {
-                            if (!(pt.getIntHValue() == 0)) {
-                                //need to check the current x or y, need to reach max tilewidth before moving to the next pathtile
-                                agentMove = getDirection(pt, (PathTile) vecPathTile.elementAt(j + 1));
-                                ndiSprites[i].setDirection(agentMove);
-                            } else {
+                            //add a tick here moved one PathTile
+                            ndiSprites[i].setChangePath(ndiSprites[i].getChangePath() + 1);
+
+                            if (ndiSprites[i].getChangePath() >= vecPathTile.size() - 1 || vecPathTile.size() <= 1) {
                                 //reset the direction vector of the agent
                                 ndiSprites[i].setVecAgentPath(null);
                                 ndiSprites[i].setDirection(new AgentMovement(0, 0));
+                                ndiSprites[i].setChangePath(0);
+                            } else {
+
+                                agentMove = getDirection(pt, (PathTile) vecPathTile.elementAt(j + 1));
+                                ndiSprites[i].setDirection(agentMove);
+
                             }
                         }
 
                     }
-                    //System.out.println("Moving Sprite");
-                    //System.out.println("Direction" +ndiSprites[i].getDirection().getX_pos()+","+ ndiSprites[i].getDirection().getY_pos());
+
+                    //move the Sprite
                     ndiSprites[i].setPosition(ndiSprites[i].getX() + ndiSprites[i].getDirection().getX_pos(), ndiSprites[i].getY() + ndiSprites[i].getDirection().getY_pos());
 
                 } catch (ArrayIndexOutOfBoundsException aioobe) {
@@ -783,9 +746,9 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         //Get the NPC object to hack.
         RMS_NPC objRMSNPC = new RMS_NPC();
         objNPC = objRMSNPC.readNPCData(strNPC);
-        //need to save all the screen data and the objects positions
-        resumeGame();
 
+        //need to save all the screen data and the objects positions
+        //resumeGame();
         clearScreen(graphics);
         graphics = getGraphics();
 
@@ -831,7 +794,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         }
 
         graphics.drawString("Hack Attack Results: ", 10, 230, BOTTOM | LEFT);
-        graphics.drawString(strStatus + String.valueOf(current_threat_level), getWidth() / 2, 280, TOP | HCENTER);
+        graphics.drawString(strStatus + String.valueOf(current_threat_level) + "     " + strMapNumber + String.valueOf(intMapLevel), getWidth() / 2, 280, TOP | HCENTER);
 
     }
 
@@ -940,7 +903,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 Font.SIZE_LARGE);
         graphics.setFont(fontSplash);
 
-        graphics.drawString("Failure!!!!", 0, getWidth() / 2, TOP | HCENTER);
+        graphics.drawString("Failure!!!!", getWidth() / 2, 0, TOP | HCENTER);
 
         String strSuccess = "Your hack has failed to retrieve the document.";
 
@@ -981,7 +944,23 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
         //Create the Sprite for the player avatar.
         try {
             drawMap();
-            if (intMapLevel == 6) {
+
+            if (intMapLevel < 6) { //insert a firewall
+
+                boolean flag = true;
+                while (flag) {
+                    int random_x = rdmNumber.nextInt(14);
+                    int random_y = rdmNumber.nextInt(15 - 9) + 9;
+
+                    //Place the ndi sprite on a Floor tile and 6 or more rows below the player.
+                    if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE) {
+
+                        firewallSprite.setPosition(random_y * TILE_HEIGHT_WIDTH, random_x * TILE_HEIGHT_WIDTH);
+                        firewallSprite.setVisible(true);
+                        flag = false;
+                    }
+                }
+            } else {
                 //Draw the Server Sprite in a random floor only area of the Maze
                 boolean flag = true;
 
@@ -991,11 +970,19 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
 
                     //Place the server sprite on a Floor tile and 6 or more rows below the player.
                     if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE && random_y >= 6) {
-                        serverSprite.setPosition(random_x * TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH);
+                        serverSprite.setPosition(random_y * TILE_HEIGHT_WIDTH, random_x * TILE_HEIGHT_WIDTH);
                         flag = false;
                     }
 
                 }
+            }
+
+            createNDIAgents();
+
+            for (int i = 0; i < ndiSprites.length; i++) {
+
+                randomAgentPlacement(ndiSprites[i]);
+
             }
 
         } catch (Exception ioe) {
@@ -1098,6 +1085,8 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                 display.removeCommand(cmdReHack);
 
                 this.repaint();
+                System.out.println("Rehack Command finished");
+
             } catch (Exception ex) {
                 System.out.println("ReHack");
                 ex.printStackTrace();
@@ -1378,12 +1367,21 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
                     display.removeCommand(cmdHack);
                     display.removeCommand(cmdReHack);
 
-                    if (current_threat_level <= GAME_OVER_THREAT_LEVEL) {
+                    System.out.println("current_threat_level: " + current_threat_level);
+                    System.out.println("Game over threat level: " + GAME_OVER_THREAT_LEVEL);
+
+                    if (current_threat_level < GAME_OVER_THREAT_LEVEL) {
                         cmdReHack = new Command("Rehack", Command.OK, 1);
                         display.addCommand(cmdReHack);
+                        this.setCommandListener(this);
+                        this.repaint();
+                        System.out.println("Complete the adding the rehack command");
                     } else {
                         //Game Over
-                        showFailureScreen();
+                        display.addCommand(cmdResume);
+                        this.setCommandListener(this);
+                        this.repaint();
+
                         run_game = false;
                     }
 
@@ -1444,7 +1442,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
     private void randomAgentPlacement(AgentSprite ndiSprite) {
         /*
          Name:randomagentPlacement
-         Description: THis method randomly places the agent in the lower half
+         Description: This method randomly places the agent in the lower half
          of the maze.
          Inputs: AgentSprite
          Output: void
@@ -1460,7 +1458,7 @@ public class BluehatCanvas extends GameCanvas implements Runnable, CommandListen
             //Place the ndi sprite on a Floor tile and 6 or more rows below the player.
             if (blueHatBackground.getCell(random_y, random_x) == FLOOR_TILE) {
 
-                ndiSprite.setPosition(random_x * TILE_HEIGHT_WIDTH, random_y * TILE_HEIGHT_WIDTH);
+                ndiSprite.setPosition(random_y * TILE_HEIGHT_WIDTH, random_x * TILE_HEIGHT_WIDTH);
 
                 flag = false;
             }
